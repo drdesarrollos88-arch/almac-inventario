@@ -4,169 +4,277 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Almac - Control de Obras SERVIU, Viviendas & Materiales</title>
+  
+  <!-- GOOGLE FONTS: LATO (TÍTULOS) & INTER (CUERPO, DATOS Y MENÚS) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lato:wght@600;700;900&display=swap" rel="stylesheet">
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- TAILWIND THEME EXTENSION (TOKENS DE CONSTRUCCIÓN E INGENIERÍA) -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            concrete: '#F4F6F8',
+            anthracite: '#0F172A',
+            steel: {
+              50: '#F0F7FF',
+              100: '#E0EFFF',
+              200: '#BAE0FF',
+              500: '#3182CE',
+              600: '#2B6CB0',
+              700: '#2C5282'
+            },
+            terracotta: {
+              50: '#FFF7F2',
+              100: '#FEE8DC',
+              500: '#DD6B20',
+              600: '#C05621',
+              700: '#9C4215'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            heading: ['Lato', 'sans-serif']
+          },
+          borderRadius: {
+            DEFAULT: '6px',
+            sm: '4px',
+            md: '6px',
+            lg: '8px',
+            xl: '8px',
+            '2xl': '8px',
+            '3xl': '8px'
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- TOKENS GLOBALES Y REGLAS DE TIPOGRAFÍA / CONTRASTE -->
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-    body { font-family: 'Inter', sans-serif; font-size: 0.8125rem; }
-    .badge-lock { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px dashed #f87171; }
-    .transition-all-custom { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-    .drag-over { border: 2px dashed #f59e0b !important; background-color: rgba(245, 158, 11, 0.08) !important; }
-    /* Compact scrollbar */
+    :root {
+      --font-heading: 'Lato', sans-serif;
+      --font-body: 'Inter', sans-serif;
+      
+      --color-bg-canvas: #F4F6F8;
+      --color-text-main: #0F172A;
+      --color-text-muted: #64748B;
+      
+      --color-steel: #3182CE;
+      --color-steel-hover: #2B6CB0;
+      
+      --color-terracotta: #C05621;
+      --color-terracotta-hover: #9C4215;
+      
+      --color-anthracite: #0F172A;
+      
+      --radius-sm: 6px;
+      --radius-md: 8px;
+    }
+
+    html {
+      font-size: 16px;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 1rem; /* 16px exactos */
+      line-height: 1.6; /* Interlineado 1.6 para lectura descansada */
+      background-color: var(--color-bg-canvas);
+      color: var(--color-text-main);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* TÍTULOS Y ENCABEZADOS (LATO 600/700) */
+    h1, h2, h3, h4, h5, h6, .font-heading {
+      font-family: var(--font-heading) !important;
+      font-weight: 700;
+      color: var(--color-text-main);
+      line-height: 1.35;
+      letter-spacing: -0.015em;
+    }
+
+    /* ESTILO VISUAL: BORDES Y ESQUINAS SUTILES (6px a 8px) ESTÉTICA BIM / PLANOS */
+    .card-bim {
+      background-color: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: var(--radius-md);
+      box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04);
+    }
+
+    .badge-lock { 
+      background: rgba(239, 68, 68, 0.08); 
+      color: #DC2626; 
+      border: 1px dashed #F87171; 
+      border-radius: var(--radius-sm);
+    }
+    
+    .drag-over { 
+      border: 2px dashed #3182CE !important; 
+      background-color: rgba(49, 130, 206, 0.08) !important; 
+    }
+
+    /* SCROLLBAR COMPACTA */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f5f9; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    ::-webkit-scrollbar-track { background: #E2E8F0; }
+    ::-webkit-scrollbar-thumb { background: #94A3B8; border-radius: 6px; }
+    ::-webkit-scrollbar-thumb:hover { background: #64748B; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex antialiased">
+<body class="bg-[#F4F6F8] text-[#0F172A] min-h-screen flex antialiased">
 
   <!-- BACKDROP MÓVIL PARA SIDEBAR -->
-  <div id="sidebar-backdrop" onclick="toggleSidebarMobile(false)" class="fixed inset-0 bg-slate-950/60 z-40 hidden md:hidden backdrop-blur-xs"></div>
+  <div id="sidebar-backdrop" onclick="toggleSidebarMobile(false)" class="fixed inset-0 bg-[#0F172A]/70 z-40 hidden md:hidden backdrop-blur-xs"></div>
 
   <!-- ===================================================================== -->
-  <!-- BARRA LATERAL (SIDEBAR RESPONSIVE, COLAPSABLE Y COMPACTA) -->
+  <!-- BARRA LATERAL (SIDEBAR ANTRACITA CON ACENTOS AZUL ACERO Y TERRACOTA) -->
   <!-- ===================================================================== -->
-  <aside id="main-sidebar" class="fixed md:sticky top-0 h-screen w-60 bg-slate-900 text-white flex-shrink-0 flex flex-col justify-between p-3 transition-all duration-300 z-50 border-r border-slate-800 shadow-xl -translate-x-full md:translate-x-0">
+  <aside id="main-sidebar" class="fixed md:sticky top-0 h-screen w-60 bg-[#0F172A] text-white flex-shrink-0 flex flex-col justify-between p-3.5 transition-all duration-200 z-50 border-r border-slate-800 shadow-xl -translate-x-full md:translate-x-0">
     
     <div class="space-y-4">
       <!-- HEADER SIDEBAR & LOGO (CLIC REDIRIGE A DASHBOARD) -->
-      <div class="flex items-center justify-between pb-2.5 border-b border-slate-800">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
         <div onclick="switchModule('dashboard')" class="flex items-center gap-2.5 cursor-pointer group sidebar-text overflow-hidden" title="Ir al Dashboard de Control">
-          <div class="bg-amber-500 group-hover:bg-amber-400 p-2 rounded-xl text-slate-950 font-black shadow-md flex-shrink-0 transition">
+          <div class="bg-[#C05621] group-hover:bg-[#9C4215] p-2 rounded-md text-white font-black shadow-xs flex-shrink-0 transition">
             <i data-lucide="layers" class="w-4 h-4"></i>
           </div>
           <div>
             <div class="flex items-center gap-1.5">
-              <h1 class="text-base font-black tracking-tight text-white group-hover:text-amber-400 transition">Almac</h1>
-              <span class="text-[9px] bg-amber-500/20 text-amber-300 font-mono font-bold px-1.5 py-0.2 rounded border border-amber-500/30">SERVIU</span>
+              <h1 class="text-base font-bold tracking-tight text-white group-hover:text-blue-300 transition">Almac</h1>
+              <span class="text-[10px] bg-slate-800 text-slate-300 font-mono font-medium px-1.5 py-0.5 rounded border border-slate-700">SERVIU</span>
             </div>
-            <p class="text-[9px] text-slate-400 font-medium truncate">Control de Obras & Stock</p>
+            <p class="text-[10px] text-slate-400 font-normal truncate">Obras & Materiales</p>
           </div>
         </div>
         
-        <!-- BOTÓN TOGGLE SIDEBAR (ESCRITORIO & MÓVIL) -->
-        <button onclick="toggleSidebar()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition shadow-2xs" title="Colapsar / Desplegar Barra">
+        <!-- BOTÓN TOGGLE SIDEBAR -->
+        <button onclick="toggleSidebar()" class="p-1.5 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition" title="Colapsar / Desplegar Barra">
           <i id="sidebar-toggle-icon" data-lucide="panel-left-close" class="w-3.5 h-3.5"></i>
         </button>
       </div>
 
-      <!-- MÓDULOS DE NAVEGACIÓN COMPACTOS -->
+      <!-- MÓDULOS DE NAVEGACIÓN (AZUL ACERO EN ELEMENTOS ACTIVOS) -->
       <div class="space-y-1">
-        <span class="text-[9px] font-bold uppercase tracking-wider text-slate-400 px-2.5 sidebar-text">Módulos</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2.5 sidebar-text">Módulos</span>
         
-        <button onclick="switchModule('dashboard')" id="nav-btn-dashboard" class="w-full px-2.5 py-2 text-xs font-bold rounded-lg transition flex items-center gap-2.5 bg-amber-500 text-slate-950 shadow-2xs">
+        <button onclick="switchModule('dashboard')" id="nav-btn-dashboard" class="w-full px-2.5 py-2 text-xs font-medium rounded-md transition flex items-center gap-2.5 bg-[#3182CE] text-white shadow-xs">
           <i data-lucide="layout-dashboard" class="w-4 h-4 flex-shrink-0"></i>
           <span class="sidebar-text truncate">Dashboard Control</span>
         </button>
 
-        <button onclick="switchModule('inventario')" id="nav-btn-inventario" class="w-full px-2.5 py-2 text-xs font-bold rounded-lg transition flex items-center gap-2.5 text-slate-300 hover:bg-slate-800 hover:text-white">
+        <button onclick="switchModule('inventario')" id="nav-btn-inventario" class="w-full px-2.5 py-2 text-xs font-medium rounded-md transition flex items-center gap-2.5 text-slate-300 hover:bg-slate-800 hover:text-white">
           <i data-lucide="boxes" class="w-4 h-4 flex-shrink-0"></i>
           <span class="sidebar-text truncate">Inventario & Viviendas</span>
         </button>
 
-        <button onclick="switchModule('plantillas')" id="nav-btn-plantillas" class="w-full px-2.5 py-2 text-xs font-bold rounded-lg transition flex items-center gap-2.5 text-slate-300 hover:bg-slate-800 hover:text-white">
+        <button onclick="switchModule('plantillas')" id="nav-btn-plantillas" class="w-full px-2.5 py-2 text-xs font-medium rounded-md transition flex items-center gap-2.5 text-slate-300 hover:bg-slate-800 hover:text-white">
           <i data-lucide="file-spreadsheet" class="w-4 h-4 flex-shrink-0"></i>
           <span class="sidebar-text truncate">Plantillas Constructivas</span>
         </button>
 
-        <button onclick="switchModule('pedidos')" id="nav-btn-pedidos" class="w-full px-2.5 py-2 text-xs font-bold rounded-lg transition flex items-center justify-between text-slate-300 hover:bg-slate-800 hover:text-white">
+        <button onclick="switchModule('pedidos')" id="nav-btn-pedidos" class="w-full px-2.5 py-2 text-xs font-medium rounded-md transition flex items-center justify-between text-slate-300 hover:bg-slate-800 hover:text-white">
           <div class="flex items-center gap-2.5">
             <i data-lucide="clipboard-list" class="w-4 h-4 flex-shrink-0"></i>
             <span class="sidebar-text truncate">Pedidos de Terreno</span>
           </div>
-          <span id="nav-pending-badge" class="hidden sidebar-text text-[9px] bg-rose-500 text-white font-bold px-1.5 py-0.5 rounded-full">0</span>
+          <span id="nav-pending-badge" class="hidden sidebar-text text-[9px] bg-[#C05621] text-white font-bold px-1.5 py-0.5 rounded-full">0</span>
         </button>
 
-        <button onclick="switchModule('proveedores')" id="nav-btn-proveedores" class="w-full px-2.5 py-2 text-xs font-bold rounded-lg transition flex items-center gap-2.5 text-slate-300 hover:bg-slate-800 hover:text-white">
+        <button onclick="switchModule('proveedores')" id="nav-btn-proveedores" class="w-full px-2.5 py-2 text-xs font-medium rounded-md transition flex items-center gap-2.5 text-slate-300 hover:bg-slate-800 hover:text-white">
           <i data-lucide="truck" class="w-4 h-4 flex-shrink-0"></i>
           <span class="sidebar-text truncate">Proveedores</span>
         </button>
 
-        <button onclick="switchModule('materiales')" id="nav-btn-materiales" class="w-full px-2.5 py-2 text-xs font-bold rounded-lg transition flex items-center gap-2.5 text-slate-300 hover:bg-slate-800 hover:text-white">
+        <button onclick="switchModule('materiales')" id="nav-btn-materiales" class="w-full px-2.5 py-2 text-xs font-medium rounded-md transition flex items-center gap-2.5 text-slate-300 hover:bg-slate-800 hover:text-white">
           <i data-lucide="component" class="w-4 h-4 flex-shrink-0"></i>
           <span class="sidebar-text truncate">Materiales & PMP</span>
         </button>
       </div>
 
       <!-- SUPERVISIÓN & GOBERNANZA DE AUTORIZACIONES -->
-      <div class="pt-3 border-t border-slate-800/80 space-y-2 sidebar-text">
+      <div class="pt-3 border-t border-slate-800 space-y-2 sidebar-text">
         <div class="flex items-center justify-between px-2.5">
-          <span class="text-[9px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-            <i data-lucide="shield-check" class="w-3 h-3 text-amber-400"></i> Autorizaciones
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+            <i data-lucide="shield-check" class="w-3 h-3 text-[#3182CE]"></i> Autorizaciones
           </span>
-          <button onclick="openDesignateApproverModal()" class="text-[9px] text-amber-400 hover:underline" title="Configurar responsable">Cambiar</button>
+          <button onclick="openDesignateApproverModal()" class="text-[10px] text-[#3182CE] hover:underline" title="Configurar responsable">Cambiar</button>
         </div>
         
-        <div class="bg-slate-800/80 p-2 rounded-xl border border-slate-700/60 text-[11px] space-y-1">
+        <div class="bg-slate-800/80 p-2.5 rounded-md border border-slate-700 text-xs space-y-1">
           <span class="text-slate-400 text-[10px] block">Responsable Asignado:</span>
-          <div id="sidebar-approver-name" class="font-bold text-white truncate flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          <div id="sidebar-approver-name" class="font-medium text-white truncate flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#3182CE]"></span>
             Carlos Morales (Jefe Op.)
           </div>
         </div>
 
-        <!-- SIMULADOR DE ROLES COMPACTO -->
-        <span class="text-[9px] font-bold uppercase tracking-wider text-slate-400 px-2.5 pt-1 block">Rol Activo:</span>
-        <div class="grid grid-cols-1 gap-1 bg-slate-800/50 p-1 rounded-lg border border-slate-700/40 text-[11px]">
-          <button onclick="setRole('admin')" id="btn-role-admin" class="px-2 py-1 rounded text-left font-semibold transition bg-amber-500 text-slate-950 flex items-center justify-between">
+        <!-- SELECTOR DE ROL ACTIVO -->
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2.5 pt-1 block">Rol Activo:</span>
+        <div class="grid grid-cols-1 gap-1 bg-slate-800/50 p-1 rounded-md border border-slate-700/60 text-xs">
+          <button onclick="setRole('admin')" id="btn-role-admin" class="px-2 py-1 rounded-md text-left font-medium transition bg-[#3182CE] text-white flex items-center justify-between">
             <span>Admin General</span>
-            <span class="w-1.5 h-1.5 rounded-full bg-slate-950"></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
           </button>
-          <button onclick="setRole('operaciones')" id="btn-role-operaciones" class="px-2 py-1 rounded text-left font-semibold transition text-slate-300 hover:text-white flex items-center justify-between">
+          <button onclick="setRole('operaciones')" id="btn-role-operaciones" class="px-2 py-1 rounded-md text-left font-medium transition text-slate-300 hover:text-white flex items-center justify-between">
             <span>Operaciones</span>
           </button>
-          <button onclick="setRole('bodeguero')" id="btn-role-bodeguero" class="px-2 py-1 rounded text-left font-semibold transition text-slate-300 hover:text-white flex items-center justify-between">
+          <button onclick="setRole('bodeguero')" id="btn-role-bodeguero" class="px-2 py-1 rounded-md text-left font-medium transition text-slate-300 hover:text-white flex items-center justify-between">
             <span>Terreno / Bodega</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- FOOTER SIDEBAR COMPACTO -->
-    <div class="pt-2 border-t border-slate-800 text-[10px] text-slate-400 sidebar-text flex items-center justify-between">
+    <!-- FOOTER SIDEBAR -->
+    <div class="pt-2.5 border-t border-slate-800 text-[11px] text-slate-400 sidebar-text flex items-center justify-between">
       <div>
-        <span class="block text-slate-300 font-bold">Almac v2.0 SERVIU</span>
-        <span class="text-[9px] text-slate-500">UF Ref: $38.500 CLP</span>
+        <span class="block text-slate-300 font-bold">Almac v2.1 SERVIU</span>
+        <span class="text-[10px] text-slate-500">UF Ref: $38.500 CLP</span>
       </div>
-      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="Servidor Operativo"></span>
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="Sistema Operativo"></span>
     </div>
   </aside>
 
   <!-- ===================================================================== -->
-  <!-- CONTENIDO PRINCIPAL COMPACTO Y RESPONSIVE -->
+  <!-- CONTENIDO PRINCIPAL (CANVAS GRIS CONCRETO #F4F6F8) -->
   <!-- ===================================================================== -->
-  <main class="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-5 py-4 space-y-4 overflow-x-hidden min-w-0">
+  <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-5 space-y-4 overflow-x-hidden min-w-0">
 
-    <!-- CABECERA SUPERIOR RESPONSIVE CON BOTÓN DE MENÚ -->
-    <div class="flex items-center justify-between gap-3 pb-2 border-b border-slate-200">
+    <!-- CABECERA SUPERIOR LIMPIA CON TIPOGRAFÍA LATO -->
+    <div class="flex items-center justify-between gap-3 pb-3 border-b border-slate-200">
       <div class="flex items-center gap-2.5">
-        <button onclick="toggleSidebarMobile(true)" class="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition shadow-2xs md:hidden">
+        <button onclick="toggleSidebarMobile(true)" class="p-1.5 rounded-md bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition shadow-xs md:hidden">
           <i data-lucide="menu" class="w-4 h-4"></i>
         </button>
         <div>
-          <h2 id="current-module-title" class="text-base sm:text-lg font-black text-slate-900 tracking-tight">Dashboard de Control y Seguimiento</h2>
-          <p id="current-module-subtitle" class="text-[11px] text-slate-500">Métricas consolidadas, semáforos de descalce y autorizaciones</p>
+          <h2 id="current-module-title" class="text-lg sm:text-xl font-bold text-[#0F172A] tracking-tight">Dashboard de Control y Seguimiento</h2>
+          <p id="current-module-subtitle" class="text-xs text-slate-500">Métricas consolidadas, semáforos de descalce y autorizaciones de faena</p>
         </div>
       </div>
 
       <div class="flex items-center gap-2 text-xs">
-        <span id="role-badge" class="bg-emerald-500/15 text-emerald-800 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-mono font-bold flex items-center gap-1.5 text-[11px]">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> admin
+        <span id="role-badge" class="bg-blue-50 text-[#3182CE] border border-blue-200 px-2.5 py-0.5 rounded-md font-mono font-bold flex items-center gap-1.5 text-xs">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#3182CE]"></span> admin
         </span>
       </div>
     </div>
 
     <!-- AVISO DE MODO TERRENO (BODEGUERO) -->
-    <div id="bodeguero-banner" class="hidden bg-amber-50 border-l-4 border-amber-500 p-2.5 rounded-r-xl shadow-2xs">
+    <div id="bodeguero-banner" class="hidden bg-blue-50/70 border-l-4 border-[#3182CE] p-3 rounded-r-md shadow-xs">
       <div class="flex items-start gap-2.5">
-        <i data-lucide="eye-off" class="w-4 h-4 text-amber-600 mt-0.5"></i>
+        <i data-lucide="eye-off" class="w-4 h-4 text-[#3182CE] mt-0.5"></i>
         <div>
-          <h4 class="font-bold text-amber-900 text-xs">Modo Terreno Activo (Costos Restringidos)</h4>
-          <p class="text-[11px] text-amber-700">
-            Solo puedes registrar pedidos y mover materiales entre viviendas. Los costos financieros están ocultos por seguridad.
+          <h4 class="font-bold text-[#0F172A] text-xs">Modo Terreno Activo (Costos Financieros Restringidos)</h4>
+          <p class="text-xs text-slate-600">
+            Solo puedes registrar pedidos y mover materiales entre viviendas. Los valores económicos están ocultos por seguridad.
           </p>
         </div>
       </div>
@@ -177,91 +285,91 @@
     <!-- ===================================================================== -->
     <div id="module-dashboard" class="space-y-4">
 
-      <!-- TARJETAS DE CONSOLIDACIÓN EJECUTIVA COMPACTAS -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <!-- TARJETAS DE CONSOLIDACIÓN EJECUTIVA BIM (COLORES PLANOS Y BORDES 8PX) -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
         
-        <div class="bg-white rounded-xl p-3 border border-slate-200 shadow-2xs">
-          <div class="flex items-center justify-between text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+        <div class="bg-white rounded-lg p-3.5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
             <span>Comités / Obras</span>
-            <div class="bg-blue-50 text-blue-600 p-1.5 rounded-lg">
-              <i data-lucide="building" class="w-3.5 h-3.5"></i>
+            <div class="bg-slate-100 text-[#0F172A] p-1.5 rounded-md">
+              <i data-lucide="building" class="w-4 h-4"></i>
             </div>
           </div>
-          <div class="mt-1.5">
-            <div id="dash-projects-count" class="text-xl font-black text-slate-900">0</div>
-            <p id="dash-housing-count" class="text-[10px] text-slate-500 mt-0.5">0 Viviendas intervenidas</p>
+          <div class="mt-2">
+            <div id="dash-projects-count" class="text-2xl font-bold text-[#0F172A] font-heading">0</div>
+            <p id="dash-housing-count" class="text-xs text-slate-500 mt-0.5">0 Viviendas intervenidas</p>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl p-3 border border-slate-200 shadow-2xs">
-          <div class="flex items-center justify-between text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+        <div class="bg-white rounded-lg p-3.5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
             <span>Costo Total Imputado</span>
-            <div class="bg-emerald-50 text-emerald-600 p-1.5 rounded-lg">
-              <i data-lucide="coins" class="w-3.5 h-3.5"></i>
+            <div class="bg-blue-50 text-[#3182CE] p-1.5 rounded-md">
+              <i data-lucide="coins" class="w-4 h-4"></i>
             </div>
           </div>
-          <div class="mt-1.5">
-            <div id="dash-imputed-clp" class="text-xl font-black text-slate-900">$0 CLP</div>
-            <p id="dash-imputed-uf" class="text-[10px] text-emerald-700 font-semibold mt-0.5">≈ 0.0 UF</p>
+          <div class="mt-2">
+            <div id="dash-imputed-clp" class="text-xl sm:text-2xl font-bold text-[#0F172A] font-heading">$0 CLP</div>
+            <p id="dash-imputed-uf" class="text-xs text-[#3182CE] font-semibold mt-0.5">≈ 0.0 UF</p>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl p-3 border border-slate-200 shadow-2xs">
-          <div class="flex items-center justify-between text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+        <div class="bg-white rounded-lg p-3.5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
             <span>Valor Bodega Matriz</span>
-            <div class="bg-purple-50 text-purple-600 p-1.5 rounded-lg">
-              <i data-lucide="vault" class="w-3.5 h-3.5"></i>
+            <div class="bg-slate-100 text-slate-700 p-1.5 rounded-md">
+              <i data-lucide="vault" class="w-4 h-4"></i>
             </div>
           </div>
-          <div class="mt-1.5">
-            <div id="dash-warehouse-clp" class="text-xl font-black text-slate-900">$0 CLP</div>
-            <p id="dash-warehouse-uf" class="text-[10px] text-purple-700 font-semibold mt-0.5">≈ 0.0 UF disponibles</p>
+          <div class="mt-2">
+            <div id="dash-warehouse-clp" class="text-xl sm:text-2xl font-bold text-[#0F172A] font-heading">$0 CLP</div>
+            <p id="dash-warehouse-uf" class="text-xs text-slate-600 font-semibold mt-0.5">≈ 0.0 UF disponibles</p>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl p-3 border border-slate-200 shadow-2xs">
-          <div class="flex items-center justify-between text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+        <div class="bg-white rounded-lg p-3.5 border border-slate-200 shadow-xs">
+          <div class="flex items-center justify-between text-slate-500 text-[11px] font-bold uppercase tracking-wider">
             <span>Semáforo de Descalce</span>
-            <div class="bg-amber-50 text-amber-600 p-1.5 rounded-lg">
-              <i data-lucide="gauge" class="w-3.5 h-3.5"></i>
+            <div class="bg-amber-50 text-amber-700 p-1.5 rounded-md">
+              <i data-lucide="gauge" class="w-4 h-4"></i>
             </div>
           </div>
-          <div class="mt-1.5 flex items-center gap-2">
-            <span id="dash-descalce-green" class="text-xs font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">0 🟢</span>
-            <span id="dash-descalce-yellow" class="text-xs font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">0 🟡</span>
-            <span id="dash-descalce-red" class="text-xs font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">0 🔴</span>
+          <div class="mt-2 flex items-center gap-2">
+            <span id="dash-descalce-green" class="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">0 🟢</span>
+            <span id="dash-descalce-yellow" class="text-xs font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">0 🟡</span>
+            <span id="dash-descalce-red" class="text-xs font-bold text-rose-800 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-200">0 🔴</span>
           </div>
-          <p class="text-[10px] text-slate-400 mt-1">Conforme | Alerta | Crítico</p>
+          <p class="text-[11px] text-slate-400 mt-1">Conforme | Merma | Crítico</p>
         </div>
 
       </div>
 
       <!-- BANDEJA DE AUTORIZACIONES PENDIENTES (GOBERNANZA) -->
-      <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
-        <div class="p-3 border-b border-slate-100 flex items-center justify-between">
+      <div class="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
+        <div class="p-3.5 border-b border-slate-100 flex items-center justify-between bg-white">
           <div class="flex items-center gap-2">
-            <div class="bg-amber-500/20 text-amber-700 p-1.5 rounded-lg">
+            <div class="bg-blue-50 text-[#3182CE] p-1.5 rounded-md">
               <i data-lucide="shield-alert" class="w-4 h-4"></i>
             </div>
             <div>
-              <h3 class="font-bold text-slate-900 text-xs">Bandeja de Autorizaciones Pendientes</h3>
-              <p class="text-[10px] text-slate-500">Movimientos y solicitudes que requieren aprobación del Administrador o Responsable</p>
+              <h3 class="font-bold text-[#0F172A] text-sm font-heading">Bandeja de Autorizaciones Pendientes</h3>
+              <p class="text-xs text-slate-500">Movimientos y solicitudes que requieren aprobación del Administrador o Responsable</p>
             </div>
           </div>
-          <span id="pending-counter-badge" class="text-[10px] font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full">
+          <span id="pending-counter-badge" class="text-xs font-bold bg-[#FFF7F2] text-[#C05621] border border-[#FEE8DC] px-2.5 py-0.5 rounded-md">
             0 Pendientes
           </span>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
-            <thead class="bg-slate-50 text-slate-600 font-semibold uppercase text-[10px] tracking-wider border-b border-slate-200">
+            <thead class="bg-slate-50 text-slate-600 font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200">
               <tr>
-                <th class="px-3 py-2">Folio / Tipo</th>
-                <th class="px-3 py-2">Fecha / Solicitante</th>
-                <th class="px-3 py-2">Proyecto / Vivienda Destino</th>
-                <th class="px-3 py-2">Detalle de Materiales</th>
-                <th class="px-3 py-2 text-right">Urgencia</th>
-                <th class="px-3 py-2 text-center">Acción</th>
+                <th class="px-3.5 py-2.5">Folio / Tipo</th>
+                <th class="px-3.5 py-2.5">Fecha / Solicitante</th>
+                <th class="px-3.5 py-2.5">Proyecto / Vivienda Destino</th>
+                <th class="px-3.5 py-2.5">Detalle de Materiales</th>
+                <th class="px-3.5 py-2.5 text-right">Urgencia</th>
+                <th class="px-3.5 py-2.5 text-center">Acción</th>
               </tr>
             </thead>
             <tbody id="dashboard-pending-tbody" class="divide-y divide-slate-100"></tbody>
@@ -270,19 +378,19 @@
       </div>
 
       <!-- RESUMEN DE PROYECTOS / COMITÉS SERVIU -->
-      <div class="bg-white rounded-xl border border-slate-200 shadow-2xs p-3.5 space-y-3">
+      <div class="bg-white rounded-lg border border-slate-200 shadow-xs p-4 space-y-3">
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-              <i data-lucide="folder-check" class="w-3.5 h-3.5 text-blue-600"></i> Estado de Obras y Comités en Ejecución
+            <h3 class="font-bold text-[#0F172A] text-sm font-heading flex items-center gap-1.5">
+              <i data-lucide="folder-check" class="w-4 h-4 text-[#3182CE]"></i> Estado de Obras y Comités en Ejecución
             </h3>
-            <p class="text-[10px] text-slate-500">Cubicación presupuestada vs. costos ejecutados por comité</p>
+            <p class="text-xs text-slate-500">Cubicación presupuestada vs. costos ejecutados por comité</p>
           </div>
-          <button onclick="switchModule('inventario')" class="text-xs font-bold text-amber-700 hover:text-amber-800 flex items-center gap-1">
+          <button onclick="switchModule('inventario')" class="text-xs font-semibold text-[#3182CE] hover:text-[#2B6CB0] flex items-center gap-1">
             Ver todas las obras ➔
           </button>
         </div>
-        <div id="dash-projects-summary" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+        <div id="dash-projects-summary" class="grid grid-cols-1 md:grid-cols-2 gap-3.5"></div>
       </div>
 
     </div>
@@ -292,112 +400,115 @@
     <!-- ===================================================================== -->
     <div id="module-inventario" class="hidden space-y-4">
 
-      <!-- BARRA DE ACCIONES RÁPIDAS COMPACTA -->
-      <div class="flex flex-wrap items-center justify-between gap-2.5 bg-white p-2.5 rounded-xl border border-slate-200 shadow-2xs">
+      <!-- BARRA DE ACCIONES RÁPIDAS (TERRACOTA PARA ACCIÓN PRINCIPAL, AZUL ACERO Y ANTRACITA) -->
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3 rounded-lg border border-slate-200 shadow-xs">
         <div class="flex items-center gap-1.5 text-xs text-slate-500">
-          <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-500"></i>
-          <span class="font-bold uppercase tracking-wider text-[10px]">Acciones:</span>
+          <i data-lucide="wrench" class="w-4 h-4 text-[#C05621]"></i>
+          <span class="font-bold uppercase tracking-wider text-[11px] text-[#0F172A]">Acciones de Faena:</span>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <button onclick="openTransferModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-2xs transition">
-            <i data-lucide="arrow-left-right" class="w-3.5 h-3.5"></i> Mover / Transferir
+          <!-- BOTÓN PRINCIPAL: NARANJA TERRACOTA U ÓXIDO -->
+          <button onclick="openTransferModal()" class="bg-[#C05621] hover:bg-[#9C4215] text-white text-xs font-medium px-3.5 py-2 rounded-md flex items-center gap-1.5 shadow-xs transition">
+            <i data-lucide="arrow-left-right" class="w-4 h-4"></i> Mover / Transferir Material
           </button>
-          <button id="btn-open-purchase" onclick="openModal('modal-purchase')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-2xs transition">
-            <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Abastecer Matriz
+          <!-- BOTÓN TÉCNICO: AZUL ACERO INDUSTRIAL -->
+          <button id="btn-open-purchase" onclick="openModal('modal-purchase')" class="bg-[#3182CE] hover:bg-[#2B6CB0] text-white text-xs font-medium px-3.5 py-2 rounded-md flex items-center gap-1.5 shadow-xs transition">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i> Abastecer Matriz
           </button>
-          <button id="btn-open-new-project" onclick="openCreateProjectModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-2xs transition">
-            <i data-lucide="folder-plus" class="w-3.5 h-3.5"></i> Crear Proyecto Comité
+          <!-- BOTÓN ESTRUCTURAL: AZUL MARINO / ANTRACITA -->
+          <button id="btn-open-new-project" onclick="openCreateProjectModal()" class="bg-[#0F172A] hover:bg-slate-800 text-white text-xs font-medium px-3.5 py-2 rounded-md flex items-center gap-1.5 shadow-xs transition">
+            <i data-lucide="folder-plus" class="w-4 h-4"></i> Crear Proyecto Comité
           </button>
         </div>
       </div>
 
-      <!-- 1. BODEGA CENTRAL MATRIZ (COMPACTA) -->
-      <div class="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent border border-amber-500/40 rounded-xl p-3.5 shadow-2xs">
-        <div class="flex flex-wrap items-center justify-between gap-2.5 border-b border-amber-500/20 pb-2.5">
-          <div class="flex items-center gap-2.5">
-            <div class="bg-amber-500 text-slate-950 p-2 rounded-xl font-black shadow-2xs">
-              <i data-lucide="crown" class="w-4 h-4"></i>
+      <!-- 1. BODEGA CENTRAL MATRIZ (ESTILO PLANO ARQUITECTÓNICO / BIM) -->
+      <div class="bg-white border-l-4 border-l-[#3182CE] border border-slate-200 rounded-lg p-4 shadow-xs">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div class="flex items-center gap-3">
+            <div class="bg-slate-100 text-[#0F172A] p-2 rounded-md font-black shadow-xs">
+              <i data-lucide="crown" class="w-5 h-5 text-[#3182CE]"></i>
             </div>
             <div>
               <div class="flex items-center gap-2">
-                <span class="bg-amber-500 text-slate-950 font-black text-[9px] uppercase tracking-wider px-1.5 py-0.2 rounded">
+                <span class="bg-slate-900 text-white font-bold text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-md">
                   Bodega Central Matriz
                 </span>
-                <h3 class="font-extrabold text-slate-900 text-sm">Centro Logístico Principal</h3>
+                <h3 class="font-bold text-[#0F172A] text-base font-heading">Centro Logístico Principal</h3>
               </div>
-              <p class="text-[10px] text-slate-600">Stock libre disponible para despachar a cualquier obra o vivienda</p>
+              <p class="text-xs text-slate-500 mt-0.5">Stock libre consolidado disponible para despacho a cualquier comité o vivienda</p>
             </div>
           </div>
 
           <div class="flex flex-wrap items-center gap-2">
             <div class="text-right mr-2">
-              <span class="text-[10px] text-slate-500 font-semibold">Valor Libre:</span>
-              <div id="matrix-valuation-badge" class="font-mono font-bold text-slate-900 text-xs">$0 CLP</div>
+              <span class="text-[11px] text-slate-500 font-medium">Valor Libre:</span>
+              <div id="matrix-valuation-badge" class="font-mono font-bold text-[#0F172A] text-sm">$0 CLP</div>
             </div>
-            <button onclick="openTransferModal('warehouse', null)" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1 shadow-2xs transition">
+            <button onclick="openTransferModal('warehouse', null)" class="bg-[#C05621] hover:bg-[#9C4215] text-white text-xs font-medium px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow-xs transition">
               <i data-lucide="truck" class="w-3.5 h-3.5"></i> Despachar a Obra
             </button>
-            <button onclick="openModal('modal-purchase')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1 shadow-2xs transition">
+            <button onclick="openModal('modal-purchase')" class="bg-[#3182CE] hover:bg-[#2B6CB0] text-white text-xs font-medium px-3 py-1.5 rounded-md flex items-center gap-1.5 shadow-xs transition">
               <i data-lucide="plus" class="w-3.5 h-3.5"></i> Abastecer
             </button>
           </div>
         </div>
 
-        <div class="mt-2.5">
-          <h4 class="text-[10px] font-bold uppercase text-slate-500 tracking-wider mb-1.5 flex items-center gap-1">
-            <i data-lucide="boxes" class="w-3 h-3 text-amber-600"></i> Stock en Matriz:
+        <div class="mt-3">
+          <h4 class="text-[11px] font-bold uppercase text-slate-500 tracking-wider mb-2 flex items-center gap-1">
+            <i data-lucide="boxes" class="w-3.5 h-3.5 text-[#3182CE]"></i> Stock en Matriz:
           </h4>
-          <div id="matrix-materials-summary" class="flex flex-wrap gap-1.5"></div>
+          <div id="matrix-materials-summary" class="flex flex-wrap gap-2"></div>
         </div>
       </div>
 
       <!-- 2. LISTADO DE OBRAS / COMITÉS (ACORDEÓN CON VIVIENDAS Y SEMÁFORO DE DESCALCE) -->
-      <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
-        <div class="p-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2.5">
+      <div class="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
+        <div class="p-3.5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3 bg-white">
           <div>
-            <h2 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-              <i data-lucide="building-2" class="w-4 h-4 text-amber-500"></i>
+            <h2 class="text-sm font-bold text-[#0F172A] font-heading flex items-center gap-2">
+              <i data-lucide="building-2" class="w-4 h-4 text-[#3182CE]"></i>
               Obras (Comités) & Viviendas Beneficiarias
             </h2>
-            <p class="text-[10px] text-slate-500">
+            <p class="text-xs text-slate-500">
               Despliega un proyecto para ver sus viviendas, cubicar con plantillas y monitorear el semáforo de descalce.
             </p>
           </div>
           <div class="flex items-center gap-2 text-xs">
-            <button onclick="expandAllProjects(true)" class="text-slate-600 hover:text-slate-900 bg-slate-100 px-2 py-1 rounded font-semibold text-[11px] transition">
+            <button onclick="expandAllProjects(true)" class="text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-md font-medium text-xs transition">
               Desplegar Todo
             </button>
-            <button onclick="expandAllProjects(false)" class="text-slate-600 hover:text-slate-900 bg-slate-100 px-2 py-1 rounded font-semibold text-[11px] transition">
+            <button onclick="expandAllProjects(false)" class="text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-md font-medium text-xs transition">
               Ocultar Todo
             </button>
           </div>
         </div>
 
-        <div id="projects-accordion-container" class="p-3 space-y-3"></div>
+        <div id="projects-accordion-container" class="p-3.5 space-y-3.5"></div>
       </div>
 
-      <!-- KARDEX DE MOVIMIENTOS COMPACTO -->
-      <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
-        <div class="p-3 border-b border-slate-100 flex items-center justify-between">
+      <!-- KARDEX DE MOVIMIENTOS -->
+      <div class="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
+        <div class="p-3.5 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <h2 class="text-xs font-bold text-slate-900">Kardex Transaccional de Movimientos</h2>
-            <p class="text-[10px] text-slate-500">Trazabilidad completa entre Bodega Matriz, Obras y Viviendas</p>
+            <h2 class="text-sm font-bold text-[#0F172A] font-heading">Kardex Transaccional de Movimientos</h2>
+            <p class="text-xs text-slate-500">Trazabilidad inmutable entre Bodega Matriz, Obras y Viviendas</p>
           </div>
-          <span class="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-mono font-medium">
+          <span class="text-[11px] bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-0.5 rounded-md font-mono font-medium">
             inmutable: true
           </span>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
-            <thead class="bg-slate-50 text-slate-500 font-semibold uppercase text-[10px] tracking-wider border-b border-slate-200">
+            <thead class="bg-slate-50 text-slate-600 font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200">
               <tr>
-                <th class="px-3 py-2">Folio</th>
-                <th class="px-3 py-2">Fecha</th>
-                <th class="px-3 py-2">Origen</th>
-                <th class="px-3 py-2">Destino</th>
-                <th class="px-3 py-2">Autorizado Por</th>
-                <th class="px-3 py-2">Material</th>
-                <th class="px-3 py-2 text-right col-financial">Costo Asumido</th>
+                <th class="px-3.5 py-2.5">Folio</th>
+                <th class="px-3.5 py-2.5">Fecha</th>
+                <th class="px-3.5 py-2.5">Origen</th>
+                <th class="px-3.5 py-2.5">Destino</th>
+                <th class="px-3.5 py-2.5">Autorizado Por</th>
+                <th class="px-3.5 py-2.5">Material</th>
+                <th class="px-3.5 py-2.5 text-right col-financial">Costo Asumido</th>
               </tr>
             </thead>
             <tbody id="movements-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
@@ -412,21 +523,21 @@
     <!-- ===================================================================== -->
     <div id="module-plantillas" class="hidden space-y-4">
       
-      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
         <div>
-          <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <i data-lucide="file-spreadsheet" class="w-4 h-4 text-amber-500"></i> Catálogo de Plantillas Constructivas SERVIU
+          <h2 class="text-base font-bold text-[#0F172A] font-heading flex items-center gap-2">
+            <i data-lucide="file-spreadsheet" class="w-4 h-4 text-[#3182CE]"></i> Catálogo de Plantillas Constructivas SERVIU
           </h2>
-          <p class="text-[11px] text-slate-500">
+          <p class="text-xs text-slate-500 mt-0.5">
             Define tipos de vivienda predefinidos (Solo Techumbre, EIFS, Ventanas, etc.) con sus partidas y materiales teóricos. Puedes aplicarlas a cualquier vivienda y luego ajustarlas individualmente sin alterar la plantilla maestra.
           </p>
         </div>
-        <button onclick="openCreateTemplateModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-2xs transition">
-          <i data-lucide="plus" class="w-3.5 h-3.5 text-amber-400"></i> + Nueva Plantilla Constructiva
+        <button onclick="openCreateTemplateModal()" class="bg-[#0F172A] hover:bg-slate-800 text-white text-xs font-medium px-3.5 py-2 rounded-md flex items-center gap-1.5 shadow-xs transition">
+          <i data-lucide="plus" class="w-4 h-4 text-white"></i> + Nueva Plantilla Constructiva
         </button>
       </div>
 
-      <div id="templates-grid-container" class="grid grid-cols-1 md:grid-cols-2 gap-3.5"></div>
+      <div id="templates-grid-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
     </div>
 
@@ -435,33 +546,33 @@
     <!-- ===================================================================== -->
     <div id="module-pedidos" class="hidden space-y-4">
       
-      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
         <div>
-          <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <i data-lucide="clipboard-list" class="w-4 h-4 text-emerald-600"></i> Pedidos de Materiales desde Terreno (Requisiciones)
+          <h2 class="text-base font-bold text-[#0F172A] font-heading flex items-center gap-2">
+            <i data-lucide="clipboard-list" class="w-4 h-4 text-[#3182CE]"></i> Pedidos de Materiales desde Terreno (Requisiciones)
           </h2>
-          <p class="text-[11px] text-slate-500">
+          <p class="text-xs text-slate-500 mt-0.5">
             Solicitudes levantadas desde la obra para abastecer viviendas o stock de faena. Pasan por autorización previa de despacho.
           </p>
         </div>
-        <button onclick="openCreateRequisitionModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-2xs transition">
-          <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> + Crear Pedido desde Terreno
+        <button onclick="openCreateRequisitionModal()" class="bg-[#3182CE] hover:bg-[#2B6CB0] text-white text-xs font-medium px-3.5 py-2 rounded-md flex items-center gap-1.5 shadow-xs transition">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> + Crear Pedido desde Terreno
         </button>
       </div>
 
-      <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+      <div class="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
-            <thead class="bg-slate-50 text-slate-500 font-semibold uppercase text-[10px] tracking-wider border-b border-slate-200">
+            <thead class="bg-slate-50 text-slate-600 font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200">
               <tr>
-                <th class="px-3 py-2">Folio / Fecha</th>
-                <th class="px-3 py-2">Obra (Comité)</th>
-                <th class="px-3 py-2">Vivienda Destino</th>
-                <th class="px-3 py-2">Solicitante</th>
-                <th class="px-3 py-2">Material Solicitado</th>
-                <th class="px-3 py-2">Urgencia</th>
-                <th class="px-3 py-2">Estado</th>
-                <th class="px-3 py-2 text-center">Acciones</th>
+                <th class="px-3.5 py-2.5">Folio / Fecha</th>
+                <th class="px-3.5 py-2.5">Obra (Comité)</th>
+                <th class="px-3.5 py-2.5">Vivienda Destino</th>
+                <th class="px-3.5 py-2.5">Solicitante</th>
+                <th class="px-3.5 py-2.5">Material Solicitado</th>
+                <th class="px-3.5 py-2.5 text-right">Urgencia</th>
+                <th class="px-3.5 py-2.5">Estado</th>
+                <th class="px-3.5 py-2.5 text-center">Acciones</th>
               </tr>
             </thead>
             <tbody id="requisitions-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
@@ -475,32 +586,32 @@
     <!-- MÓDULO 4: PROVEEDORES -->
     <!-- ===================================================================== -->
     <div id="module-proveedores" class="hidden space-y-4">
-      <div id="supplier-alerts-container" class="space-y-2"></div>
+      <div id="supplier-alerts-container" class="space-y-2.5"></div>
 
-      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
         <div>
-          <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <i data-lucide="truck" class="w-4 h-4 text-amber-500"></i> Directorio de Proveedores Comerciales
+          <h2 class="text-base font-bold text-[#0F172A] font-heading flex items-center gap-2">
+            <i data-lucide="truck" class="w-4 h-4 text-[#3182CE]"></i> Directorio de Proveedores Comerciales
           </h2>
-          <p class="text-[11px] text-slate-500">Registro con RUT, giro, contactos comerciales y cotizaciones inteligentes</p>
+          <p class="text-xs text-slate-500 mt-0.5">Registro con RUT, giro, contactos comerciales y cotizaciones inteligentes</p>
         </div>
-        <button onclick="openModal('modal-create-supplier')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-2xs transition">
-          <i data-lucide="user-plus" class="w-3.5 h-3.5 text-amber-400"></i> + Registrar Proveedor
+        <button onclick="openModal('modal-create-supplier')" class="bg-[#0F172A] hover:bg-slate-800 text-white text-xs font-medium px-3.5 py-2 rounded-md flex items-center gap-1.5 shadow-xs transition">
+          <i data-lucide="user-plus" class="w-4 h-4 text-white"></i> + Registrar Proveedor
         </button>
       </div>
 
-      <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+      <div class="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
-            <thead class="bg-slate-50 text-slate-500 font-semibold uppercase text-[10px] tracking-wider border-b border-slate-200">
+            <thead class="bg-slate-50 text-slate-600 font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200">
               <tr>
-                <th class="px-3 py-2">Razón Social / Fantasía</th>
-                <th class="px-3 py-2 font-mono">RUT</th>
-                <th class="px-3 py-2">Giro Comercial</th>
-                <th class="px-3 py-2">Contacto Vendedor</th>
-                <th class="px-3 py-2">Teléfono / Email</th>
-                <th class="px-3 py-2">Rubro</th>
-                <th class="px-3 py-2 text-center">Acciones</th>
+                <th class="px-3.5 py-2.5">Razón Social / Fantasía</th>
+                <th class="px-3.5 py-2.5 font-mono">RUT</th>
+                <th class="px-3.5 py-2.5">Giro Comercial</th>
+                <th class="px-3.5 py-2.5">Contacto Vendedor</th>
+                <th class="px-3.5 py-2.5">Teléfono / Email</th>
+                <th class="px-3.5 py-2.5">Rubro</th>
+                <th class="px-3.5 py-2.5 text-center">Acciones</th>
               </tr>
             </thead>
             <tbody id="suppliers-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
@@ -513,33 +624,33 @@
     <!-- MÓDULO 5: MATERIALES -->
     <!-- ===================================================================== -->
     <div id="module-materiales" class="hidden space-y-4">
-      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs">
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
         <div>
-          <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <i data-lucide="component" class="w-4 h-4 text-emerald-600"></i> Catálogo Maestro de Materiales
+          <h2 class="text-base font-bold text-[#0F172A] font-heading flex items-center gap-2">
+            <i data-lucide="component" class="w-4 h-4 text-[#3182CE]"></i> Catálogo Maestro de Materiales
           </h2>
-          <p class="text-[11px] text-slate-500">Administra SKU, PMP ponderado y stock mínimo para alertas automáticas</p>
+          <p class="text-xs text-slate-500 mt-0.5">Administra SKU, PMP ponderado y stock mínimo para alertas automáticas</p>
         </div>
-        <button onclick="openCreateMaterialModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 shadow-2xs transition">
-          <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> + Crear Nuevo Material
+        <button onclick="openCreateMaterialModal()" class="bg-[#3182CE] hover:bg-[#2B6CB0] text-white text-xs font-medium px-3.5 py-2 rounded-md flex items-center gap-1.5 shadow-xs transition">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> + Crear Nuevo Material
         </button>
       </div>
 
-      <div class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden">
+      <div class="bg-white rounded-lg border border-slate-200 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
-            <thead class="bg-slate-50 text-slate-500 font-semibold uppercase text-[10px] tracking-wider border-b border-slate-200">
+            <thead class="bg-slate-50 text-slate-600 font-semibold uppercase text-[11px] tracking-wider border-b border-slate-200">
               <tr>
-                <th class="px-3 py-2">SKU</th>
-                <th class="px-3 py-2">Material</th>
-                <th class="px-3 py-2">Categoría</th>
-                <th class="px-2 py-2">Unidad</th>
-                <th class="px-3 py-2 text-right">Stock Mínimo</th>
-                <th class="px-3 py-2 text-right font-bold text-blue-900">En Matriz</th>
-                <th class="px-3 py-2 text-right font-bold text-amber-700">En Obras</th>
-                <th class="px-3 py-2 text-right font-black text-slate-950 bg-slate-100">Total Empresa</th>
-                <th class="px-3 py-2">Proveedor Sugerido</th>
-                <th class="px-3 py-2 text-right col-financial">PMP (CLP)</th>
+                <th class="px-3.5 py-2.5">SKU</th>
+                <th class="px-3.5 py-2.5">Material</th>
+                <th class="px-3.5 py-2.5">Categoría</th>
+                <th class="px-2.5 py-2.5">Unidad</th>
+                <th class="px-3.5 py-2.5 text-right">Stock Mínimo</th>
+                <th class="px-3.5 py-2.5 text-right font-bold text-[#0F172A]">En Matriz</th>
+                <th class="px-3.5 py-2.5 text-right font-bold text-slate-700">En Obras</th>
+                <th class="px-3.5 py-2.5 text-right font-black text-[#0F172A] bg-slate-100">Total Empresa</th>
+                <th class="px-3.5 py-2.5">Proveedor Sugerido</th>
+                <th class="px-3.5 py-2.5 text-right col-financial">PMP (CLP)</th>
               </tr>
             </thead>
             <tbody id="catalog-materials-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
@@ -551,38 +662,38 @@
   </main>
 
   <!-- ===================================================================== -->
-  <!-- MODALES DE OPERACIÓN (COMPACTOS Y ADAPTABLES A PANTALLA) -->
+  <!-- MODALES DE OPERACIÓN (ESQUINAS 8PX, TIPOGRAFÍA LATO/INTER) -->
   <!-- ===================================================================== -->
 
   <!-- MODAL: DESIGNAR RESPONSABLE DE AUTORIZACIONES -->
-  <div id="modal-designate-approver" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-3">
-    <div class="bg-white rounded-xl max-w-sm w-full p-4 shadow-xl space-y-3 border border-slate-200">
+  <div id="modal-designate-approver" class="hidden fixed inset-0 bg-[#0F172A]/70 backdrop-blur-xs z-50 flex items-center justify-center p-3.5">
+    <div class="bg-white rounded-lg max-w-sm w-full p-4 shadow-xl space-y-3 border border-slate-200">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-        <h3 class="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-          <i data-lucide="shield-check" class="w-4 h-4 text-amber-500"></i> Responsable de Autorizaciones
+        <h3 class="font-bold text-[#0F172A] text-sm font-heading flex items-center gap-1.5">
+          <i data-lucide="shield-check" class="w-4 h-4 text-[#3182CE]"></i> Responsable de Autorizaciones
         </h3>
         <button onclick="closeModal('modal-designate-approver')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
-      <p class="text-[11px] text-slate-600">
+      <p class="text-xs text-slate-600">
         El Administrador General puede delegar o designar quién tiene la facultad de autorizar pedidos de terreno y traspasos entre obras.
       </p>
       <div>
-        <label class="block font-semibold text-slate-700 text-xs mb-1">Nombre / Cargo del Responsable</label>
-        <input id="input-designated-approver" type="text" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-medium" placeholder="Ej: Carlos Morales (Jefe de Operaciones)">
+        <label class="block font-medium text-slate-700 text-xs mb-1">Nombre / Cargo del Responsable</label>
+        <input id="input-designated-approver" type="text" class="w-full border border-slate-300 rounded-md p-2 text-xs font-medium focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="Ej: Carlos Morales (Jefe de Operaciones)">
       </div>
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-        <button onclick="closeModal('modal-designate-approver')" class="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-        <button onclick="saveDesignatedApprover()" class="px-3 py-1.5 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-2xs">Guardar Responsable</button>
+        <button onclick="closeModal('modal-designate-approver')" class="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-md">Cancelar</button>
+        <button onclick="saveDesignatedApprover()" class="px-3 py-1.5 text-xs font-medium text-white bg-[#0F172A] hover:bg-slate-800 rounded-md shadow-xs">Guardar Responsable</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: CREAR PROYECTO COMITÉ (CON CÓDIGO SERVIU OPCIONAL) -->
-  <div id="modal-create-project" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-3">
-    <div class="bg-white rounded-xl max-w-md w-full p-4 shadow-xl space-y-3 border border-slate-200">
+  <!-- MODAL: CREAR PROYECTO COMITÉ -->
+  <div id="modal-create-project" class="hidden fixed inset-0 bg-[#0F172A]/70 backdrop-blur-xs z-50 flex items-center justify-center p-3.5">
+    <div class="bg-white rounded-lg max-w-md w-full p-4 shadow-xl space-y-3 border border-slate-200">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-        <h3 class="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-          <i data-lucide="folder-plus" class="w-4 h-4 text-amber-500"></i> Nuevo Proyecto / Comité SERVIU
+        <h3 class="font-bold text-[#0F172A] text-sm font-heading flex items-center gap-1.5">
+          <i data-lucide="folder-plus" class="w-4 h-4 text-[#3182CE]"></i> Nuevo Proyecto / Comité SERVIU
         </h3>
         <button onclick="closeModal('modal-create-project')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
@@ -590,123 +701,123 @@
       <div class="space-y-2.5 text-xs">
         <div>
           <div class="flex justify-between items-center mb-0.5">
-            <label class="font-semibold text-slate-700">Código Interno de Obra</label>
-            <span class="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded-full">✨ Auto</span>
+            <label class="font-medium text-slate-700">Código Interno de Obra</label>
+            <span class="text-[10px] bg-slate-100 text-slate-800 font-bold px-1.5 py-0.2 rounded">✨ Auto</span>
           </div>
-          <input id="new-proj-code" type="text" readonly class="w-full border border-slate-200 bg-slate-100 rounded-lg p-2 font-mono font-bold text-slate-700">
+          <input id="new-proj-code" type="text" readonly class="w-full border border-slate-200 bg-slate-100 rounded-md p-2 font-mono font-bold text-slate-700">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Nombre del Comité / Proyecto *</label>
-          <input id="new-proj-name" type="text" class="w-full border border-slate-300 rounded-lg p-2 font-medium" placeholder="Ej: Proyecto Comité Los Aromos">
+          <label class="block font-medium text-slate-700 mb-0.5">Nombre del Comité / Proyecto *</label>
+          <input id="new-proj-name" type="text" class="w-full border border-slate-300 rounded-md p-2 font-medium focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="Ej: Proyecto Comité Los Aromos">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Código SERVIU / Resolución (Opcional)</label>
-          <input id="new-proj-serviu" type="text" class="w-full border border-slate-300 rounded-lg p-2 font-mono text-[11px]" placeholder="Ej: DS27-2026-VALP-0012">
+          <label class="block font-medium text-slate-700 mb-0.5">Código SERVIU / Resolución (Opcional)</label>
+          <input id="new-proj-serviu" type="text" class="w-full border border-slate-300 rounded-md p-2 font-mono text-xs focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="Ej: DS27-2026-VALP-0012">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Presupuesto Asignado (CLP)</label>
-          <input id="new-proj-budget" type="number" min="0" class="w-full border border-slate-300 rounded-lg p-2 font-bold" placeholder="24000000">
+          <label class="block font-medium text-slate-700 mb-0.5">Presupuesto Asignado (CLP)</label>
+          <input id="new-proj-budget" type="number" min="0" class="w-full border border-slate-300 rounded-md p-2 font-bold focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="24000000">
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-        <button onclick="closeModal('modal-create-project')" class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-        <button onclick="executeCreateProject()" class="px-3 py-1.5 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-2xs">Guardar Proyecto</button>
+        <button onclick="closeModal('modal-create-project')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-md">Cancelar</button>
+        <button onclick="executeCreateProject()" class="px-3 py-1.5 text-xs font-medium text-white bg-[#0F172A] hover:bg-slate-800 rounded-md shadow-xs">Guardar Proyecto</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: CREAR VIVIENDA / BENEFICIARIO (CON CÓDIGO SERVIU Y PLANTILLA) -->
-  <div id="modal-create-housing" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-3">
-    <div class="bg-white rounded-xl max-w-md w-full p-4 shadow-xl space-y-3 border border-slate-200 max-h-[90vh] overflow-y-auto">
+  <!-- MODAL: CREAR VIVIENDA / BENEFICIARIO -->
+  <div id="modal-create-housing" class="hidden fixed inset-0 bg-[#0F172A]/70 backdrop-blur-xs z-50 flex items-center justify-center p-3.5">
+    <div class="bg-white rounded-lg max-w-md w-full p-4 shadow-xl space-y-3 border border-slate-200 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-        <h3 class="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-          <i data-lucide="home" class="w-4 h-4 text-emerald-600"></i> Registrar Vivienda / Beneficiario
+        <h3 class="font-bold text-[#0F172A] text-sm font-heading flex items-center gap-1.5">
+          <i data-lucide="home" class="w-4 h-4 text-[#3182CE]"></i> Registrar Vivienda / Beneficiario
         </h3>
         <button onclick="closeModal('modal-create-housing')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
 
       <div class="space-y-2.5 text-xs">
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Proyecto Comité</label>
-          <input id="housing-parent-name" type="text" disabled class="w-full border border-slate-200 bg-slate-100 rounded-lg p-2 font-bold text-slate-600">
+          <label class="block font-medium text-slate-700 mb-0.5">Proyecto Comité</label>
+          <input id="housing-parent-name" type="text" disabled class="w-full border border-slate-200 bg-slate-100 rounded-md p-2 font-bold text-slate-600">
           <input id="housing-parent-id" type="hidden">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-semibold text-slate-700 mb-0.5">N° Vivienda / Lote *</label>
-            <input id="housing-number" type="text" class="w-full border border-slate-300 rounded-lg p-2 font-bold" placeholder="Ej: Vivienda 14">
+            <label class="block font-medium text-slate-700 mb-0.5">N° Vivienda / Lote *</label>
+            <input id="housing-number" type="text" class="w-full border border-slate-300 rounded-md p-2 font-bold focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="Ej: Vivienda 14">
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 mb-0.5">Código SERVIU Vivienda</label>
-            <input id="housing-serviu-code" type="text" class="w-full border border-slate-300 rounded-lg p-2 font-mono text-[11px]" placeholder="Ej: MINVU-8921">
+            <label class="block font-medium text-slate-700 mb-0.5">Código SERVIU Vivienda</label>
+            <input id="housing-serviu-code" type="text" class="w-full border border-slate-300 rounded-md p-2 font-mono text-xs focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="Ej: MINVU-8921">
           </div>
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Nombre Propietario / Beneficiario *</label>
-          <input id="housing-owner-name" type="text" class="w-full border border-slate-300 rounded-lg p-2 font-medium" placeholder="Ej: María Elena González Muñoz">
+          <label class="block font-medium text-slate-700 mb-0.5">Nombre Propietario / Beneficiario *</label>
+          <input id="housing-owner-name" type="text" class="w-full border border-slate-300 rounded-md p-2 font-medium focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="Ej: María Elena González Muñoz">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Dirección / Pasaje</label>
-          <input id="housing-address" type="text" class="w-full border border-slate-300 rounded-lg p-2 font-medium" placeholder="Ej: Pasaje Los Olivos #14, Villa Las Flores">
+          <label class="block font-medium text-slate-700 mb-0.5">Dirección / Pasaje</label>
+          <input id="housing-address" type="text" class="w-full border border-slate-300 rounded-md p-2 font-medium focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="Ej: Pasaje Los Olivos #14, Villa Las Flores">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Plantilla Constructiva Inicial (Opcional)</label>
-          <select id="housing-template-select" class="w-full border border-slate-300 rounded-lg p-2 font-medium"></select>
-          <p class="text-[10px] text-slate-400 mt-0.5">Pre-carga la cubicación teórica para calcular el semáforo de descalce.</p>
+          <label class="block font-medium text-slate-700 mb-0.5">Plantilla Constructiva Inicial (Opcional)</label>
+          <select id="housing-template-select" class="w-full border border-slate-300 rounded-md p-2 font-medium focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]"></select>
+          <p class="text-[11px] text-slate-400 mt-0.5">Pre-carga la cubicación teórica para calcular el semáforo de descalce.</p>
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-        <button onclick="closeModal('modal-create-housing')" class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-        <button onclick="executeCreateHousing()" class="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-2xs">Guardar Vivienda</button>
+        <button onclick="closeModal('modal-create-housing')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-md">Cancelar</button>
+        <button onclick="executeCreateHousing()" class="px-3 py-1.5 text-xs font-medium text-white bg-[#0F172A] hover:bg-slate-800 rounded-md shadow-xs">Guardar Vivienda</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL: APLICAR / EDITAR PLANTILLA A VIVIENDA -->
-  <div id="modal-apply-template" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-3">
-    <div class="bg-white rounded-xl max-w-md w-full p-4 shadow-xl space-y-3 border border-slate-200">
+  <div id="modal-apply-template" class="hidden fixed inset-0 bg-[#0F172A]/70 backdrop-blur-xs z-50 flex items-center justify-center p-3.5">
+    <div class="bg-white rounded-lg max-w-md w-full p-4 shadow-xl space-y-3 border border-slate-200">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-        <h3 class="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-          <i data-lucide="file-spreadsheet" class="w-4 h-4 text-amber-500"></i> Asignar Plantilla Constructiva a Vivienda
+        <h3 class="font-bold text-[#0F172A] text-sm font-heading flex items-center gap-1.5">
+          <i data-lucide="file-spreadsheet" class="w-4 h-4 text-[#3182CE]"></i> Asignar Plantilla Constructiva a Vivienda
         </h3>
         <button onclick="closeModal('modal-apply-template')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
 
       <div class="space-y-2.5 text-xs">
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Vivienda Destino</label>
-          <input id="apply-housing-label" type="text" disabled class="w-full border border-slate-200 bg-slate-100 rounded-lg p-2 font-bold text-slate-700">
+          <label class="block font-medium text-slate-700 mb-0.5">Vivienda Destino</label>
+          <input id="apply-housing-label" type="text" disabled class="w-full border border-slate-200 bg-slate-100 rounded-md p-2 font-bold text-slate-700">
           <input id="apply-housing-id" type="hidden">
           <input id="apply-project-id" type="hidden">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Seleccionar Plantilla Predefinida</label>
-          <select id="apply-template-select" onchange="previewTemplateItemsToApply()" class="w-full border border-slate-300 rounded-lg p-2 font-medium"></select>
+          <label class="block font-medium text-slate-700 mb-0.5">Seleccionar Plantilla Predefinida</label>
+          <select id="apply-template-select" onchange="previewTemplateItemsToApply()" class="w-full border border-slate-300 rounded-md p-2 font-medium focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]"></select>
         </div>
-        <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
+        <div class="bg-slate-50 border border-slate-200 rounded-md p-2.5">
           <span class="text-[10px] font-bold uppercase text-slate-500 block mb-1">Partidas & Cubicaciones Teóricas:</span>
           <div id="apply-template-preview-list" class="space-y-1 max-h-36 overflow-y-auto font-mono text-[11px] text-slate-700"></div>
         </div>
-        <p class="text-[10px] text-slate-500">
+        <p class="text-[11px] text-slate-500">
           💡 Nota: Al aplicar, las cubicaciones se copian a la vivienda. Podrás modificar las cantidades para esta vivienda particular sin afectar la plantilla maestra.
         </p>
       </div>
 
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-        <button onclick="closeModal('modal-apply-template')" class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-        <button onclick="executeApplyTemplateToHousing()" class="px-3 py-1.5 text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-600 rounded-lg shadow-2xs">Aplicar a Vivienda</button>
+        <button onclick="closeModal('modal-apply-template')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-md">Cancelar</button>
+        <button onclick="executeApplyTemplateToHousing()" class="px-3 py-1.5 text-xs font-medium text-white bg-[#C05621] hover:bg-[#9C4215] rounded-md shadow-xs">Aplicar a Vivienda</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL: CREAR NUEVA PLANTILLA CONSTRUCTIVA -->
-  <div id="modal-create-template" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-3">
-    <div class="bg-white rounded-xl max-w-lg w-full p-4 shadow-xl space-y-3 border border-slate-200 max-h-[90vh] overflow-y-auto">
+  <div id="modal-create-template" class="hidden fixed inset-0 bg-[#0F172A]/70 backdrop-blur-xs z-50 flex items-center justify-center p-3.5">
+    <div class="bg-white rounded-lg max-w-lg w-full p-4 shadow-xl space-y-3 border border-slate-200 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-        <h3 class="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-          <i data-lucide="plus-circle" class="w-4 h-4 text-slate-900"></i> Nueva Plantilla Constructiva Maestra
+        <h3 class="font-bold text-[#0F172A] text-sm font-heading flex items-center gap-1.5">
+          <i data-lucide="plus-circle" class="w-4 h-4 text-[#3182CE]"></i> Nueva Plantilla Constructiva Maestra
         </h3>
         <button onclick="closeModal('modal-create-template')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
@@ -714,221 +825,221 @@
       <div class="space-y-2.5 text-xs">
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-semibold text-slate-700 mb-0.5">Código Plantilla</label>
-            <input id="new-tpl-code" type="text" class="w-full border border-slate-300 rounded-lg p-2 font-mono font-bold" placeholder="PLT-2026-05">
+            <label class="block font-medium text-slate-700 mb-0.5">Código Plantilla</label>
+            <input id="new-tpl-code" type="text" class="w-full border border-slate-300 rounded-md p-2 font-mono font-bold focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="PLT-2026-05">
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 mb-0.5">Nombre Descriptivo *</label>
-            <input id="new-tpl-name" type="text" class="w-full border border-slate-300 rounded-lg p-2 font-medium" placeholder="Ej: Mejoramiento Ventanas & Sellos">
+            <label class="block font-medium text-slate-700 mb-0.5">Nombre Descriptivo *</label>
+            <input id="new-tpl-name" type="text" class="w-full border border-slate-300 rounded-md p-2 font-medium focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="Ej: Mejoramiento Ventanas & Sellos">
           </div>
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Descripción Técnica / EETT</label>
-          <input id="new-tpl-desc" type="text" class="w-full border border-slate-300 rounded-lg p-2" placeholder="Especificaciones de recambio según estándar SERVIU">
+          <label class="block font-medium text-slate-700 mb-0.5">Descripción Técnica / EETT</label>
+          <input id="new-tpl-desc" type="text" class="w-full border border-slate-300 rounded-md p-2 focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="Especificaciones de recambio según estándar SERVIU">
         </div>
         
         <div class="pt-2 border-t border-slate-100">
           <div class="flex items-center justify-between mb-1.5">
             <span class="font-bold text-slate-800">Partidas y Materiales Teóricos por Vivienda:</span>
-            <button onclick="addTemplateItemRow()" class="text-[11px] text-amber-700 hover:underline font-bold">+ Agregar Ítem</button>
+            <button onclick="addTemplateItemRow()" class="text-xs text-[#3182CE] hover:underline font-bold">+ Agregar Ítem</button>
           </div>
-          <div id="new-tpl-items-container" class="space-y-1.5 max-h-48 overflow-y-auto p-1 bg-slate-50 rounded-lg border border-slate-200"></div>
+          <div id="new-tpl-items-container" class="space-y-1.5 max-h-48 overflow-y-auto p-1.5 bg-slate-50 rounded-md border border-slate-200"></div>
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-        <button onclick="closeModal('modal-create-template')" class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-        <button onclick="executeSaveTemplate()" class="px-3 py-1.5 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-2xs">Guardar Plantilla</button>
+        <button onclick="closeModal('modal-create-template')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-md">Cancelar</button>
+        <button onclick="executeSaveTemplate()" class="px-3 py-1.5 text-xs font-medium text-white bg-[#0F172A] hover:bg-slate-800 rounded-md shadow-xs">Guardar Plantilla</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL: CREAR PEDIDO DE TERRENO (REQUISICIÓN) -->
-  <div id="modal-create-requisition" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-3">
-    <div class="bg-white rounded-xl max-w-md w-full p-4 shadow-xl space-y-3 border border-slate-200">
+  <div id="modal-create-requisition" class="hidden fixed inset-0 bg-[#0F172A]/70 backdrop-blur-xs z-50 flex items-center justify-center p-3.5">
+    <div class="bg-white rounded-lg max-w-md w-full p-4 shadow-xl space-y-3 border border-slate-200">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-        <h3 class="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-          <i data-lucide="clipboard-list" class="w-4 h-4 text-emerald-600"></i> Nuevo Pedido desde Terreno (Requisición)
+        <h3 class="font-bold text-[#0F172A] text-sm font-heading flex items-center gap-1.5">
+          <i data-lucide="clipboard-list" class="w-4 h-4 text-[#3182CE]"></i> Nuevo Pedido desde Terreno (Requisición)
         </h3>
         <button onclick="closeModal('modal-create-requisition')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
 
       <div class="space-y-2.5 text-xs">
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Obra (Comité) Destino *</label>
-          <select id="req-project-select" onchange="populateRequisitionHousings()" class="w-full border border-slate-300 rounded-lg p-2 font-medium"></select>
+          <label class="block font-medium text-slate-700 mb-0.5">Obra (Comité) Destino *</label>
+          <select id="req-project-select" onchange="populateRequisitionHousings()" class="w-full border border-slate-300 rounded-md p-2 font-medium focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]"></select>
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Vivienda Específica (Opcional)</label>
-          <select id="req-housing-select" class="w-full border border-slate-300 rounded-lg p-2 font-medium"></select>
+          <label class="block font-medium text-slate-700 mb-0.5">Vivienda Específica (Opcional)</label>
+          <select id="req-housing-select" class="w-full border border-slate-300 rounded-md p-2 font-medium focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]"></select>
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Material Requerido *</label>
-          <select id="req-material-select" class="w-full border border-slate-300 rounded-lg p-2 font-medium"></select>
+          <label class="block font-medium text-slate-700 mb-0.5">Material Requerido *</label>
+          <select id="req-material-select" class="w-full border border-slate-300 rounded-md p-2 font-medium focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]"></select>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-semibold text-slate-700 mb-0.5">Cantidad Requerida *</label>
-            <input id="req-quantity" type="number" min="1" value="5" class="w-full border border-slate-300 rounded-lg p-2 font-bold text-sm">
+            <label class="block font-medium text-slate-700 mb-0.5">Cantidad Requerida *</label>
+            <input id="req-quantity" type="number" min="1" value="5" class="w-full border border-slate-300 rounded-md p-2 font-bold text-sm focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]">
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 mb-0.5">Nivel de Urgencia</label>
-            <select id="req-urgency" class="w-full border border-slate-300 rounded-lg p-2 font-semibold text-amber-800">
-              <option value="Normal">🟢 Normal</option>
-              <option value="Alta">🟡 Alta</option>
-              <option value="Urgente">🔴 Urgente (Faena Detenida)</option>
+            <label class="block font-medium text-slate-700 mb-0.5">Nivel de Urgencia</label>
+            <select id="req-urgency" class="w-full border border-slate-300 rounded-md p-2 font-semibold text-[#0F172A] focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]">
+              <option value="Normal">Normal</option>
+              <option value="Alta">Alta</option>
+              <option value="Urgente">Urgente (Faena Detenida)</option>
             </select>
           </div>
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Motivo / Justificación en Terreno</label>
-          <input id="req-notes" type="text" class="w-full border border-slate-300 rounded-lg p-2" placeholder="Ej: Reposición por daño en flete o ajuste de alero">
+          <label class="block font-medium text-slate-700 mb-0.5">Motivo / Justificación en Terreno</label>
+          <input id="req-notes" type="text" class="w-full border border-slate-300 rounded-md p-2 focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="Ej: Reposición por daño en flete o ajuste de alero">
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-        <button onclick="closeModal('modal-create-requisition')" class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-        <button onclick="executeCreateRequisition()" class="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-2xs">Enviar Pedido</button>
+        <button onclick="closeModal('modal-create-requisition')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-md">Cancelar</button>
+        <button onclick="executeCreateRequisition()" class="px-3 py-1.5 text-xs font-medium text-white bg-[#3182CE] hover:bg-[#2B6CB0] rounded-md shadow-xs">Enviar Pedido</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: TRANSFERIR / ASIGNAR MATERIAL CON GOBERNANZA -->
-  <div id="modal-transfer" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-3">
-    <div class="bg-white rounded-xl max-w-md w-full p-4 shadow-xl space-y-3 border border-slate-200">
+  <!-- MODAL: TRANSFERIR / ASIGNAR MATERIAL -->
+  <div id="modal-transfer" class="hidden fixed inset-0 bg-[#0F172A]/70 backdrop-blur-xs z-50 flex items-center justify-center p-3.5">
+    <div class="bg-white rounded-lg max-w-md w-full p-4 shadow-xl space-y-3 border border-slate-200">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-        <h3 id="modal-transfer-title" class="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-          <i data-lucide="arrow-left-right" class="w-4 h-4 text-amber-500"></i> Transferir / Asignar Material
+        <h3 id="modal-transfer-title" class="font-bold text-[#0F172A] text-sm font-heading flex items-center gap-1.5">
+          <i data-lucide="arrow-left-right" class="w-4 h-4 text-[#C05621]"></i> Transferir / Asignar Material
         </h3>
         <button onclick="closeModal('modal-transfer')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
 
       <div class="space-y-2.5 text-xs">
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Material</label>
-          <select id="trans-material" onchange="updateTransferAvailability()" class="w-full border border-slate-300 rounded-lg p-2 font-medium"></select>
+          <label class="block font-medium text-slate-700 mb-0.5">Material</label>
+          <select id="trans-material" onchange="updateTransferAvailability()" class="w-full border border-slate-300 rounded-md p-2 font-medium focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]"></select>
         </div>
 
-        <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+        <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-md border border-slate-200">
           <div>
-            <label class="block font-semibold text-slate-700 mb-0.5">📍 Origen</label>
-            <select id="trans-origin" onchange="updateTransferAvailability()" class="w-full border border-slate-300 rounded-lg p-1.5 bg-white font-medium text-[11px]"></select>
+            <label class="block font-medium text-slate-700 mb-0.5">📍 Origen</label>
+            <select id="trans-origin" onchange="updateTransferAvailability()" class="w-full border border-slate-300 rounded-md p-1.5 bg-white font-medium text-[11px] focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]"></select>
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 mb-0.5">🏁 Destino</label>
-            <select id="trans-dest" class="w-full border border-slate-300 rounded-lg p-1.5 bg-white font-medium text-[11px]"></select>
+            <label class="block font-medium text-slate-700 mb-0.5">🏁 Destino</label>
+            <select id="trans-dest" class="w-full border border-slate-300 rounded-md p-1.5 bg-white font-medium text-[11px] focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]"></select>
           </div>
         </div>
 
         <div>
           <div class="flex justify-between items-center mb-0.5">
-            <label class="font-semibold text-slate-700">Cantidad</label>
-            <span id="trans-avail-hint" class="text-amber-800 font-bold text-[11px]">Disponible: 0</span>
+            <label class="font-medium text-slate-700">Cantidad</label>
+            <span id="trans-avail-hint" class="text-[#C05621] font-bold text-xs">Disponible: 0</span>
           </div>
-          <input id="trans-qty" type="number" min="1" value="10" oninput="updateTransferCostPreview()" class="w-full border border-slate-300 rounded-lg p-2 font-bold text-sm">
+          <input id="trans-qty" type="number" min="1" value="10" oninput="updateTransferCostPreview()" class="w-full border border-slate-300 rounded-md p-2 font-bold text-sm focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]">
         </div>
 
-        <div id="trans-cost-box" class="bg-amber-50 border border-amber-200 rounded-lg p-2 text-[11px] space-y-1">
-          <div class="flex justify-between text-amber-900">
+        <div id="trans-cost-box" class="bg-slate-50 border border-slate-200 rounded-md p-2.5 text-xs space-y-1">
+          <div class="flex justify-between text-slate-600">
             <span>PMP del Material:</span>
-            <span id="trans-preview-pmp" class="font-bold">$0 CLP</span>
+            <span id="trans-preview-pmp" class="font-bold text-[#0F172A]">$0 CLP</span>
           </div>
-          <div class="flex justify-between text-amber-900 border-t border-amber-200/60 pt-0.5 font-bold">
+          <div class="flex justify-between text-[#0F172A] border-t border-slate-200 pt-1 font-bold">
             <span>Costo a Imputar:</span>
-            <span id="trans-preview-total">$0 CLP</span>
+            <span id="trans-preview-total" class="text-[#3182CE] font-mono">$0 CLP</span>
           </div>
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-        <button onclick="closeModal('modal-transfer')" class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-        <button onclick="executeTransfer()" class="px-3 py-1.5 text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-600 rounded-lg shadow-2xs">Confirmar Traspaso</button>
+        <button onclick="closeModal('modal-transfer')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-md">Cancelar</button>
+        <button onclick="executeTransfer()" class="px-3 py-1.5 text-xs font-medium text-white bg-[#C05621] hover:bg-[#9C4215] rounded-md shadow-xs">Confirmar Traspaso</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL: CONFIRMAR DRAG & DROP ACCIDENTAL Y MULTI-SELECCIÓN -->
-  <div id="modal-confirm-move" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-3">
-    <div class="bg-white rounded-xl max-w-md w-full p-4 shadow-xl space-y-3 border border-amber-300">
+  <div id="modal-confirm-move" class="hidden fixed inset-0 bg-[#0F172A]/70 backdrop-blur-xs z-50 flex items-center justify-center p-3.5">
+    <div class="bg-white rounded-lg max-w-md w-full p-4 shadow-xl space-y-3 border border-slate-200">
       <div class="flex items-center gap-2 border-b border-slate-100 pb-2">
-        <div class="bg-amber-100 text-amber-800 p-1.5 rounded-lg">
+        <div class="bg-[#FFF7F2] text-[#C05621] p-1.5 rounded-md border border-[#FEE8DC]">
           <i data-lucide="alert-triangle" class="w-4 h-4"></i>
         </div>
         <div>
-          <h3 class="font-bold text-slate-900 text-xs">Confirmar Reasignación de Materiales</h3>
-          <p class="text-[10px] text-slate-500">Revisa los materiales y cantidades a transferir</p>
+          <h3 class="font-bold text-[#0F172A] text-sm font-heading">Confirmar Reasignación de Materiales</h3>
+          <p class="text-xs text-slate-500">Revisa los materiales y cantidades a transferir</p>
         </div>
       </div>
 
-      <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 space-y-1.5 text-xs">
+      <div class="bg-slate-50 border border-slate-200 rounded-md p-3 space-y-2 text-xs">
         <div class="flex justify-between">
-          <span class="text-slate-500 font-semibold">Obra:</span>
-          <span id="confirm-proj-name" class="font-bold text-slate-900 truncate"></span>
+          <span class="text-slate-500 font-medium">Obra:</span>
+          <span id="confirm-proj-name" class="font-bold text-[#0F172A] truncate"></span>
         </div>
         <div class="flex justify-between border-t border-slate-200/60 pt-1">
-          <span class="text-slate-500 font-semibold">Origen(es):</span>
+          <span class="text-slate-500 font-medium">Origen(es):</span>
           <span id="confirm-origin-name" class="font-medium text-rose-700 truncate text-right"></span>
         </div>
         <div class="flex justify-between border-t border-slate-200/60 pt-1">
-          <span class="text-slate-500 font-semibold">Destino:</span>
-          <span id="confirm-dest-name" class="font-bold text-emerald-700 truncate"></span>
+          <span class="text-slate-500 font-medium">Destino:</span>
+          <span id="confirm-dest-name" class="font-bold text-[#3182CE] truncate"></span>
         </div>
         <div class="border-t border-slate-200/60 pt-1.5">
           <div class="flex justify-between items-center mb-1">
-            <span class="text-slate-600 block text-[10px] uppercase font-bold">Materiales Seleccionados:</span>
+            <span class="text-[#0F172A] block text-[11px] uppercase font-bold">Materiales Seleccionados:</span>
             <span class="text-[10px] text-slate-400">Puedes ajustar la cantidad a mover</span>
           </div>
-          <div id="confirm-items-list" class="space-y-1 text-xs text-slate-800 bg-white p-2 rounded-lg border border-slate-200 max-h-48 overflow-y-auto"></div>
+          <div id="confirm-items-list" class="space-y-1 text-xs text-slate-800 bg-white p-2.5 rounded-md border border-slate-200 max-h-48 overflow-y-auto"></div>
         </div>
       </div>
 
-      <div class="flex justify-end gap-2 pt-1">
-        <button onclick="closeModal('modal-confirm-move')" class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-        <button onclick="executeConfirmedMove()" class="px-3 py-1.5 text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-600 rounded-lg shadow-2xs">Sí, Confirmar Traspaso</button>
+      <div class="flex justify-end gap-2 pt-1 border-t border-slate-100">
+        <button onclick="closeModal('modal-confirm-move')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-md">Cancelar</button>
+        <button onclick="executeConfirmedMove()" class="px-3 py-1.5 text-xs font-medium text-white bg-[#C05621] hover:bg-[#9C4215] rounded-md shadow-xs">Sí, Confirmar Traspaso</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL: ABASTECER MATRIZ -->
-  <div id="modal-purchase" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-3">
-    <div class="bg-white rounded-xl max-w-md w-full p-4 shadow-xl space-y-3 border border-slate-200">
+  <div id="modal-purchase" class="hidden fixed inset-0 bg-[#0F172A]/70 backdrop-blur-xs z-50 flex items-center justify-center p-3.5">
+    <div class="bg-white rounded-lg max-w-md w-full p-4 shadow-xl space-y-3 border border-slate-200">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-        <h3 class="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-          <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-600"></i> Abastecer Bodega Central Matriz
+        <h3 class="font-bold text-[#0F172A] text-sm font-heading flex items-center gap-1.5">
+          <i data-lucide="plus-circle" class="w-4 h-4 text-[#3182CE]"></i> Abastecer Bodega Central Matriz
         </h3>
         <button onclick="closeModal('modal-purchase')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
 
       <div class="space-y-2.5 text-xs">
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Folio Factura Proveedor</label>
-          <input id="pur-folio" type="text" class="w-full border border-slate-300 rounded-lg p-2 font-mono font-bold" value="FAC-2026-0910">
+          <label class="block font-medium text-slate-700 mb-0.5">Folio Factura Proveedor</label>
+          <input id="pur-folio" type="text" class="w-full border border-slate-300 rounded-md p-2 font-mono font-bold focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" value="FAC-2026-0910">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Material</label>
-          <select id="pur-material" onchange="updatePurchasePreview()" class="w-full border border-slate-300 rounded-lg p-2 font-medium"></select>
+          <label class="block font-medium text-slate-700 mb-0.5">Material</label>
+          <select id="pur-material" onchange="updatePurchasePreview()" class="w-full border border-slate-300 rounded-md p-2 font-medium focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]"></select>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-semibold text-slate-700 mb-0.5">Cantidad Comprada</label>
-            <input id="pur-qty" type="number" min="1" value="50" oninput="updatePurchasePreview()" class="w-full border border-slate-300 rounded-lg p-2 font-bold">
+            <label class="block font-medium text-slate-700 mb-0.5">Cantidad Comprada</label>
+            <input id="pur-qty" type="number" min="1" value="50" oninput="updatePurchasePreview()" class="w-full border border-slate-300 rounded-md p-2 font-bold focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]">
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 mb-0.5">Costo Unitario Neto (CLP)</label>
-            <input id="pur-cost" type="number" min="0" value="4800" oninput="updatePurchasePreview()" class="w-full border border-slate-300 rounded-lg p-2 font-bold">
+            <label class="block font-medium text-slate-700 mb-0.5">Costo Unitario Neto (CLP)</label>
+            <input id="pur-cost" type="number" min="0" value="4800" oninput="updatePurchasePreview()" class="w-full border border-slate-300 rounded-md p-2 font-bold focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]">
           </div>
         </div>
 
-        <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 space-y-1 text-[11px]">
+        <div class="bg-slate-50 border border-slate-200 rounded-md p-2.5 space-y-1 text-xs">
           <div class="flex justify-between text-slate-600">
             <span>PMP Actual:</span>
-            <span id="pur-preview-current-pmp" class="font-bold text-slate-800">$0 CLP</span>
+            <span id="pur-preview-current-pmp" class="font-bold text-[#0F172A]">$0 CLP</span>
           </div>
           <div class="flex justify-between text-slate-600">
             <span>Nuevo Stock en Matriz:</span>
-            <span id="pur-preview-new-stock" class="font-bold text-slate-800">0</span>
+            <span id="pur-preview-new-stock" class="font-bold text-[#0F172A]">0</span>
           </div>
-          <div class="flex justify-between text-emerald-700 font-bold border-t border-slate-200 pt-1">
+          <div class="flex justify-between text-[#3182CE] font-bold border-t border-slate-200 pt-1">
             <span>Nuevo PMP Ponderado:</span>
             <span id="pur-preview-new-pmp">$0 CLP</span>
           </div>
@@ -936,18 +1047,18 @@
       </div>
 
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-        <button onclick="closeModal('modal-purchase')" class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-        <button onclick="executePurchase()" class="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-2xs">Ingresar a Matriz</button>
+        <button onclick="closeModal('modal-purchase')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-md">Cancelar</button>
+        <button onclick="executePurchase()" class="px-3 py-1.5 text-xs font-medium text-white bg-[#3182CE] hover:bg-[#2B6CB0] rounded-md shadow-xs">Ingresar a Matriz</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL: CREAR MATERIAL -->
-  <div id="modal-create-material" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-3">
-    <div class="bg-white rounded-xl max-w-md w-full p-4 shadow-xl space-y-3 border border-slate-200">
+  <div id="modal-create-material" class="hidden fixed inset-0 bg-[#0F172A]/70 backdrop-blur-xs z-50 flex items-center justify-center p-3.5">
+    <div class="bg-white rounded-lg max-w-md w-full p-4 shadow-xl space-y-3 border border-slate-200">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-        <h3 class="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-          <i data-lucide="component" class="w-4 h-4 text-emerald-600"></i> Nuevo Material en Catálogo
+        <h3 class="font-bold text-[#0F172A] text-sm font-heading flex items-center gap-1.5">
+          <i data-lucide="component" class="w-4 h-4 text-[#3182CE]"></i> Nuevo Material en Catálogo
         </h3>
         <button onclick="closeModal('modal-create-material')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
@@ -955,19 +1066,19 @@
       <div class="space-y-2.5 text-xs">
         <div>
           <div class="flex justify-between items-center mb-0.5">
-            <label class="font-semibold text-slate-700">SKU</label>
-            <span class="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded-full">✨ Auto</span>
+            <label class="font-medium text-slate-700">SKU</label>
+            <span class="text-[10px] bg-slate-100 text-slate-800 font-bold px-1.5 py-0.2 rounded">✨ Auto</span>
           </div>
-          <input id="new-mat-sku" type="text" readonly class="w-full border border-slate-200 bg-slate-100 rounded-lg p-2 font-mono font-bold text-slate-800">
+          <input id="new-mat-sku" type="text" readonly class="w-full border border-slate-200 bg-slate-100 rounded-md p-2 font-mono font-bold text-slate-800">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Nombre Completo *</label>
-          <input id="new-mat-name" type="text" class="w-full border border-slate-300 rounded-lg p-2 font-medium" placeholder="Ej: Plancha Zinc Alum 0.4mm x 3.66m">
+          <label class="block font-medium text-slate-700 mb-0.5">Nombre Completo *</label>
+          <input id="new-mat-name" type="text" class="w-full border border-slate-300 rounded-md p-2 font-medium focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="Ej: Plancha Zinc Alum 0.4mm x 3.66m">
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-semibold text-slate-700 mb-0.5">Unidad *</label>
-            <select id="new-mat-unit" class="w-full border border-slate-300 rounded-lg p-2 font-medium">
+            <label class="block font-medium text-slate-700 mb-0.5">Unidad *</label>
+            <select id="new-mat-unit" class="w-full border border-slate-300 rounded-md p-2 font-medium focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]">
               <option value="plancha">plancha</option>
               <option value="saco">saco</option>
               <option value="m2">m2</option>
@@ -981,124 +1092,124 @@
             </select>
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 mb-0.5">Categoría</label>
-            <input id="new-mat-category" type="text" class="w-full border border-slate-300 rounded-lg p-2" placeholder="Techumbre">
+            <label class="block font-medium text-slate-700 mb-0.5">Categoría</label>
+            <input id="new-mat-category" type="text" class="w-full border border-slate-300 rounded-md p-2 focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="Techumbre">
           </div>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-semibold text-slate-700 mb-0.5">Stock Mínimo</label>
-            <input id="new-mat-min-stock" type="number" min="0" value="20" class="w-full border border-slate-300 rounded-lg p-2 font-bold">
+            <label class="block font-medium text-slate-700 mb-0.5">Stock Mínimo</label>
+            <input id="new-mat-min-stock" type="number" min="0" value="20" class="w-full border border-slate-300 rounded-md p-2 font-bold focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]">
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 mb-0.5">Costo Ref. (CLP)</label>
-            <input id="new-mat-cost" type="number" min="0" value="6500" class="w-full border border-slate-300 rounded-lg p-2 font-bold">
+            <label class="block font-medium text-slate-700 mb-0.5">Costo Ref. (CLP)</label>
+            <input id="new-mat-cost" type="number" min="0" value="6500" class="w-full border border-slate-300 rounded-md p-2 font-bold focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]">
           </div>
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Proveedor Sugerido</label>
-          <select id="new-mat-supplier" class="w-full border border-slate-300 rounded-lg p-2"></select>
+          <label class="block font-medium text-slate-700 mb-0.5">Proveedor Sugerido</label>
+          <select id="new-mat-supplier" class="w-full border border-slate-300 rounded-md p-2 focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]"></select>
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-        <button onclick="closeModal('modal-create-material')" class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-        <button onclick="executeCreateMaterial()" class="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-2xs">Guardar Material</button>
+        <button onclick="closeModal('modal-create-material')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-md">Cancelar</button>
+        <button onclick="executeCreateMaterial()" class="px-3 py-1.5 text-xs font-medium text-white bg-[#3182CE] hover:bg-[#2B6CB0] rounded-md shadow-xs">Guardar Material</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL: REGISTRAR PROVEEDOR -->
-  <div id="modal-create-supplier" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-3">
-    <div class="bg-white rounded-xl max-w-lg w-full p-4 shadow-xl space-y-3 border border-slate-200 max-h-[90vh] overflow-y-auto">
+  <div id="modal-create-supplier" class="hidden fixed inset-0 bg-[#0F172A]/70 backdrop-blur-xs z-50 flex items-center justify-center p-3.5">
+    <div class="bg-white rounded-lg max-w-lg w-full p-4 shadow-xl space-y-3 border border-slate-200 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-        <h3 class="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-          <i data-lucide="truck" class="w-4 h-4 text-amber-500"></i> Registrar Proveedor Comercial
+        <h3 class="font-bold text-[#0F172A] text-sm font-heading flex items-center gap-1.5">
+          <i data-lucide="truck" class="w-4 h-4 text-[#3182CE]"></i> Registrar Proveedor Comercial
         </h3>
         <button onclick="closeModal('modal-create-supplier')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
 
       <div class="grid grid-cols-2 gap-2 text-xs">
         <div class="col-span-2 sm:col-span-1">
-          <label class="block font-semibold text-slate-700 mb-0.5">Razón Social *</label>
-          <input id="sup-business-name" type="text" class="w-full border border-slate-300 rounded-lg p-2" placeholder="Distribuidora Cemento Melón S.A.">
+          <label class="block font-medium text-slate-700 mb-0.5">Razón Social *</label>
+          <input id="sup-business-name" type="text" class="w-full border border-slate-300 rounded-md p-2 focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="Distribuidora Cemento Melón S.A.">
         </div>
         <div class="col-span-2 sm:col-span-1">
-          <label class="block font-semibold text-slate-700 mb-0.5">Nombre Fantasía</label>
-          <input id="sup-trade-name" type="text" class="w-full border border-slate-300 rounded-lg p-2" placeholder="Melón Hormigones">
+          <label class="block font-medium text-slate-700 mb-0.5">Nombre Fantasía</label>
+          <input id="sup-trade-name" type="text" class="w-full border border-slate-300 rounded-md p-2 focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="Melón Hormigones">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">RUT *</label>
-          <input id="sup-rut" type="text" class="w-full border border-slate-300 rounded-lg p-2 font-mono" placeholder="76.123.456-7">
+          <label class="block font-medium text-slate-700 mb-0.5">RUT *</label>
+          <input id="sup-rut" type="text" class="w-full border border-slate-300 rounded-md p-2 font-mono focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="76.123.456-7">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Giro Comercial</label>
-          <input id="sup-business-line" type="text" class="w-full border border-slate-300 rounded-lg p-2" placeholder="Venta de Materiales">
+          <label class="block font-medium text-slate-700 mb-0.5">Giro Comercial</label>
+          <input id="sup-business-line" type="text" class="w-full border border-slate-300 rounded-md p-2 focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="Venta de Materiales">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Teléfono Empresa</label>
-          <input id="sup-phone" type="text" class="w-full border border-slate-300 rounded-lg p-2" placeholder="+56 2 2899 5000">
+          <label class="block font-medium text-slate-700 mb-0.5">Teléfono Empresa</label>
+          <input id="sup-phone" type="text" class="w-full border border-slate-300 rounded-md p-2 focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="+56 2 2899 5000">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Correo Empresa</label>
-          <input id="sup-email" type="email" class="w-full border border-slate-300 rounded-lg p-2" placeholder="contacto@melon.cl">
+          <label class="block font-medium text-slate-700 mb-0.5">Correo Empresa</label>
+          <input id="sup-email" type="email" class="w-full border border-slate-300 rounded-md p-2 focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="contacto@melon.cl">
         </div>
         <div class="col-span-2">
-          <label class="block font-semibold text-slate-700 mb-0.5">Dirección / Sucursal</label>
-          <input id="sup-address" type="text" class="w-full border border-slate-300 rounded-lg p-2" placeholder="Av. Américo Vespucio 1500, Santiago">
+          <label class="block font-medium text-slate-700 mb-0.5">Dirección / Sucursal</label>
+          <input id="sup-address" type="text" class="w-full border border-slate-300 rounded-md p-2 focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="Av. Américo Vespucio 1500, Santiago">
         </div>
         <div class="col-span-2 pt-1 border-t border-slate-100 font-bold text-slate-800">
           Contacto Vendedor Directo:
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Vendedor *</label>
-          <input id="sup-contact-salesperson" type="text" class="w-full border border-slate-300 rounded-lg p-2" placeholder="Rodrigo Arancibia">
+          <label class="block font-medium text-slate-700 mb-0.5">Vendedor *</label>
+          <input id="sup-contact-salesperson" type="text" class="w-full border border-slate-300 rounded-md p-2 focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="Rodrigo Arancibia">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Teléfono Vendedor</label>
-          <input id="sup-contact-phone" type="text" class="w-full border border-slate-300 rounded-lg p-2" placeholder="+56 9 8765 4321">
+          <label class="block font-medium text-slate-700 mb-0.5">Teléfono Vendedor</label>
+          <input id="sup-contact-phone" type="text" class="w-full border border-slate-300 rounded-md p-2 focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="+56 9 8765 4321">
         </div>
         <div class="col-span-2">
-          <label class="block font-semibold text-slate-700 mb-0.5">Email Vendedor *</label>
-          <input id="sup-contact-email" type="email" class="w-full border border-slate-300 rounded-lg p-2" placeholder="rodrigo.arancibia@melon.cl">
+          <label class="block font-medium text-slate-700 mb-0.5">Email Vendedor *</label>
+          <input id="sup-contact-email" type="email" class="w-full border border-slate-300 rounded-md p-2 focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" placeholder="rodrigo.arancibia@melon.cl">
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-        <button onclick="closeModal('modal-create-supplier')" class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-        <button onclick="executeCreateSupplier()" class="px-3 py-1.5 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-2xs">Guardar Proveedor</button>
+        <button onclick="closeModal('modal-create-supplier')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-md">Cancelar</button>
+        <button onclick="executeCreateSupplier()" class="px-3 py-1.5 text-xs font-medium text-white bg-[#0F172A] hover:bg-slate-800 rounded-md shadow-xs">Guardar Proveedor</button>
       </div>
     </div>
   </div>
 
   <!-- MODAL: SOLICITUD DE COTIZACIÓN -->
-  <div id="modal-rfq" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-3">
-    <div class="bg-white rounded-xl max-w-md w-full p-4 shadow-xl space-y-3 border border-blue-300">
+  <div id="modal-rfq" class="hidden fixed inset-0 bg-[#0F172A]/70 backdrop-blur-xs z-50 flex items-center justify-center p-3.5">
+    <div class="bg-white rounded-lg max-w-md w-full p-4 shadow-xl space-y-3 border border-slate-200">
       <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-        <h3 class="font-bold text-slate-900 text-xs flex items-center gap-1.5">
-          <i data-lucide="mail-plus" class="w-4 h-4 text-blue-600"></i> Solicitud de Cotización de Reposición
+        <h3 class="font-bold text-[#0F172A] text-sm font-heading flex items-center gap-1.5">
+          <i data-lucide="mail-plus" class="w-4 h-4 text-[#3182CE]"></i> Solicitud de Cotización de Reposición
         </h3>
         <button onclick="closeModal('modal-rfq')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
 
       <div class="space-y-2 text-xs">
-        <div class="bg-blue-50 border border-blue-200 p-2 rounded-lg text-blue-950 text-[11px] space-y-0.5">
-          <div><span class="font-semibold">Vendedor:</span> <span id="rfq-vendor-name" class="font-bold"></span></div>
-          <div><span class="font-semibold">Email:</span> <span id="rfq-vendor-email" class="font-bold font-mono"></span></div>
+        <div class="bg-blue-50/60 border border-blue-200 p-2.5 rounded-md text-slate-800 text-xs space-y-0.5">
+          <div><span class="font-medium text-slate-500">Vendedor:</span> <span id="rfq-vendor-name" class="font-bold text-[#0F172A]"></span></div>
+          <div><span class="font-medium text-slate-500">Email:</span> <span id="rfq-vendor-email" class="font-bold font-mono text-[#3182CE]"></span></div>
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Asunto</label>
-          <input id="rfq-subject" type="text" class="w-full border border-slate-300 rounded-lg p-2 font-medium" value="Solicitud Urgente de Cotización - Materiales Almac">
+          <label class="block font-medium text-slate-700 mb-0.5">Asunto</label>
+          <input id="rfq-subject" type="text" class="w-full border border-slate-300 rounded-md p-2 font-medium focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]" value="Solicitud de Cotización de Materiales - Almac">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-0.5">Mensaje</label>
-          <textarea id="rfq-body" rows="5" class="w-full border border-slate-300 rounded-lg p-2 font-mono text-[10px]"></textarea>
+          <label class="block font-medium text-slate-700 mb-0.5">Mensaje</label>
+          <textarea id="rfq-body" rows="5" class="w-full border border-slate-300 rounded-md p-2 font-mono text-xs focus:ring-1 focus:ring-[#3182CE] focus:border-[#3182CE]"></textarea>
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-        <button onclick="closeModal('modal-rfq')" class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Cerrar</button>
-        <button onclick="sendRFQ()" class="px-3 py-1.5 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center gap-1 shadow-2xs">
+        <button onclick="closeModal('modal-rfq')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-md">Cerrar</button>
+        <button onclick="sendRFQ()" class="px-3 py-1.5 text-xs font-medium text-white bg-[#3182CE] hover:bg-[#2B6CB0] rounded-md flex items-center gap-1 shadow-xs">
           <i data-lucide="send" class="w-3.5 h-3.5"></i> Abrir en Correo
         </button>
       </div>
@@ -1240,9 +1351,9 @@
           defaultSupplierId: 'sup-2',
           stockByLocation: {
             'proj-1_general': 10,
-            'sub-1a': 26, // Teórico era 24 -> descalce +2 (Alerta)
-            'sub-1b': 24, // Teórico era 24 -> conforme 0%
-            'sub-2a': 28  // Teórico era 20 -> descalce +8 (Crítico)
+            'sub-1a': 26,
+            'sub-1b': 24,
+            'sub-2a': 28
           }
         },
         {
@@ -1294,7 +1405,7 @@
           name: 'Plancha Poliestireno EPS 50mm Alta Densidad',
           unit: 'm2',
           category: 'Envolvente EIFS',
-          warehouseStock: 14, // Bajo stock mínimo
+          warehouseStock: 14,
           minStock: 40,
           pmp: 3800,
           defaultSupplierId: 'sup-3',
@@ -1432,7 +1543,7 @@
         }
       ],
 
-      // 5. PEDIDOS DE TERRENO (REQUISICIONES CON ESTADOS)
+      // 5. PEDIDOS DE TERRENO (REQUISICIONES)
       requisitions: [
         {
           id: 'req-1',
@@ -1487,7 +1598,7 @@
     };
 
     // =========================================================================
-    // CONTROL DEL SIDEBAR COMPACTO Y RESPONSIVE
+    // CONTROL DEL SIDEBAR
     // =========================================================================
     function toggleSidebar() {
       const isMobile = window.innerWidth < 768;
@@ -1528,7 +1639,7 @@
     }
 
     // =========================================================================
-    // NAVEGACIÓN ENTRE MÓDULOS
+    // NAVEGACIÓN ENTRE MÓDULOS (AZUL ACERO INDUSTRIAL #3182CE EN ACTIVOS)
     // =========================================================================
     function switchModule(moduleName) {
       currentModule = moduleName;
@@ -1540,10 +1651,10 @@
 
         if (m === moduleName) {
           if (sec) sec.classList.remove('hidden');
-          if (btn) btn.className = 'w-full px-2.5 py-2 text-xs font-bold rounded-lg transition flex items-center gap-2.5 bg-amber-500 text-slate-950 shadow-2xs';
+          if (btn) btn.className = 'w-full px-2.5 py-2 text-xs font-medium rounded-md transition flex items-center gap-2.5 bg-[#3182CE] text-white shadow-xs';
         } else {
           if (sec) sec.classList.add('hidden');
-          if (btn) btn.className = 'w-full px-2.5 py-2 text-xs font-bold rounded-lg transition flex items-center gap-2.5 text-slate-300 hover:bg-slate-800 hover:text-white';
+          if (btn) btn.className = 'w-full px-2.5 py-2 text-xs font-medium rounded-md transition flex items-center gap-2.5 text-slate-300 hover:bg-slate-800 hover:text-white';
         }
       });
 
@@ -1552,7 +1663,7 @@
 
       if (moduleName === 'dashboard') {
         titleEl.textContent = 'Dashboard de Control y Seguimiento';
-        subTitleEl.textContent = 'Métricas consolidadas, semáforos de descalce y autorizaciones activas';
+        subTitleEl.textContent = 'Métricas consolidadas, semáforos de descalce y autorizaciones de faena';
       } else if (moduleName === 'inventario') {
         titleEl.textContent = 'Inventario, Comités & Viviendas';
         subTitleEl.textContent = 'Bodega Central Matriz, Proyectos Comités y Beneficiarios SERVIU';
@@ -1570,7 +1681,6 @@
         subTitleEl.textContent = 'Costos PMP, alertas de reposición y stock consolidado';
       }
 
-      // Cerrar drawer móvil al seleccionar módulo
       if (window.innerWidth < 768) {
         toggleSidebarMobile(false);
       }
@@ -1616,9 +1726,8 @@
     }
 
     // =========================================================================
-    // CÁLCULO DE SEMÁFORO DE DESCALCE (CUBICADO VS REAL)
+    // CÁLCULO DE SEMÁFORO DE DESCALCE
     // =========================================================================
-    // Devuelve { status: 'green' | 'yellow' | 'red', label: string, diffPct: number }
     function computeMaterialDescalce(theoreticalQty, realQty) {
       if (!theoreticalQty || theoreticalQty <= 0) {
         return { status: 'green', label: 'Sin Cubicar', diffPct: 0 };
@@ -1658,16 +1767,16 @@
       });
 
       if (worstStatus === 'red') {
-        return { status: 'red', label: `🔴 Descalce Crítico (+${worstPct}%)` };
+        return { status: 'red', label: `🔴 Descalce (+${worstPct}%)` };
       } else if (worstStatus === 'yellow') {
-        return { status: 'yellow', label: `🟡 Alerta Merma (+${worstPct}%)` };
+        return { status: 'yellow', label: `🟡 Merma (+${worstPct}%)` };
       } else {
         return { status: 'green', label: `🟢 En Norma SERVIU` };
       }
     }
 
     function getLocationDisplayName(locId) {
-      if (locId === 'warehouse') return '👑 Bodega Central Matriz';
+      if (locId === 'warehouse') return 'Bodega Central Matriz';
       if (locId.endsWith('_general')) {
         const pId = locId.replace('_general', '');
         const p = state.projects.find(x => x.id === pId);
@@ -1690,16 +1799,15 @@
       ['admin', 'operaciones', 'bodeguero'].forEach(r => {
         const btn = document.getElementById(`btn-role-${r}`);
         if (r === role) {
-          btn.className = 'px-2 py-1 rounded text-left font-semibold transition bg-amber-500 text-slate-950 flex items-center justify-between';
+          btn.className = 'px-2 py-1 rounded-md text-left font-medium transition bg-[#3182CE] text-white flex items-center justify-between text-xs';
         } else {
-          btn.className = 'px-2 py-1 rounded text-left font-semibold transition text-slate-300 hover:text-white flex items-center justify-between';
+          btn.className = 'px-2 py-1 rounded-md text-left font-medium transition text-slate-300 hover:text-white flex items-center justify-between text-xs';
         }
       });
 
       document.getElementById('role-badge').textContent = role;
       document.getElementById('bodeguero-banner').style.display = (role === 'bodeguero') ? 'block' : 'none';
 
-      // Ocultar columnas financieras si es bodeguero
       const cols = document.querySelectorAll('.col-financial');
       cols.forEach(c => {
         c.style.display = (role === 'bodeguero') ? 'none' : '';
@@ -1807,41 +1915,41 @@
       } else {
         pendingReqs.forEach(req => {
           const row = document.createElement('tr');
-          row.className = 'hover:bg-amber-50/40 transition border-b border-slate-100 text-xs';
+          row.className = 'hover:bg-slate-50 transition border-b border-slate-100 text-xs';
           row.innerHTML = `
-            <td class="px-3 py-2 font-mono font-bold text-slate-900">
-              <span class="bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded text-[10px]">${req.folio}</span>
+            <td class="px-3.5 py-2 font-mono font-bold text-[#0F172A]">
+              <span class="bg-blue-50 text-[#3182CE] border border-blue-200 px-1.5 py-0.5 rounded text-[10px]">${req.folio}</span>
               <div class="text-[10px] text-slate-400 font-normal">Requisición Terreno</div>
             </td>
-            <td class="px-3 py-2">
-              <div class="font-medium text-slate-800">${req.requestedBy}</div>
+            <td class="px-3.5 py-2">
+              <div class="font-medium text-[#0F172A]">${req.requestedBy}</div>
               <div class="text-[10px] text-slate-400">${req.date}</div>
             </td>
-            <td class="px-3 py-2">
-              <div class="font-bold text-slate-900">${req.projectName}</div>
-              <div class="text-[10px] text-emerald-700 font-medium">↳ ${req.housingUnitName || 'Stock Faena'}</div>
+            <td class="px-3.5 py-2">
+              <div class="font-bold text-[#0F172A]">${req.projectName}</div>
+              <div class="text-[10px] text-[#3182CE] font-medium">↳ ${req.housingUnitName || 'Stock Faena'}</div>
             </td>
-            <td class="px-3 py-2">
-              <span class="font-mono font-bold text-slate-800">${req.quantity} ${req.unit}</span> ${req.materialName}
+            <td class="px-3.5 py-2">
+              <span class="font-mono font-bold text-[#0F172A]">${req.quantity} ${req.unit}</span> ${req.materialName}
               <div class="text-[10px] text-slate-500 italic truncate max-w-xs">${req.notes || ''}</div>
             </td>
-            <td class="px-3 py-2 text-right">
-              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${req.urgency === 'Urgente' ? 'bg-rose-100 text-rose-800 border border-rose-200' : (req.urgency === 'Alta' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700')}">
+            <td class="px-3.5 py-2 text-right">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${req.urgency === 'Urgente' ? 'bg-[#FFF7F2] text-[#C05621] border border-[#FEE8DC]' : (req.urgency === 'Alta' ? 'bg-amber-50 text-amber-800' : 'bg-slate-100 text-slate-700')}">
                 ${req.urgency}
               </span>
             </td>
-            <td class="px-3 py-2 text-center">
+            <td class="px-3.5 py-2 text-center">
               ${isUserAuthorized() ? `
-                <div class="flex items-center justify-center gap-1">
-                  <button onclick="approveRequisition('${req.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-2 py-1 rounded shadow-2xs transition">
+                <div class="flex items-center justify-center gap-1.5">
+                  <button onclick="approveRequisition('${req.id}')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-[11px] font-medium px-2.5 py-1 rounded-md shadow-xs transition">
                     Aprobar & Despachar
                   </button>
-                  <button onclick="rejectRequisition('${req.id}')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-[10px] font-semibold px-1.5 py-1 rounded transition">
+                  <button onclick="rejectRequisition('${req.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium px-2 py-1 rounded-md transition border border-slate-300">
                     Rechazar
                   </button>
                 </div>
               ` : `
-                <span class="text-[10px] text-slate-400 italic">Requiere Admin</span>
+                <span class="text-[11px] text-slate-400 italic">Requiere Admin</span>
               `}
             </td>
           `;
@@ -1855,27 +1963,27 @@
       state.projects.forEach(p => {
         const pct = p.budgetCLP > 0 ? (p.accumulatedCostCLP / p.budgetCLP) * 100 : 0;
         const box = document.createElement('div');
-        box.className = 'bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2';
+        box.className = 'bg-white border border-slate-200 rounded-lg p-3.5 space-y-2 shadow-xs';
         box.innerHTML = `
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <span class="font-mono text-[10px] bg-slate-900 text-white font-bold px-1.5 py-0.5 rounded">${p.code}</span>
-              <h4 class="font-bold text-slate-900 text-xs">${p.name}</h4>
+              <span class="font-mono text-[10px] bg-[#0F172A] text-white font-bold px-1.5 py-0.5 rounded-md">${p.code}</span>
+              <h4 class="font-bold text-[#0F172A] text-xs font-heading">${p.name}</h4>
             </div>
-            ${p.serviuCode ? `<span class="text-[9px] bg-blue-100 text-blue-800 font-mono font-bold px-1.5 py-0.2 rounded border border-blue-200">${p.serviuCode}</span>` : ''}
+            ${p.serviuCode ? `<span class="text-[10px] bg-blue-50 text-[#3182CE] font-mono font-bold px-1.5 py-0.5 rounded border border-blue-200">${p.serviuCode}</span>` : ''}
           </div>
           <div class="space-y-1">
-            <div class="flex justify-between text-[11px]">
+            <div class="flex justify-between text-xs">
               <span class="text-slate-500">Avance Presupuestario:</span>
-              <span class="font-bold text-slate-800">${formatCLP(p.accumulatedCostCLP)} / ${formatCLP(p.budgetCLP)} (${pct.toFixed(1)}%)</span>
+              <span class="font-bold text-[#0F172A]">${formatCLP(p.accumulatedCostCLP)} / ${formatCLP(p.budgetCLP)} (${pct.toFixed(1)}%)</span>
             </div>
             <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
-              <div class="bg-amber-500 h-full rounded-full" style="width: ${Math.min(100, pct)}%"></div>
+              <div class="bg-[#3182CE] h-full rounded-full" style="width: ${Math.min(100, pct)}%"></div>
             </div>
           </div>
-          <div class="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-200/60">
+          <div class="flex items-center justify-between text-xs text-slate-500 pt-1 border-t border-slate-100">
             <span>${p.subprojects.length} Viviendas en intervención</span>
-            <button onclick="switchModule('inventario')" class="text-amber-700 font-semibold hover:underline">Gestionar Viviendas</button>
+            <button onclick="switchModule('inventario')" class="text-[#3182CE] font-medium hover:underline">Gestionar Viviendas</button>
           </div>
         `;
         summaryContainer.appendChild(box);
@@ -1895,12 +2003,12 @@
       state.materials.forEach(m => {
         const isLow = m.warehouseStock <= m.minStock;
         const chip = document.createElement('div');
-        chip.className = `px-2 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 border shadow-2xs ${
-          isLow ? 'bg-rose-50 text-rose-800 border-rose-300' : 'bg-white text-slate-800 border-slate-200'
+        chip.className = `px-2.5 py-1 rounded-md text-xs font-medium flex items-center gap-1.5 border shadow-xs ${
+          isLow ? 'bg-rose-50 text-rose-800 border-rose-300' : 'bg-slate-50 text-[#0F172A] border-slate-200'
         }`;
         chip.innerHTML = `
           <span>${m.name}:</span>
-          <span class="font-mono font-bold ${isLow ? 'text-rose-700' : 'text-blue-700'}">${m.warehouseStock} ${m.unit}</span>
+          <span class="font-mono font-bold ${isLow ? 'text-rose-700' : 'text-[#3182CE]'}">${m.warehouseStock} ${m.unit}</span>
           ${isLow ? '<span class="text-[9px] bg-rose-200 text-rose-900 px-1 rounded font-bold">Bajo Mínimo</span>' : ''}
         `;
         matrixSummaryContainer.appendChild(chip);
@@ -1913,10 +2021,8 @@
       state.projects.forEach(project => {
         const isCollapsed = collapsedProjects[project.id] ?? false;
 
-        // Recolectar materiales por ubicación en este proyecto
         const projectMaterials = [];
         state.materials.forEach(m => {
-          // Stock general obra
           const generalQty = m.stockByLocation[`${project.id}_general`] || 0;
           if (generalQty > 0) {
             projectMaterials.push({
@@ -1925,7 +2031,7 @@
               name: m.name,
               unit: m.unit,
               locationId: `${project.id}_general`,
-              locationName: '📦 Stock Faena (Sin Vivienda Asignada)',
+              locationName: 'Stock Faena (Sin Vivienda Asignada)',
               quantity: generalQty,
               pmp: m.pmp,
               subtotalCost: generalQty * m.pmp,
@@ -1933,7 +2039,6 @@
             });
           }
 
-          // Stock por vivienda
           project.subprojects.forEach(sub => {
             const subQty = m.stockByLocation[sub.id] || 0;
             const tm = (sub.theoreticalMaterials || []).find(t => t.materialId === m.id);
@@ -1962,11 +2067,10 @@
         const pct = project.budgetCLP > 0 ? (project.accumulatedCostCLP / project.budgetCLP) * 100 : 0;
 
         const card = document.createElement('div');
-        card.className = 'bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shadow-2xs';
+        card.className = 'bg-white border border-slate-200 rounded-lg overflow-hidden shadow-xs';
 
         let expandedHtml = '';
         if (!isCollapsed) {
-          // Tabla de materiales y descalce
           let tableRowsHtml = '';
           if (projectMaterials.length === 0) {
             tableRowsHtml = `
@@ -1982,38 +2086,38 @@
               return `
                 <tr draggable="true" 
                     ondragstart="handleDragStart(event, '${project.id}', '${item.materialId}', '${item.locationId}', ${item.quantity}, '${item.name}', '${item.unit}')"
-                    class="hover:bg-amber-50/30 transition cursor-grab active:cursor-grabbing border-b border-slate-100 text-xs">
-                  <td class="px-2.5 py-1.5 text-center">
-                    <input type="checkbox" class="proj-checkbox-${project.id} rounded border-slate-300 text-amber-600 focus:ring-amber-500 w-3.5 h-3.5 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                    class="hover:bg-slate-50 transition cursor-grab active:cursor-grabbing border-b border-slate-100 text-xs">
+                  <td class="px-3 py-2 text-center">
+                    <input type="checkbox" class="proj-checkbox-${project.id} rounded border-slate-300 text-[#C05621] focus:ring-[#C05621] w-3.5 h-3.5 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                            ${item.quantity <= 0 ? 'disabled title="Sin existencias asignadas para mover"' : ''}
                            value="${item.materialId}|${item.locationId}|${item.quantity}|${item.name}|${item.unit}">
                   </td>
-                  <td class="px-2.5 py-1.5 font-medium text-slate-900 flex items-center gap-1.5">
+                  <td class="px-3 py-2 font-medium text-[#0F172A] flex items-center gap-1.5">
                     <i data-lucide="grip-vertical" class="w-3.5 h-3.5 text-slate-400"></i>
                     <div>
-                      <div class="font-bold leading-tight">${item.name}</div>
-                      <div class="text-[9px] font-mono text-slate-400">${item.sku}</div>
+                      <div class="font-bold leading-tight text-[#0F172A]">${item.name}</div>
+                      <div class="text-[10px] font-mono text-slate-400">${item.sku}</div>
                     </div>
                   </td>
-                  <td class="px-2.5 py-1.5 text-right font-mono font-medium text-slate-600">
+                  <td class="px-3 py-2 text-right font-mono font-medium text-slate-600">
                     ${item.theoreticalQty > 0 ? `${item.theoreticalQty} ${item.unit}` : '<span class="text-slate-400 italic text-[10px]">Sin EETT</span>'}
                   </td>
-                  <td class="px-2.5 py-1.5 text-right font-mono font-bold text-slate-900">
+                  <td class="px-3 py-2 text-right font-mono font-bold text-[#0F172A]">
                     ${item.quantity} ${item.unit}
                   </td>
-                  <td class="px-2.5 py-1.5 text-center">
-                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                      descalce.status === 'green' ? 'bg-emerald-100 text-emerald-800' : (descalce.status === 'yellow' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800')
+                  <td class="px-3 py-2 text-center">
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                      descalce.status === 'green' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : (descalce.status === 'yellow' ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-rose-50 text-rose-800 border border-rose-200')
                     }">
                       ${descalce.label}
                     </span>
                   </td>
-                  <td class="px-2.5 py-1.5 font-medium text-[11px]">
-                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded ${item.locationId.endsWith('_general') ? 'bg-blue-50 text-blue-800 border border-blue-200' : 'bg-amber-50 text-amber-900 border border-amber-200'}">
+                  <td class="px-3 py-2 font-medium text-xs">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] ${item.locationId.endsWith('_general') ? 'bg-slate-100 text-slate-800 border border-slate-200' : 'bg-blue-50 text-[#3182CE] border border-blue-200'}">
                       ${item.locationName}
                     </span>
                   </td>
-                  <td class="px-2.5 py-1.5 text-right font-mono font-bold text-slate-900 col-financial">
+                  <td class="px-3 py-2 text-right font-mono font-bold text-[#0F172A] col-financial">
                     ${currentRole === 'bodeguero' ? '🔒' : formatCLP(item.subtotalCost)}
                   </td>
                 </tr>
@@ -2027,28 +2131,28 @@
             const overallDescalce = computeHousingOverallDescalce(sub);
             housingsListHtml += `
               <div ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, '${project.id}', '${sub.id}', '${sub.housingNumber} - ${sub.ownerName}')" 
-                   class="border border-slate-200 bg-white p-2.5 rounded-xl hover:border-amber-400 transition space-y-1.5 shadow-2xs">
+                   class="border border-slate-200 bg-white p-3 rounded-lg hover:border-[#3182CE] transition space-y-1.5 shadow-xs">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-1.5">
-                    <i data-lucide="home" class="w-3.5 h-3.5 text-emerald-600"></i>
-                    <span class="font-bold text-slate-900 text-xs">${sub.housingNumber}</span>
+                    <i data-lucide="home" class="w-3.5 h-3.5 text-[#3182CE]"></i>
+                    <span class="font-bold text-[#0F172A] text-xs font-heading">${sub.housingNumber}</span>
                     <span class="text-slate-400 text-[10px]">(${sub.code})</span>
                   </div>
-                  <span class="text-[10px] font-bold px-1.5 py-0.2 rounded ${
-                    overallDescalce.status === 'green' ? 'bg-emerald-100 text-emerald-800' : (overallDescalce.status === 'yellow' ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800')
+                  <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-md ${
+                    overallDescalce.status === 'green' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : (overallDescalce.status === 'yellow' ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-rose-50 text-rose-800 border border-rose-200')
                   }">
                     ${overallDescalce.label}
                   </span>
                 </div>
                 
-                <div class="text-[11px] text-slate-600">
-                  <span class="font-semibold text-slate-800">${sub.ownerName}</span>
-                  <div class="text-slate-400 text-[10px] truncate">${sub.address}</div>
+                <div class="text-xs text-slate-600">
+                  <span class="font-semibold text-[#0F172A]">${sub.ownerName}</span>
+                  <div class="text-slate-400 text-[11px] truncate">${sub.address}</div>
                 </div>
 
-                <div class="flex items-center justify-between pt-1 border-t border-slate-100 text-[10px]">
-                  <span class="text-slate-500 font-mono">Plantilla: <strong>${sub.appliedTemplateName || 'Sin asignar'}</strong></span>
-                  <button onclick="openApplyTemplateModal('${project.id}', '${sub.id}', '${sub.housingNumber} - ${sub.ownerName}')" class="text-amber-700 hover:underline font-bold">
+                <div class="flex items-center justify-between pt-1.5 border-t border-slate-100 text-[11px]">
+                  <span class="text-slate-500">Plantilla: <strong>${sub.appliedTemplateName || 'Sin asignar'}</strong></span>
+                  <button onclick="openApplyTemplateModal('${project.id}', '${sub.id}', '${sub.housingNumber} - ${sub.ownerName}')" class="text-[#3182CE] hover:underline font-semibold">
                     📐 Aplicar / Cambiar EETT
                   </button>
                 </div>
@@ -2057,42 +2161,43 @@
           });
 
           expandedHtml = `
-            <div class="p-3 border-t border-slate-200 space-y-3 bg-white/70">
+            <div class="p-3.5 border-t border-slate-200 space-y-3 bg-slate-50/50">
               
               <!-- ACCIÓN EN LOTE Y REASIGNACIÓN -->
-              <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-100 p-2 rounded-lg text-xs">
+              <div class="flex flex-wrap items-center justify-between gap-2 bg-white p-2.5 rounded-lg border border-slate-200 text-xs">
                 <div class="flex items-center gap-2">
-                  <span class="font-bold text-slate-700 text-[11px]">Acción en lote:</span>
-                  <button onclick="selectAllCheckboxes('${project.id}', true)" class="text-blue-600 hover:underline text-[11px]">Todos</button>
+                  <span class="font-bold text-slate-700 text-xs">Acción en lote:</span>
+                  <button onclick="selectAllCheckboxes('${project.id}', true)" class="text-[#3182CE] hover:underline font-medium text-xs">Todos</button>
                   <span class="text-slate-300">|</span>
-                  <button onclick="selectAllCheckboxes('${project.id}', false)" class="text-slate-500 hover:underline text-[11px]">Ninguno</button>
+                  <button onclick="selectAllCheckboxes('${project.id}', false)" class="text-slate-500 hover:underline font-medium text-xs">Ninguno</button>
                 </div>
-                <div class="flex items-center gap-1.5">
-                  <span class="text-slate-500 text-[11px]">Mover seleccionados hacia:</span>
-                  <select id="bulk-target-${project.id}" class="border border-slate-300 rounded p-1 bg-white font-medium text-xs">
+                <div class="flex items-center gap-2">
+                  <span class="text-slate-600 text-xs font-medium">Mover seleccionados hacia:</span>
+                  <select id="bulk-target-${project.id}" class="border border-slate-300 rounded-md p-1.5 bg-white font-medium text-xs focus:ring-1 focus:ring-[#3182CE]">
                     <option value="${project.id}_general">📦 Stock Faena (Sin Vivienda)</option>
                     ${project.subprojects.map(s => `<option value="${s.id}">🏠 ${s.housingNumber} (${s.ownerName})</option>`).join('')}
                   </select>
-                  <button onclick="executeBulkMove('${project.id}')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-2.5 py-1 rounded shadow-2xs transition text-xs">
-                    Mover
+                  <!-- BOTÓN ACCIÓN EN LOTE: NARANJA TERRACOTA -->
+                  <button onclick="executeBulkMove('${project.id}')" class="bg-[#C05621] hover:bg-[#9C4215] text-white font-medium px-3 py-1.5 rounded-md shadow-xs transition text-xs">
+                    Mover Seleccionados
                   </button>
                 </div>
               </div>
 
               <!-- TABLA DE MATERIALES -->
-              <div class="overflow-x-auto border border-slate-200 rounded-lg">
+              <div class="overflow-x-auto border border-slate-200 rounded-lg bg-white">
                 <table class="w-full text-left text-xs">
-                  <thead class="bg-slate-100/90 text-slate-600 font-semibold uppercase text-[10px] tracking-wider border-b border-slate-200">
+                  <thead class="bg-slate-100 text-slate-700 font-semibold uppercase text-[10px] tracking-wider border-b border-slate-200">
                     <tr>
-                      <th class="px-2.5 py-1.5 w-7 text-center">
-                        <input type="checkbox" onchange="selectAllCheckboxes('${project.id}', this.checked)" title="Seleccionar todos los materiales con stock" class="rounded border-slate-300 text-amber-600 focus:ring-amber-500 w-3.5 h-3.5 cursor-pointer">
+                      <th class="px-3 py-2 w-8 text-center">
+                        <input type="checkbox" onchange="selectAllCheckboxes('${project.id}', this.checked)" title="Seleccionar todos los materiales con stock" class="rounded border-slate-300 text-[#C05621] focus:ring-[#C05621] w-3.5 h-3.5 cursor-pointer">
                       </th>
-                      <th class="px-2.5 py-1.5">Material / SKU (Arrastrable)</th>
-                      <th class="px-2.5 py-1.5 text-right">EETT Teórico</th>
-                      <th class="px-2.5 py-1.5 text-right">Real Asignado</th>
-                      <th class="px-2.5 py-1.5 text-center">Descalce</th>
-                      <th class="px-2.5 py-1.5">Vivienda Asignada</th>
-                      <th class="px-2.5 py-1.5 text-right col-financial">Costo Total</th>
+                      <th class="px-3 py-2">Material / SKU (Arrastrable)</th>
+                      <th class="px-3 py-2 text-right">EETT Teórico</th>
+                      <th class="px-3 py-2 text-right">Real Asignado</th>
+                      <th class="px-3 py-2 text-center">Descalce</th>
+                      <th class="px-3 py-2">Vivienda Asignada</th>
+                      <th class="px-3 py-2 text-right col-financial">Costo Total</th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">${tableRowsHtml}</tbody>
@@ -2102,14 +2207,14 @@
               <!-- FICHAS DE VIVIENDAS / BENEFICIARIOS -->
               <div class="space-y-2 pt-1">
                 <div class="flex items-center justify-between text-xs font-bold uppercase text-slate-500 tracking-wider">
-                  <span class="text-[10px]">Viviendas Beneficiarias (Arrastra materiales aquí):</span>
+                  <span class="text-xs text-[#0F172A]">Viviendas Beneficiarias (Arrastra materiales aquí):</span>
                   ${currentRole !== 'bodeguero' ? `
-                    <button onclick="openCreateHousingModal('${project.id}', '${project.name}')" class="text-emerald-700 hover:underline flex items-center gap-1 text-[11px]">
+                    <button onclick="openCreateHousingModal('${project.id}', '${project.name}')" class="text-[#3182CE] hover:underline flex items-center gap-1 text-xs font-semibold">
                       <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> + Nueva Vivienda / Beneficiario
                     </button>
                   ` : ''}
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">${housingsListHtml}</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">${housingsListHtml}</div>
               </div>
 
             </div>
@@ -2117,21 +2222,21 @@
         }
 
         card.innerHTML = `
-          <div class="p-3 flex flex-wrap items-center justify-between gap-2.5">
+          <div class="p-3.5 flex flex-wrap items-center justify-between gap-3 bg-white">
             <div onclick="toggleProjectCollapse('${project.id}')" class="flex items-center gap-2.5 cursor-pointer flex-1 min-w-[240px]">
-              <button class="text-slate-500 hover:text-slate-900 p-1 rounded bg-white border border-slate-200 shadow-2xs">
-                <i data-lucide="${isCollapsed ? 'chevron-right' : 'chevron-down'}" class="w-3.5 h-3.5 text-slate-700"></i>
+              <button class="text-slate-500 hover:text-slate-900 p-1 rounded-md bg-slate-100 hover:bg-slate-200 transition">
+                <i data-lucide="${isCollapsed ? 'chevron-right' : 'chevron-down'}" class="w-4 h-4 text-slate-700"></i>
               </button>
-              <div class="bg-slate-900 text-white px-2 py-0.5 rounded font-mono font-bold text-xs">
+              <div class="bg-[#0F172A] text-white px-2.5 py-0.5 rounded-md font-mono font-bold text-xs">
                 ${project.code}
               </div>
               <div>
                 <div class="flex items-center gap-2">
-                  <h3 class="font-bold text-slate-900 text-xs sm:text-sm hover:text-amber-600 transition">${project.name}</h3>
-                  ${project.serviuCode ? `<span class="text-[9px] font-mono font-bold bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded border border-blue-200">${project.serviuCode}</span>` : ''}
+                  <h3 class="font-bold text-[#0F172A] text-sm font-heading hover:text-[#3182CE] transition">${project.name}</h3>
+                  ${project.serviuCode ? `<span class="text-[10px] font-mono font-bold bg-blue-50 text-[#3182CE] px-1.5 py-0.5 rounded border border-blue-200">${project.serviuCode}</span>` : ''}
                 </div>
-                <p class="text-[10px] text-slate-500">
-                  ${project.subprojects.length} Viviendas | ${isCollapsed ? '<span class="text-amber-700 font-semibold">Oculto</span>' : '<span class="text-slate-700 font-semibold">Desplegado</span>'}
+                <p class="text-xs text-slate-500">
+                  ${project.subprojects.length} Viviendas | ${isCollapsed ? '<span class="text-[#C05621] font-semibold">Oculto</span>' : '<span class="text-slate-700 font-semibold">Desplegado</span>'}
                 </p>
               </div>
             </div>
@@ -2140,14 +2245,14 @@
               ${currentRole === 'bodeguero' ? '<span class="badge-lock px-2 py-0.5 rounded text-[10px] font-mono">🔒 Costos Ocultos</span>' : `
                 <div class="text-right mr-1">
                   <span class="text-[10px] text-slate-500 font-medium">Imputado:</span>
-                  <div class="font-bold text-slate-900 text-xs">${formatCLP(project.accumulatedCostCLP)}</div>
+                  <div class="font-bold text-[#0F172A] text-xs">${formatCLP(project.accumulatedCostCLP)}</div>
                   <div class="text-[9px] text-slate-400">Ppto: ${formatCLP(project.budgetCLP)} (${pct.toFixed(0)}%)</div>
                 </div>
               `}
-              <button onclick="openAssignModal('${project.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1 shadow-2xs transition">
+              <button onclick="openAssignModal('${project.id}')" class="bg-[#C05621] hover:bg-[#9C4215] text-white text-xs font-medium px-3 py-1.5 rounded-md flex items-center gap-1 shadow-xs transition">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> + Asignar
               </button>
-              <button onclick="openTransferModal('${project.id}_general', 'warehouse')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1 shadow-2xs transition">
+              <button onclick="openTransferModal('${project.id}_general', 'warehouse')" class="bg-slate-100 hover:bg-slate-200 text-[#0F172A] border border-slate-300 text-xs font-medium px-2.5 py-1.5 rounded-md flex items-center gap-1 transition">
                 <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i> ➔ Mover
               </button>
             </div>
@@ -2158,7 +2263,6 @@
         container.appendChild(card);
       });
 
-      // Kardex
       renderKardex();
     }
 
@@ -2169,13 +2273,13 @@
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition border-b border-slate-100 text-xs';
         tr.innerHTML = `
-          <td class="px-3 py-2 font-mono font-bold text-slate-900 text-[11px]">${m.folio}</td>
-          <td class="px-3 py-2 text-slate-500 text-[11px]">${m.date}</td>
-          <td class="px-3 py-2 text-rose-700 font-medium">${m.originName}</td>
-          <td class="px-3 py-2 text-emerald-700 font-bold">${m.destName}</td>
-          <td class="px-3 py-2 font-medium text-slate-700">${m.userName}</td>
-          <td class="px-3 py-2 font-mono text-[11px]">${m.itemSummary}</td>
-          <td class="px-3 py-2 text-right font-mono font-bold text-slate-900 col-financial">${currentRole === 'bodeguero' ? '🔒' : formatCLP(m.totalCostCLP)}</td>
+          <td class="px-3.5 py-2 font-mono font-bold text-[#0F172A] text-xs">${m.folio}</td>
+          <td class="px-3.5 py-2 text-slate-500 text-xs">${m.date}</td>
+          <td class="px-3.5 py-2 text-slate-700 font-medium">${m.originName}</td>
+          <td class="px-3.5 py-2 text-[#3182CE] font-bold">${m.destName}</td>
+          <td class="px-3.5 py-2 font-medium text-slate-700">${m.userName}</td>
+          <td class="px-3.5 py-2 font-mono text-xs text-slate-800">${m.itemSummary}</td>
+          <td class="px-3.5 py-2 text-right font-mono font-bold text-[#0F172A] col-financial">${currentRole === 'bodeguero' ? '🔒' : formatCLP(m.totalCostCLP)}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -2204,45 +2308,45 @@
 
       state.constructionTemplates.forEach(tpl => {
         const card = document.createElement('div');
-        card.className = 'bg-white rounded-xl border border-slate-200 p-3.5 shadow-2xs space-y-2.5';
+        card.className = 'bg-white rounded-lg border border-slate-200 p-4 shadow-xs space-y-3';
         
         let itemsListHtml = tpl.items.map(it => `
-          <div class="flex items-center justify-between text-[11px] border-b border-slate-100 pb-1">
+          <div class="flex items-center justify-between text-xs border-b border-slate-100 pb-1 pt-0.5">
             <span class="text-slate-800 font-medium">${it.name}</span>
-            <span class="font-mono font-bold text-amber-800 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
+            <span class="font-mono font-bold text-[#0F172A] bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
               ${it.theoreticalQty} ${it.unit}
             </span>
           </div>
         `).join('');
 
         card.innerHTML = `
-          <div class="flex items-start justify-between gap-2 border-b border-slate-100 pb-2">
+          <div class="flex items-start justify-between gap-2 border-b border-slate-100 pb-2.5">
             <div>
               <div class="flex items-center gap-1.5">
-                <span class="font-mono text-[9px] bg-amber-500 text-slate-950 font-bold px-1.5 py-0.2 rounded">${tpl.code}</span>
-                <h3 class="font-bold text-slate-900 text-xs">${tpl.name}</h3>
+                <span class="font-mono text-xs bg-slate-900 text-white font-bold px-2 py-0.5 rounded">${tpl.code}</span>
+                <h3 class="font-bold text-[#0F172A] text-sm font-heading">${tpl.name}</h3>
               </div>
-              <p class="text-[10px] text-slate-500 mt-0.5 leading-snug">${tpl.description}</p>
+              <p class="text-xs text-slate-500 mt-1 leading-snug">${tpl.description}</p>
             </div>
           </div>
 
           <div class="space-y-1">
             <span class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Partidas Incluidas:</span>
             <div class="flex flex-wrap gap-1">
-              ${tpl.partidas.map(p => `<span class="text-[9px] bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded font-semibold">${p}</span>`).join('')}
+              ${tpl.partidas.map(p => `<span class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-medium border border-slate-200">${p}</span>`).join('')}
             </div>
           </div>
 
           <div class="space-y-1 pt-1">
             <span class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Cubicación Teórica Estándar por Vivienda:</span>
-            <div class="space-y-1 bg-slate-50 p-2 rounded-lg border border-slate-200 max-h-36 overflow-y-auto">
+            <div class="space-y-1 bg-slate-50 p-2.5 rounded-md border border-slate-200 max-h-36 overflow-y-auto">
               ${itemsListHtml}
             </div>
           </div>
 
           <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span class="text-[10px] text-slate-400">Total ítems: ${tpl.items.length}</span>
-            <button onclick="promptApplyTemplateModal('${tpl.id}')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-2.5 py-1 rounded-lg text-xs shadow-2xs transition flex items-center gap-1">
+            <span class="text-xs text-slate-400">Total ítems: ${tpl.items.length}</span>
+            <button onclick="promptApplyTemplateModal('${tpl.id}')" class="bg-[#C05621] hover:bg-[#9C4215] text-white font-medium px-3 py-1.5 rounded-md text-xs shadow-xs transition flex items-center gap-1">
               <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Aplicar a Vivienda...
             </button>
           </div>
@@ -2262,7 +2366,7 @@
       if (state.requisitions.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="8" class="p-3 text-center text-slate-400 italic text-xs">
+            <td colspan="8" class="p-4 text-center text-slate-400 italic text-xs">
               No hay pedidos registrados. Haz clic en "+ Crear Pedido desde Terreno".
             </td>
           </tr>
@@ -2274,41 +2378,41 @@
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition border-b border-slate-100 text-xs';
         tr.innerHTML = `
-          <td class="px-3 py-2 font-mono font-bold text-slate-900">
+          <td class="px-3.5 py-2 font-mono font-bold text-[#0F172A]">
             ${req.folio}
             <div class="text-[10px] text-slate-400 font-normal">${req.date}</div>
           </td>
-          <td class="px-3 py-2 font-bold text-slate-900">${req.projectName}</td>
-          <td class="px-3 py-2 font-medium text-emerald-800">${req.housingUnitName || 'Stock Faena'}</td>
-          <td class="px-3 py-2 text-slate-600">${req.requestedBy}</td>
-          <td class="px-3 py-2">
-            <span class="font-mono font-bold text-slate-900">${req.quantity} ${req.unit}</span> ${req.materialName}
-            ${req.notes ? `<div class="text-[10px] text-slate-400 italic">${req.notes}</div>` : ''}
+          <td class="px-3.5 py-2 font-bold text-[#0F172A]">${req.projectName}</td>
+          <td class="px-3.5 py-2 font-medium text-[#3182CE]">${req.housingUnitName || 'Stock Faena'}</td>
+          <td class="px-3.5 py-2 text-slate-600">${req.requestedBy}</td>
+          <td class="px-3.5 py-2">
+            <span class="font-mono font-bold text-[#0F172A]">${req.quantity} ${req.unit}</span> ${req.materialName}
+            ${req.notes ? `<div class="text-[11px] text-slate-400 italic">${req.notes}</div>` : ''}
           </td>
-          <td class="px-3 py-2">
-            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${req.urgency === 'Urgente' ? 'bg-rose-100 text-rose-800 border border-rose-200' : (req.urgency === 'Alta' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700')}">
+          <td class="px-3.5 py-2 text-right">
+            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${req.urgency === 'Urgente' ? 'bg-[#FFF7F2] text-[#C05621] border border-[#FEE8DC]' : (req.urgency === 'Alta' ? 'bg-amber-50 text-amber-800' : 'bg-slate-100 text-slate-700')}">
               ${req.urgency}
             </span>
           </td>
-          <td class="px-3 py-2">
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${
-              req.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-800' : (req.status === 'REJECTED' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-900 animate-pulse')
+          <td class="px-3.5 py-2">
+            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${
+              req.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : (req.status === 'REJECTED' ? 'bg-rose-50 text-rose-800 border border-rose-200' : 'bg-blue-50 text-[#3182CE] border border-blue-200')
             }">
               ${req.status === 'APPROVED' ? 'Aprobado & Despachado' : (req.status === 'REJECTED' ? 'Rechazado' : 'Pendiente Visto Bueno')}
             </span>
-            ${req.authorizedBy ? `<div class="text-[9px] text-slate-400">Por: ${req.authorizedBy}</div>` : ''}
+            ${req.authorizedBy ? `<div class="text-[10px] text-slate-400">Por: ${req.authorizedBy}</div>` : ''}
           </td>
-          <td class="px-3 py-2 text-center">
+          <td class="px-3.5 py-2 text-center">
             ${req.status === 'PENDING_APPROVAL' && isUserAuthorized() ? `
-              <div class="flex items-center justify-center gap-1">
-                <button onclick="approveRequisition('${req.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold px-2 py-1 rounded shadow-2xs">
+              <div class="flex items-center justify-center gap-1.5">
+                <button onclick="approveRequisition('${req.id}')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-[11px] font-medium px-2.5 py-1 rounded-md shadow-xs">
                   Aprobar
                 </button>
-                <button onclick="rejectRequisition('${req.id}')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-[10px] font-semibold px-1.5 py-1 rounded">
+                <button onclick="rejectRequisition('${req.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium px-2 py-1 rounded-md border border-slate-300">
                   Rechazar
                 </button>
               </div>
-            ` : (req.status === 'APPROVED' ? '<span class="text-emerald-600 text-xs">✓ Despachado</span>' : '<span class="text-slate-400 text-xs">-</span>')}
+            ` : (req.status === 'APPROVED' ? '<span class="text-emerald-700 text-xs font-semibold">✓ Despachado</span>' : '<span class="text-slate-400 text-xs">-</span>')}
           </td>
         `;
         tbody.appendChild(tr);
@@ -2330,14 +2434,19 @@
         return;
       }
 
-      // Descontar de bodega matriz y asignar al destino
       mat.warehouseStock -= req.quantity;
       const targetLoc = req.housingUnitId || `${req.projectId}_general`;
       mat.stockByLocation[targetLoc] = (mat.stockByLocation[targetLoc] || 0) + req.quantity;
 
       const movementCost = Math.round(req.quantity * mat.pmp);
       const proj = state.projects.find(p => p.id === req.projectId);
-      if (proj) proj.accumulatedCostCLP += movementCost;
+      if (proj) {
+        proj.accumulatedCostCLP += movementCost;
+        if (req.housingUnitId) {
+          const housing = proj.subprojects.find(s => s.id === req.housingUnitId);
+          if (housing) housing.accumulatedCostCLP = (housing.accumulatedCostCLP || 0) + movementCost;
+        }
+      }
 
       req.status = 'APPROVED';
       req.authorizedBy = state.designatedApprover;
@@ -2346,7 +2455,7 @@
         id: `mov-${Date.now()}`,
         folio: generateNextMovementFolio(),
         date: new Date().toLocaleString('es-CL'),
-        originName: '👑 Bodega Central Matriz',
+        originName: 'Bodega Central Matriz',
         destName: `${req.projectName} ➔ ${req.housingUnitName || 'Stock Faena'}`,
         userName: state.designatedApprover,
         itemSummary: `${req.quantity} ${req.unit} ${req.materialName}`,
@@ -2377,16 +2486,16 @@
         lowMaterials.forEach(m => {
           const sup = state.suppliers.find(s => s.id === m.defaultSupplierId) || state.suppliers[0];
           const alertDiv = document.createElement('div');
-          alertDiv.className = 'bg-rose-50 border-l-4 border-rose-500 p-2.5 rounded-r-xl shadow-2xs flex flex-wrap items-center justify-between gap-2';
+          alertDiv.className = 'bg-rose-50 border-l-4 border-rose-500 p-3 rounded-r-md shadow-xs flex flex-wrap items-center justify-between gap-2.5';
           alertDiv.innerHTML = `
             <div class="flex items-center gap-2">
               <i data-lucide="alert-circle" class="w-4 h-4 text-rose-600"></i>
               <div>
                 <span class="font-bold text-rose-900 text-xs">Alerta de Stock Crítico: ${m.name}</span>
-                <span class="text-rose-700 text-[11px] block">Stock en Matriz: ${m.warehouseStock} ${m.unit} (Mínimo: ${m.minStock} ${m.unit})</span>
+                <span class="text-rose-700 text-xs block">Stock en Matriz: ${m.warehouseStock} ${m.unit} (Mínimo: ${m.minStock} ${m.unit})</span>
               </div>
             </div>
-            <button onclick="prepareRFQ('${sup.id}', '${m.id}')" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-2xs">
+            <button onclick="prepareRFQ('${sup.id}', '${m.id}')" class="bg-[#C05621] hover:bg-[#9C4215] text-white text-xs font-medium px-3 py-1.5 rounded-md flex items-center gap-1 shadow-xs">
               <i data-lucide="mail" class="w-3.5 h-3.5"></i> Cotizar a ${sup.tradeName}
             </button>
           `;
@@ -2400,20 +2509,20 @@
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition border-b border-slate-100 text-xs';
         tr.innerHTML = `
-          <td class="px-3 py-2 font-bold text-slate-900">
+          <td class="px-3.5 py-2.5 font-bold text-[#0F172A]">
             <div>${s.tradeName}</div>
-            <div class="text-[10px] text-slate-400 font-normal">${s.businessName}</div>
+            <div class="text-[11px] text-slate-400 font-normal">${s.businessName}</div>
           </td>
-          <td class="px-3 py-2 font-mono text-[11px]">${s.rut}</td>
-          <td class="px-3 py-2 text-slate-600 text-[11px]">${s.businessLine}</td>
-          <td class="px-3 py-2 font-medium text-slate-800">
+          <td class="px-3.5 py-2.5 font-mono text-xs">${s.rut}</td>
+          <td class="px-3.5 py-2.5 text-slate-600 text-xs">${s.businessLine}</td>
+          <td class="px-3.5 py-2.5 font-medium text-[#0F172A]">
             ${s.contactSalesperson}
             <div class="text-[10px] text-slate-400">${s.contactPhone}</div>
           </td>
-          <td class="px-3 py-2 font-mono text-[11px] text-blue-700">${s.contactEmail}</td>
-          <td class="px-3 py-2"><span class="bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-[10px] font-semibold">${s.category || 'General'}</span></td>
-          <td class="px-3 py-2 text-center">
-            <button onclick="prepareRFQ('${s.id}')" class="bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold px-2 py-1 rounded shadow-2xs">
+          <td class="px-3.5 py-2.5 font-mono text-xs text-[#3182CE]">${s.contactEmail}</td>
+          <td class="px-3.5 py-2.5"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md text-[10px] font-semibold border border-slate-200">${s.category || 'General'}</span></td>
+          <td class="px-3.5 py-2.5 text-center">
+            <button onclick="prepareRFQ('${s.id}')" class="bg-[#C05621] hover:bg-[#9C4215] text-white text-xs font-medium px-2.5 py-1 rounded-md shadow-xs">
               Cotizar
             </button>
           </td>
@@ -2437,16 +2546,16 @@
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition border-b border-slate-100 text-xs';
         tr.innerHTML = `
-          <td class="px-3 py-2 font-mono font-bold text-slate-900 text-[11px]">${m.sku}</td>
-          <td class="px-3 py-2 font-bold text-slate-800">${m.name}</td>
-          <td class="px-3 py-2 text-slate-500">${m.category}</td>
-          <td class="px-2 py-2 font-mono text-slate-600">${m.unit}</td>
-          <td class="px-3 py-2 text-right font-mono text-slate-500">${m.minStock}</td>
-          <td class="px-3 py-2 text-right font-mono font-bold text-blue-900">${m.warehouseStock}</td>
-          <td class="px-3 py-2 text-right font-mono font-bold text-amber-700">${inObras}</td>
-          <td class="px-3 py-2 text-right font-mono font-black text-slate-950 bg-slate-100">${total}</td>
-          <td class="px-3 py-2 text-slate-600">${sup ? sup.tradeName : '-'}</td>
-          <td class="px-3 py-2 text-right font-mono font-bold text-emerald-800 col-financial">${currentRole === 'bodeguero' ? '🔒' : formatCLP(m.pmp)}</td>
+          <td class="px-3.5 py-2.5 font-mono font-bold text-[#0F172A] text-xs">${m.sku}</td>
+          <td class="px-3.5 py-2.5 font-bold text-[#0F172A]">${m.name}</td>
+          <td class="px-3.5 py-2.5 text-slate-500">${m.category}</td>
+          <td class="px-2.5 py-2.5 font-mono text-slate-600">${m.unit}</td>
+          <td class="px-3.5 py-2.5 text-right font-mono text-slate-500">${m.minStock}</td>
+          <td class="px-3.5 py-2.5 text-right font-mono font-bold text-[#0F172A]">${m.warehouseStock}</td>
+          <td class="px-3.5 py-2.5 text-right font-mono font-bold text-slate-700">${inObras}</td>
+          <td class="px-3.5 py-2.5 text-right font-mono font-black text-[#0F172A] bg-slate-100">${total}</td>
+          <td class="px-3.5 py-2.5 text-slate-600">${sup ? sup.tradeName : '-'}</td>
+          <td class="px-3.5 py-2.5 text-right font-mono font-bold text-[#0F172A] col-financial">${currentRole === 'bodeguero' ? '🔒' : formatCLP(m.pmp)}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -2510,7 +2619,6 @@
       document.getElementById('housing-address').value = '';
       document.getElementById('housing-serviu-code').value = '';
 
-      // Poblar selector de plantillas
       const sel = document.getElementById('housing-template-select');
       sel.innerHTML = '<option value="">(Ninguna plantilla inicial)</option>';
       state.constructionTemplates.forEach(t => {
@@ -2593,7 +2701,7 @@
       list.innerHTML = tpl.items.map(it => `
         <div class="flex justify-between border-b border-slate-200/60 pb-0.5">
           <span>${it.name}:</span>
-          <span class="font-bold text-amber-800">${it.theoreticalQty} ${it.unit}</span>
+          <span class="font-bold text-[#0F172A] font-mono">${it.theoreticalQty} ${it.unit}</span>
         </div>
       `).join('');
     }
@@ -2696,12 +2804,12 @@
       };
 
       if (newReq.status === 'APPROVED') {
-        // Ejecución inmediata si es admin
         if (mat.warehouseStock >= qty) {
           mat.warehouseStock -= qty;
           const targetLoc = housingId || `${projId}_general`;
           mat.stockByLocation[targetLoc] = (mat.stockByLocation[targetLoc] || 0) + qty;
           proj.accumulatedCostCLP += Math.round(qty * mat.pmp);
+          if (housing) housing.accumulatedCostCLP = (housing.accumulatedCostCLP || 0) + Math.round(qty * mat.pmp);
           newReq.authorizedBy = 'Admin Total';
         }
       }
@@ -2730,11 +2838,11 @@
       const row = document.createElement('div');
       row.className = 'flex items-center gap-1.5 text-xs';
       row.innerHTML = `
-        <select class="tpl-item-mat border border-slate-300 rounded p-1 flex-1 text-[11px]">
+        <select class="tpl-item-mat border border-slate-300 rounded-md p-1.5 flex-1 text-xs focus:ring-1 focus:ring-[#3182CE]">
           ${state.materials.map(m => `<option value="${m.id}">${m.name} (${m.unit})</option>`).join('')}
         </select>
-        <input type="number" min="1" value="10" class="tpl-item-qty w-16 border border-slate-300 rounded p-1 font-bold text-center text-xs">
-        <input type="text" placeholder="Partida" class="tpl-item-partida w-24 border border-slate-300 rounded p-1 text-[11px]" value="Techumbre">
+        <input type="number" min="1" value="10" class="tpl-item-qty w-16 border border-slate-300 rounded-md p-1.5 font-bold text-center text-xs focus:ring-1 focus:ring-[#3182CE]">
+        <input type="text" placeholder="Partida" class="tpl-item-partida w-24 border border-slate-300 rounded-md p-1.5 text-xs focus:ring-1 focus:ring-[#3182CE]" value="Techumbre">
         <button onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700 px-1 font-bold">✕</button>
       `;
       container.appendChild(row);
@@ -2805,12 +2913,12 @@
 
       const optB1 = document.createElement('option');
       optB1.value = 'warehouse';
-      optB1.textContent = '👑 Bodega Central Matriz';
+      optB1.textContent = 'Bodega Central Matriz';
       originSel.appendChild(optB1);
 
       const optB2 = document.createElement('option');
       optB2.value = 'warehouse';
-      optB2.textContent = '👑 Bodega Central Matriz';
+      optB2.textContent = 'Bodega Central Matriz';
       destSel.appendChild(optB2);
 
       state.projects.forEach(p => {
@@ -2916,6 +3024,8 @@
         for (const p of state.projects) {
           if (originId === `${p.id}_general` || p.subprojects.some(s => s.id === originId)) {
             p.accumulatedCostCLP = Math.max(0, p.accumulatedCostCLP - movementCost);
+            const sub = p.subprojects.find(s => s.id === originId);
+            if (sub) sub.accumulatedCostCLP = Math.max(0, (sub.accumulatedCostCLP || 0) - movementCost);
             break;
           }
         }
@@ -2929,6 +3039,8 @@
         for (const p of state.projects) {
           if (destId === `${p.id}_general` || p.subprojects.some(s => s.id === destId)) {
             p.accumulatedCostCLP += movementCost;
+            const sub = p.subprojects.find(s => s.id === destId);
+            if (sub) sub.accumulatedCostCLP = (sub.accumulatedCostCLP || 0) + movementCost;
             break;
           }
         }
@@ -2952,13 +3064,11 @@
 
     // Drag & Drop con soporte multi-selección
     function handleDragStart(e, projectId, materialId, locationId, qty, name, unit) {
-      // Obtener todos los checkboxes seleccionados en este proyecto
       const cbs = Array.from(document.querySelectorAll(`.proj-checkbox-${projectId}:checked`));
       
       let itemsToMove = [];
 
       if (cbs.length > 0) {
-        // El usuario tiene varios ítems seleccionados con checkbox
         cbs.forEach(cb => {
           const [mId, locId, qStr, mName, mUnit] = cb.value.split('|');
           const parsedQty = parseFloat(qStr) || 0;
@@ -2967,13 +3077,11 @@
           }
         });
 
-        // Asegurarse de que el elemento arrastrado también esté si no estaba seleccionado
         const draggedExists = itemsToMove.some(it => it.materialId === materialId && it.locationId === locationId);
         if (!draggedExists && qty > 0) {
           itemsToMove.push({ materialId, locationId, qty, name, unit });
         }
       } else {
-        // Ningún checkbox seleccionado: se mueve la fila arrastrada
         if (qty > 0) {
           itemsToMove.push({ materialId, locationId, qty, name, unit });
         }
@@ -3062,7 +3170,6 @@
       const project = state.projects.find(p => p.id === projectId);
       if (!project) return;
 
-      // Filtrar ítems que no tengan cantidad o cuyo destino sea el mismo que el origen
       const validItems = items.filter(it => it.qty > 0 && it.locationId !== targetLocationId);
       if (validItems.length === 0) {
         alert('Los materiales seleccionados ya se encuentran en el destino o no tienen stock disponible para mover.');
@@ -3080,13 +3187,13 @@
       listEl.innerHTML = validItems.map((it, idx) => `
         <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5 pt-1">
           <div class="truncate flex-1">
-            <span class="font-bold text-slate-800">${it.name}</span>
-            <div class="text-[10px] text-slate-400">Origen: ${getLocationDisplayName(it.locationId)}</div>
+            <span class="font-bold text-[#0F172A]">${it.name}</span>
+            <div class="text-[11px] text-slate-400">Origen: ${getLocationDisplayName(it.locationId)}</div>
           </div>
           <div class="flex items-center gap-1.5 flex-shrink-0">
             <input type="number" min="1" max="${it.qty}" value="${it.qty}" id="confirm-qty-${idx}" 
-                   class="w-16 border border-slate-300 rounded px-1.5 py-0.5 text-right font-bold text-xs" title="Cantidad a transferir">
-            <span class="text-[10px] text-slate-500 font-mono">${it.unit}</span>
+                   class="w-16 border border-slate-300 rounded-md px-1.5 py-0.5 text-right font-bold text-xs focus:ring-1 focus:ring-[#3182CE]" title="Cantidad a transferir">
+            <span class="text-[11px] text-slate-500 font-mono">${it.unit}</span>
           </div>
         </div>
       `).join('');
@@ -3119,10 +3226,7 @@
         const actualMove = Math.min(qtyToMove, currentOriginStock);
         if (actualMove <= 0) return;
 
-        // Descontar de origen
         mat.stockByLocation[it.locationId] = Math.max(0, currentOriginStock - actualMove);
-
-        // Sumar al destino
         mat.stockByLocation[targetLocationId] = (mat.stockByLocation[targetLocationId] || 0) + actualMove;
 
         const itemCost = Math.round(actualMove * mat.pmp);
@@ -3130,7 +3234,6 @@
         movedSummary.push(`${actualMove} ${it.unit} ${mat.name}`);
         originsSet.add(getLocationDisplayName(it.locationId));
 
-        // Actualizar costo imputado de viviendas origen y destino
         const originSub = project.subprojects.find(s => s.id === it.locationId);
         if (originSub) {
           originSub.accumulatedCostCLP = Math.max(0, (originSub.accumulatedCostCLP || 0) - itemCost);
@@ -3247,7 +3350,6 @@
       const material = materialId ? state.materials.find(m => m.id === materialId) : null;
       document.getElementById('rfq-vendor-name').textContent = supplier.contactSalesperson;
       document.getElementById('rfq-vendor-email').textContent = supplier.contactEmail;
-      document.getElementById('rfq-company-name').textContent = supplier.tradeName;
 
       const suggestedQty = material ? Math.max(50, material.minStock * 2) : 100;
       const matLine = material ? `1. ${material.name} (SKU: ${material.sku}) - Cantidad estimada: ${suggestedQty} ${material.unit}` : '1. [Indicar material y cantidad requerida]';
@@ -3311,7 +3413,7 @@
         folio: folio || generateNextMovementFolio(),
         date: new Date().toLocaleString('es-CL'),
         originName: 'Factura Compra Proveedor',
-        destName: '👑 Bodega Central Matriz',
+        destName: 'Bodega Central Matriz',
         userName: state.designatedApprover,
         itemSummary: `${qty} ${mat.unit} ${mat.name}`,
         totalCostCLP: Math.round(qty * cost)
