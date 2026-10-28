@@ -1,0 +1,137 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // FUNCIONES AUXILIARES DE AUTENTICACIÓN Y ROLES
+    // =========================================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Validación basada en Custom Claims (0 lecturas de Firestore, ultra-rápido)
+    function hasRole(role) {
+      return isAuthenticated() && request.auth.token.role == role;
+    }
+
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
+    function isOperations() {
+      return hasRole('operaciones');
+    }
+
+    function isWarehouse() {
+      return hasRole('bodeguero');
+    }
+
+    // Funciones de validación de tipos e invariantes de negocio
+    function isPositiveNumber(val) {
+      return val is number && val > 0;
+    }
+
+    function isNonNegativeNumber(val) {
+      return val is number && val >= 0;
+    }
+
+    // =========================================================================
+    // COLECCIÓN: USERS
+    // =========================================================================
+    match /users/{userId} {
+      // Cada usuario puede leer su propio perfil; el admin puede leer todos
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      // Solo el admin puede crear o modificar roles y perfiles
+      allow write: if isAdmin();
+    }
+
+    // =========================================================================
+    // COLECCIÓN: MATERIALS (Operacional - Visible para Bodega, Operaciones y Admin)
+    // =========================================================================
+    match /materials/{materialId} {
+      // Bodeguero, operaciones y admin pueden consultar stock operacional
+      allow read: if isAuthenticated();
+
+      // Creación y borrado exclusivo de administradores
+      allow create, delete: if isAdmin();
+
+      // Actualización:
+      // 1. Admin tiene permisos totales.
+      // 2. Bodeguero solo puede actualizar campos operativos de stock al despachar/devolver,
+      //    garantizando que jamás quede con stock negativo (currentStock >= 0).
+      allow update: if isAdmin() || (
+        isWarehouse() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['currentStock', 'isLowStock', 'updatedAt', 'updatedBy']) &&
+        isNonNegativeNumber(request.resource.data.currentStock) &&
+        request.resource.data.updatedBy == request.auth.uid
+      );
+
+      // -----------------------------------------------------------------------
+      // SUBCOLECCIÓN RESTRINGIDA: ACCOUNTING (PMP y Valorización)
+      // ESTRICTAMENTE PROHIBIDA PARA EL BODEGUERO
+      // -----------------------------------------------------------------------
+      match /accounting/valuation {
+        // Solo Admin tiene visibilidad económica del PMP y valoración del material
+        allow read: if isAdmin();
+        allow write: if isAdmin();
+      }
+    }
+
+    // =========================================================================
+    // COLECCIÓN: PROJECTS (Obras - Datos Operacionales)
+    // =========================================================================
+    match /projects/{projectId} {
+      // Todo el personal operativo y bodega puede ver las obras activas
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+
+      // -----------------------------------------------------------------------
+      // SUBCOLECCIÓN RESTRINGIDA: FINANCES (Presupuesto y Costos Acumulados)
+      // ESTRICTAMENTE PROHIBIDA PARA EL BODEGUERO
+      // -----------------------------------------------------------------------
+      match /accounting/finances {
+        // Operaciones y Admin pueden ver avance financiero; Bodeguero NO.
+        allow read: if isAdmin() || isOperations();
+        allow write: if isAdmin();
+      }
+    }
+
+    // =========================================================================
+    // COLECCIÓN: MOVEMENTS (Kardex Transaccional - Solo Append)
+    // =========================================================================
+    match /movements/{movementId} {
+      // Registro operacional: Bodeguero, Operaciones y Admin pueden ver los movimientos físicos
+      allow read: if isAuthenticated();
+
+      // Creación de movimiento:
+      // 1. Admin y Operaciones pueden crear cualquier movimiento válido.
+      // 2. Bodeguero SOLO puede crear despachos o devoluciones de obra (DISPATCH_PROJECT / RETURN_PROJECT)
+      //    y NO entradas de compra con costos.
+      allow create: if isAuthenticated() && (
+        isAdmin() ||
+        (isWarehouse() && request.resource.data.type in ['DISPATCH_PROJECT', 'RETURN_PROJECT']) ||
+        (isOperations() && request.resource.data.type in ['DISPATCH_PROJECT', 'RETURN_PROJECT'])
+      ) &&
+      request.resource.data.userId == request.auth.uid &&
+      request.resource.data.items is list &&
+      request.resource.data.items.size() > 0;
+
+      // Inmutabilidad del Kardex: Prohibido modificar o eliminar movimientos existentes
+      allow update, delete: if false;
+
+      // -----------------------------------------------------------------------
+      // SUBCOLECCIÓN RESTRINGIDA: ACCOUNTING (Costos Históricos del Movimiento)
+      // -----------------------------------------------------------------------
+      match /accounting/valuation {
+        // Solo Admin puede leer el detalle monetario del movimiento
+        allow read: if isAdmin();
+        // Solo Admin o funciones de servidor pueden crear la valoración
+        allow create: if isAdmin();
+        // Inmutable
+        allow update, delete: if false;
+      }
+    }
+  }
+}
+
