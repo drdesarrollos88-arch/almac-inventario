@@ -4,6 +4,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Cloudflare Wrangler
+.wrangler/
+
 # Credenciales y variables de entorno sensibles
 .env
 .env.local

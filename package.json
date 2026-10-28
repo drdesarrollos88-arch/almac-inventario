@@ -2,11 +2,12 @@
   "name": "almac-inventario-firebase",
   "version": "1.0.0",
   "description": "Sistema de control de inventario valorizado y asignación de costos por obra para constructora pequeña (Firebase Spark Plan)",
-  "main": "index.html",
+  "main": "public/index.html",
   "scripts": {
-    "start": "npx --yes serve .",
+    "start": "npx --yes serve public",
     "open": "powershell Start-Process index.html",
-    "set-claims": "node scripts/set-custom-claims.js"
+    "set-claims": "node scripts/set-custom-claims.js",
+    "build": "node -e \"require('fs').copyFileSync('index.html', 'public/index.html')\""
   },
   "dependencies": {
     "firebase": "^10.12.0"
@@ -15,4 +16,3 @@
     "typescript": "^5.4.5"
   }
 }
-
