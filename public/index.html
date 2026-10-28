@@ -26,7 +26,7 @@
         </div>
         <div>
           <h1 class="text-xl font-bold tracking-tight">ALMAC Constructora</h1>
-          <p class="text-xs text-slate-400">Bodega Matriz, Obras & Subproyectos Jerárquicos</p>
+          <p class="text-xs text-slate-400">Bodega Matriz, Obras & Subproyectos con Códigos Automáticos</p>
         </div>
       </div>
 
@@ -150,10 +150,10 @@
     <!-- BOTONES DE ACCIÓN RÁPIDA -->
     <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
       <div class="flex items-center gap-2">
-        <span class="text-xs font-bold uppercase text-slate-400 tracking-wider">Acciones Directas:</span>
+        <span class="text-xs font-bold uppercase text-slate-400 tracking-wider">Acciones Rápidas:</span>
       </div>
       <div class="flex flex-wrap items-center gap-2">
-        <button onclick="openModal('modal-transfer')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm transition">
+        <button onclick="openTransferModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm transition">
           <i data-lucide="arrow-left-right" class="w-4 h-4"></i> Mover / Transferir Material
         </button>
 
@@ -161,8 +161,8 @@
           <i data-lucide="plus-circle" class="w-4 h-4"></i> Abastecer Bodega Matriz
         </button>
 
-        <button id="btn-open-new-project" onclick="openModal('modal-create-project')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm transition">
-          <i data-lucide="folder-plus" class="w-4 h-4"></i> Crear Nueva Obra
+        <button id="btn-open-new-project" onclick="openCreateProjectModal()" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm transition">
+          <i data-lucide="folder-plus" class="w-4 h-4"></i> Crear Nueva Obra (Auto-Código)
         </button>
       </div>
     </div>
@@ -178,7 +178,7 @@
             Estructura de Obras & Bodega Central Matriz
           </h2>
           <p class="text-xs text-slate-500">
-            La Bodega Central encabeza y abastece todo. Puedes expandir u ocultar cada obra; al estar oculta muestra el detalle general de sus materiales.
+            Haz clic sobre cualquier obra para asignar o quitarle materiales hacia otra unidad, o desplegar sus frentes de trabajo.
           </p>
         </div>
         <div class="flex items-center gap-2 text-xs">
@@ -208,16 +208,22 @@
                   <h3 class="font-extrabold text-slate-900 text-base">Bodega Central Matriz</h3>
                 </div>
                 <p class="text-xs text-slate-600 mt-0.5">
-                  Centro logístico principal. De aquí se originan las compras externas y se abastece a todas las obras.
+                  Centro logístico matriz. De aquí se originan las compras y se abastece o retorna material de todas las obras.
                 </p>
               </div>
             </div>
 
-            <div class="flex items-center gap-3">
-              <div class="text-right">
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="text-right mr-2">
                 <span class="text-xs text-slate-500 font-semibold">Valor Libre en Matriz:</span>
                 <div id="matrix-valuation-badge" class="font-mono font-bold text-slate-900 text-sm">$0 CLP</div>
               </div>
+
+              <!-- BOTÓN DESPACHAR DESDE BODEGA MATRIZ -->
+              <button onclick="openTransferModal('warehouse', null)" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition">
+                <i data-lucide="truck" class="w-3.5 h-3.5"></i> Despachar a Obra
+              </button>
+
               <button onclick="openModal('modal-purchase')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition">
                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> Abastecer Matriz
               </button>
@@ -227,7 +233,7 @@
           <!-- DETALLE DE MATERIALES DISPONIBLES EN BODEGA MATRIZ -->
           <div class="mt-3">
             <h4 class="text-[11px] font-bold uppercase text-slate-500 tracking-wider mb-2 flex items-center gap-1.5">
-              <i data-lucide="boxes" class="w-3.5 h-3.5 text-amber-600"></i> Stock Disponible en Matriz para Despachar:
+              <i data-lucide="boxes" class="w-3.5 h-3.5 text-amber-600"></i> Stock Disponible en Matriz:
             </h4>
             <div id="matrix-materials-summary" class="flex flex-wrap gap-2">
               <!-- Render dinámico -->
@@ -235,7 +241,7 @@
           </div>
         </div>
 
-        <!-- 2. LISTADO DE OBRAS / PROYECTOS (COLAPSABLES / EXPANDIBLES) -->
+        <!-- 2. LISTADO DE OBRAS / PROYECTOS (COLAPSABLES / EXPANDIBLES CON ACCIONES DIRECTAS) -->
         <div id="projects-accordion-container" class="space-y-3 pt-2">
           <!-- Renderizado dinámico de proyectos -->
         </div>
@@ -306,35 +312,35 @@
 
   </div>
 
-  <!-- MODAL: TRANSFERIR / MOVER MATERIAL -->
+  <!-- MODAL: TRANSFERIR / MOVER / ASIGNAR MATERIAL -->
   <div id="modal-transfer" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-slate-200">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 class="font-bold text-slate-900 flex items-center gap-2">
-          <i data-lucide="arrow-left-right" class="w-5 h-5 text-amber-500"></i> Transferir / Mover Material
+        <h3 id="modal-transfer-title" class="font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="arrow-left-right" class="w-5 h-5 text-amber-500"></i> Transferir / Asignar Material
         </h3>
         <button onclick="closeModal('modal-transfer')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
 
       <div class="space-y-3 text-xs">
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Folio Movimiento</label>
-          <input id="trans-folio" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-mono" value="MOV-2026-0301">
+          <label class="block font-semibold text-slate-700 mb-1">Folio Movimiento (Auto)</label>
+          <input id="trans-folio" type="text" readonly class="w-full border border-slate-200 bg-slate-50 rounded-lg p-2.5 font-mono text-slate-600 font-bold">
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Material a Transferir</label>
+          <label class="block font-semibold text-slate-700 mb-1">Material a Mover</label>
           <select id="trans-material" onchange="updateTransferAvailability()" class="w-full border border-slate-300 rounded-lg p-2.5"></select>
         </div>
 
         <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
           <div>
-            <label class="block font-semibold text-slate-700 mb-1">📍 Origen</label>
-            <select id="trans-origin" onchange="updateTransferAvailability()" class="w-full border border-slate-300 rounded-lg p-2.5 bg-white"></select>
+            <label class="block font-semibold text-slate-700 mb-1">📍 Origen (Desde)</label>
+            <select id="trans-origin" onchange="updateTransferAvailability()" class="w-full border border-slate-300 rounded-lg p-2.5 bg-white font-medium"></select>
           </div>
           <div>
-            <label class="block font-semibold text-slate-700 mb-1">🏁 Destino</label>
-            <select id="trans-dest" class="w-full border border-slate-300 rounded-lg p-2.5 bg-white"></select>
+            <label class="block font-semibold text-slate-700 mb-1">🏁 Destino (Hacia)</label>
+            <select id="trans-dest" class="w-full border border-slate-300 rounded-lg p-2.5 bg-white font-medium"></select>
           </div>
         </div>
 
@@ -356,7 +362,7 @@
             <span id="trans-preview-total">$0 CLP</span>
           </div>
           <p class="text-[11px] text-amber-700 mt-1 italic">
-            * El costo se deduce del origen (si era obra) y se asume en el destino correspondiente.
+            * El costo se deduce del origen y se imputa automáticamente al presupuesto de la obra destino.
           </p>
         </div>
       </div>
@@ -368,7 +374,7 @@
     </div>
   </div>
 
-  <!-- MODAL: CREAR OBRA / PROYECTO -->
+  <!-- MODAL: CREAR OBRA / PROYECTO (CON CÓDIGO AUTOMÁTICO) -->
   <div id="modal-create-project" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -380,16 +386,19 @@
 
       <div class="space-y-3 text-xs">
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Código de Obra</label>
-          <input id="new-proj-code" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-mono" placeholder="OBR-2026-03">
+          <div class="flex justify-between items-center mb-1">
+            <label class="font-semibold text-slate-700">Código de Obra</label>
+            <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">✨ Generado Automático</span>
+          </div>
+          <input id="new-proj-code" type="text" readonly class="w-full border border-slate-200 bg-slate-100 rounded-lg p-2.5 font-mono font-bold text-slate-700">
         </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Nombre de la Obra</label>
-          <input id="new-proj-name" type="text" class="w-full border border-slate-300 rounded-lg p-2.5" placeholder="Remodelación Clínica Oriente">
+          <input id="new-proj-name" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-medium" placeholder="Ej: Remodelación Clínica Oriente">
         </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Presupuesto Asignado (CLP)</label>
-          <input id="new-proj-budget" type="number" min="0" class="w-full border border-slate-300 rounded-lg p-2.5" placeholder="18000000">
+          <input id="new-proj-budget" type="number" min="0" class="w-full border border-slate-300 rounded-lg p-2.5 font-bold" placeholder="18000000">
         </div>
       </div>
 
@@ -400,7 +409,7 @@
     </div>
   </div>
 
-  <!-- MODAL: CREAR SUBPROYECTO -->
+  <!-- MODAL: CREAR SUBPROYECTO (CON CÓDIGO AUTOMÁTICO) -->
   <div id="modal-create-subproject" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -417,12 +426,15 @@
           <input id="sub-parent-id" type="hidden">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Código Subproyecto</label>
-          <input id="new-sub-code" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-mono" placeholder="FRENTE-PABELLONES">
+          <div class="flex justify-between items-center mb-1">
+            <label class="font-semibold text-slate-700">Código Subproyecto</label>
+            <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">✨ Generado Automático</span>
+          </div>
+          <input id="new-sub-code" type="text" readonly class="w-full border border-slate-200 bg-slate-100 rounded-lg p-2.5 font-mono font-bold text-amber-800">
         </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Nombre (Frente / Torre / Etapa)</label>
-          <input id="new-sub-name" type="text" class="w-full border border-slate-300 rounded-lg p-2.5" placeholder="Pabellones Quirúrgicos">
+          <input id="new-sub-name" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-medium" placeholder="Ej: Torre 1 - Fundaciones">
         </div>
       </div>
 
@@ -446,7 +458,7 @@
       <div class="space-y-3 text-xs">
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Folio Factura Proveedor</label>
-          <input id="pur-folio" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-mono" value="FAC-2026-0610">
+          <input id="pur-folio" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-mono font-bold" value="FAC-2026-0720">
         </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Material</label>
@@ -516,36 +528,36 @@
     // =========================================================================
     let currentRole = 'admin';
 
-    // Registro de obras colapsadas/ocultas (por defecto todas ocultas/compactas para ver resumen)
+    // Obras colapsadas u ocultas por defecto
     let collapsedProjects = {
-      'proj-1': false, // Los Robles desplegado inicialmente para demostración
-      'proj-2': true   // Mirador Norte contraído mostrando resumen de materiales
+      'proj-1': false,
+      'proj-2': true
     };
 
     let state = {
       projects: [
         {
           id: 'proj-1',
-          code: 'OBR-01',
+          code: 'OBR-2026-01',
           name: 'Edificio Los Robles',
           status: 'active',
           budgetCLP: 22000000,
           accumulatedCostCLP: 9450000,
           subprojects: [
-            { id: 'sub-1a', code: 'TORRE-A', name: 'Torre A - Obra Gruesa', accumulatedCostCLP: 6200000 },
-            { id: 'sub-1b', code: 'SUBTERR', name: 'Subterráneo y Estacionamientos', accumulatedCostCLP: 3250000 }
+            { id: 'sub-1a', code: 'OBR-2026-01-SUB01', name: 'Torre A - Obra Gruesa', accumulatedCostCLP: 6200000 },
+            { id: 'sub-1b', code: 'OBR-2026-01-SUB02', name: 'Subterráneo y Estacionamientos', accumulatedCostCLP: 3250000 }
           ]
         },
         {
           id: 'proj-2',
-          code: 'OBR-02',
+          code: 'OBR-2026-02',
           name: 'Condominio Mirador Norte',
           status: 'active',
           budgetCLP: 18000000,
           accumulatedCostCLP: 8200000,
           subprojects: [
-            { id: 'sub-2a', code: 'ETAPA-1', name: 'Etapa 1 - Casas 1 a 12', accumulatedCostCLP: 5100000 },
-            { id: 'sub-2b', code: 'URBANIZ', name: 'Urbanización y Redes', accumulatedCostCLP: 3100000 }
+            { id: 'sub-2a', code: 'OBR-2026-02-SUB01', name: 'Etapa 1 - Casas 1 a 12', accumulatedCostCLP: 5100000 },
+            { id: 'sub-2b', code: 'OBR-2026-02-SUB02', name: 'Urbanización y Redes', accumulatedCostCLP: 3100000 }
           ]
         }
       ],
@@ -609,7 +621,7 @@
       movements: [
         {
           id: 'mov-1',
-          folio: 'MOV-2026-0199',
+          folio: 'MOV-2026-0001',
           date: '2026-10-28 10:15',
           originName: 'Bodega Central Matriz',
           destName: 'Edificio Los Robles ➔ Torre A - Obra Gruesa',
@@ -619,7 +631,7 @@
         },
         {
           id: 'mov-2',
-          folio: 'MOV-2026-0200',
+          folio: 'MOV-2026-0002',
           date: '2026-10-28 11:30',
           originName: 'Edificio Los Robles ➔ Torre A',
           destName: 'Condominio Mirador Norte ➔ Etapa 1',
@@ -631,7 +643,29 @@
     };
 
     // =========================================================================
-    // UTILIDADES
+    // GENERADORES AUTOMÁTICOS DE CÓDIGOS (OBRAS, SUBPROYECTOS Y FOLIOS)
+    // =========================================================================
+    function generateNextProjectCode() {
+      const year = new Date().getFullYear();
+      const count = state.projects.length + 1;
+      return `OBR-${year}-${String(count).padStart(2, '0')}`;
+    }
+
+    function generateNextSubprojectCode(projectId) {
+      const project = state.projects.find(p => p.id === projectId);
+      if (!project) return 'SUB-01';
+      const count = (project.subprojects ? project.subprojects.length : 0) + 1;
+      return `${project.code}-SUB${String(count).padStart(2, '0')}`;
+    }
+
+    function generateNextMovementFolio() {
+      const year = new Date().getFullYear();
+      const count = state.movements.length + 1;
+      return `MOV-${year}-${String(count).padStart(4, '0')}`;
+    }
+
+    // =========================================================================
+    // UTILIDADES DE CÁLCULO
     // =========================================================================
     function formatCLP(val) {
       return '$' + Math.round(val).toLocaleString('es-CL') + ' CLP';
@@ -656,7 +690,6 @@
       return locId;
     }
 
-    // Calcula el resumen de materiales agrupados para un proyecto específico
     function getProjectMaterialsSummary(project) {
       const summary = [];
       state.materials.forEach(m => {
@@ -679,7 +712,7 @@
     }
 
     // =========================================================================
-    // MANEJO DE ROLES
+    // GESTIÓN DE ROLES
     // =========================================================================
     function setRole(role) {
       currentRole = role;
@@ -702,9 +735,6 @@
       renderUI();
     }
 
-    // =========================================================================
-    // EXPANDIR / OCULTAR OBRAS
-    // =========================================================================
     function toggleProjectCollapse(projectId) {
       collapsedProjects[projectId] = !collapsedProjects[projectId];
       renderProjectsAccordion();
@@ -717,6 +747,52 @@
       });
       renderProjectsAccordion();
       lucide.createIcons();
+    }
+
+    // =========================================================================
+    // APERTURA DE MODAL DE TRANSFERENCIA CON PRESELECCIÓN CONTEXTUAL
+    // =========================================================================
+    function openTransferModal(preselectedOrigin = null, preselectedDest = null) {
+      document.getElementById('trans-folio').value = generateNextMovementFolio();
+      populateSelects();
+
+      const originSel = document.getElementById('trans-origin');
+      const destSel = document.getElementById('trans-dest');
+
+      if (preselectedOrigin) {
+        originSel.value = preselectedOrigin;
+      }
+      if (preselectedDest) {
+        destSel.value = preselectedDest;
+      }
+
+      updateTransferAvailability();
+      openModal('modal-transfer');
+    }
+
+    // Acciones desde la tarjeta de una obra específica:
+    function assignMaterialToProject(projectId) {
+      const proj = state.projects.find(p => p.id === projectId);
+      if (!proj) return;
+
+      // Si tiene subproyectos, preseleccionamos el primer subproyecto como destino
+      const targetDest = proj.subprojects.length > 0 ? proj.subprojects[0].id : projectId;
+      // Preseleccionamos Bodega Matriz como origen
+      openTransferModal('warehouse', targetDest);
+    }
+
+    function transferFromProject(projectId) {
+      const proj = state.projects.find(p => p.id === projectId);
+      if (!proj) return;
+
+      // Preseleccionamos el primer subproyecto como origen
+      const targetOrigin = proj.subprojects.length > 0 ? proj.subprojects[0].id : projectId;
+      // Preseleccionamos Bodega Matriz o primera opción como destino
+      openTransferModal(targetOrigin, 'warehouse');
+    }
+
+    function transferFromSubproject(subprojectId) {
+      openTransferModal(subprojectId, 'warehouse');
     }
 
     // =========================================================================
@@ -743,7 +819,7 @@
 
       const totalSubs = state.projects.reduce((acc, p) => acc + p.subprojects.length, 0);
       document.getElementById('stat-projects-count').textContent = `${state.projects.length} Obras`;
-      document.getElementById('stat-subprojects-count').textContent = `${totalSubs} Subproyectos en ejecución`;
+      document.getElementById('stat-subprojects-count').textContent = `${totalSubs} Subproyectos activos`;
 
       const totalCost = state.projects.reduce((acc, p) => acc + p.accumulatedCostCLP, 0);
       const totalBudget = state.projects.reduce((acc, p) => acc + p.budgetCLP, 0);
@@ -775,7 +851,6 @@
       document.getElementById('stat-critical-count').textContent = `${criticalCount} SKUs críticos`;
     }
 
-    // Render de la Obra Maestra (Bodega Central Matriz)
     function renderMatrixHub() {
       const valuation = state.materials.reduce((acc, m) => acc + (m.warehouseStock * m.pmp), 0);
       const badge = document.getElementById('matrix-valuation-badge');
@@ -802,7 +877,6 @@
       });
     }
 
-    // Render de Obras con capacidad de Ocultar/Desplegar
     function renderProjectsAccordion() {
       const container = document.getElementById('projects-accordion-container');
       container.innerHTML = '';
@@ -818,7 +892,6 @@
         const card = document.createElement('div');
         card.className = 'bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden transition-all-custom shadow-xs';
 
-        // Header de la Obra
         let financesHeader = '';
         if (currentRole === 'bodeguero') {
           financesHeader = '<span class="badge-lock px-2 py-0.5 rounded text-[11px] font-mono">🔒 Costos Restringidos</span>';
@@ -832,9 +905,7 @@
           `;
         }
 
-        // -------------------------------------------------------------
-        // CONTENIDO CUANDO ESTÁ OCULTA (RESUMEN GENERAL DE MATERIALES)
-        // -------------------------------------------------------------
+        // CONTENIDO OCULTO (RESUMEN GENERAL)
         let collapsedSummaryHtml = '';
         if (isCollapsed) {
           let materialsChips = '';
@@ -855,7 +926,7 @@
               <div class="flex items-center justify-between text-xs text-slate-500 font-semibold uppercase tracking-wider">
                 <span class="flex items-center gap-1.5 text-amber-900">
                   <i data-lucide="package-check" class="w-3.5 h-3.5 text-amber-600"></i>
-                  Detalle General de Materiales en esta Obra (Consolidado de Subproyectos):
+                  Detalle General de Materiales en esta Obra:
                 </span>
                 <span class="font-mono text-slate-700 font-bold">${totalItemsInProject} unidades totales</span>
               </div>
@@ -866,9 +937,7 @@
           `;
         }
 
-        // -------------------------------------------------------------
-        // CONTENIDO CUANDO ESTÁ DESPLEGADA (SUBPROYECTOS Y FRENTES)
-        // -------------------------------------------------------------
+        // CONTENIDO EXPANDIDO (SUBPROYECTOS Y FRENTES)
         let expandedContentHtml = '';
         if (!isCollapsed) {
           let subprojectsList = '';
@@ -876,7 +945,6 @@
             subprojectsList = '<p class="text-xs text-slate-400 italic p-3">No hay subproyectos creados. Haz clic en "+ Subproyecto".</p>';
           } else {
             subprojectsList = project.subprojects.map(sub => {
-              // Calcular materiales específicos en este subproyecto
               const subMaterials = [];
               state.materials.forEach(m => {
                 const q = m.stockByLocation[sub.id] || 0;
@@ -900,8 +968,11 @@
                       </div>
                     </div>
                   </div>
-                  <div class="text-right">
-                    ${subCost}
+                  <div class="flex items-center gap-3">
+                    <div class="text-right">${subCost}</div>
+                    <button onclick="transferFromSubproject('${sub.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1 transition">
+                      <i data-lucide="arrow-left-right" class="w-3 h-3 text-amber-600"></i> Mover
+                    </button>
                   </div>
                 </div>
               `;
@@ -912,11 +983,11 @@
             <div class="p-4 border-t border-slate-200 space-y-3 bg-white/70">
               <div class="flex items-center justify-between">
                 <h4 class="text-[11px] font-bold uppercase text-slate-500 tracking-wider">
-                  Subproyectos & Frentes de Trabajo de la Obra:
+                  Frentes de Trabajo y Subproyectos:
                 </h4>
                 ${currentRole !== 'bodeguero' ? `
                   <button onclick="openCreateSubprojectModal('${project.id}', '${project.name}')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1 shadow-xs transition">
-                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> + Subproyecto
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> + Subproyecto (Auto-Código)
                   </button>
                 ` : ''}
               </div>
@@ -927,12 +998,14 @@
           `;
         }
 
-        // Estructura completa del card
+        // Estructura completa
         card.innerHTML = `
-          <!-- BARRA SUPERIOR DE LA OBRA (CLICK PARA DESPLEGAR / OCULTAR) -->
-          <div onclick="toggleProjectCollapse('${project.id}')" class="p-4 cursor-pointer hover:bg-slate-100/70 transition flex flex-wrap items-center justify-between gap-3 select-none">
-            <div class="flex items-center gap-3">
-              <button class="text-slate-500 hover:text-slate-900 p-1 rounded-lg bg-white border border-slate-200 shadow-2xs">
+          <!-- BARRA PRINCIPAL DE LA OBRA -->
+          <div class="p-4 flex flex-wrap items-center justify-between gap-3">
+            
+            <!-- PARTE IZQUIERDA: CLICK PARA EXPANDIR / COLAPSAR -->
+            <div onclick="toggleProjectCollapse('${project.id}')" class="flex items-center gap-3 cursor-pointer flex-1">
+              <button class="text-slate-500 hover:text-slate-900 p-1.5 rounded-lg bg-white border border-slate-200 shadow-2xs">
                 <i data-lucide="${isCollapsed ? 'chevron-right' : 'chevron-down'}" class="w-4 h-4 text-slate-700"></i>
               </button>
               <div class="bg-slate-900 text-white px-2.5 py-1 rounded-lg font-mono font-bold text-xs">
@@ -940,26 +1013,38 @@
               </div>
               <div>
                 <div class="flex items-center gap-2">
-                  <h3 class="font-bold text-slate-900 text-sm">${project.name}</h3>
+                  <h3 class="font-bold text-slate-900 text-sm hover:text-amber-600 transition">${project.name}</h3>
                   <span class="text-[10px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full uppercase">Activa</span>
                 </div>
                 <p class="text-xs text-slate-500 mt-0.5">
                   ${isCollapsed 
-                    ? `<span class="text-amber-700 font-semibold">Obra Oculta</span> — Haz clic para desplegar subproyectos` 
+                    ? `<span class="text-amber-700 font-semibold">Obra Oculta</span> — Clic para ver subproyectos` 
                     : `<span class="text-slate-700 font-semibold">Obra Desplegada</span> — ${project.subprojects.length} subproyectos`}
                 </p>
               </div>
             </div>
 
-            <div class="flex items-center gap-4">
+            <!-- PARTE DERECHA: FINANZAS Y BOTONES DE ASIGNAR / QUITAR MATERIALES -->
+            <div class="flex flex-wrap items-center gap-3">
               ${financesHeader}
-              <span class="text-xs font-semibold px-2.5 py-1 rounded-lg ${isCollapsed ? 'bg-amber-100 text-amber-900' : 'bg-slate-200 text-slate-700'}">
-                ${isCollapsed ? '👁️ Ver Detalle Fino' : '🔼 Ocultar'}
-              </span>
+
+              <!-- BOTÓN: ASIGNAR MATERIAL A ESTA OBRA -->
+              <button onclick="assignMaterialToProject('${project.id}')" title="Asignar materiales a esta obra" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1 shadow-xs transition">
+                <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> + Asignar
+              </button>
+
+              <!-- BOTÓN: QUITAR / MOVER MATERIAL DESDE ESTA OBRA -->
+              <button onclick="transferFromProject('${project.id}')" title="Quitar o mover materiales de esta obra a otra unidad" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1 shadow-xs transition">
+                <i data-lucide="arrow-right-circle" class="w-3.5 h-3.5"></i> ➔ Quitar / Mover
+              </button>
+
+              <button onclick="toggleProjectCollapse('${project.id}')" class="text-xs font-semibold px-2 py-1 rounded-lg ${isCollapsed ? 'bg-amber-100 text-amber-900' : 'bg-slate-200 text-slate-700'}">
+                ${isCollapsed ? '👁️ Desplegar' : '🔼 Ocultar'}
+              </button>
             </div>
           </div>
 
-          <!-- CONTENIDO CONDICIONAL (OCULTA O DESPLEGADA) -->
+          <!-- CONTENIDO CONDICIONAL -->
           ${isCollapsed ? collapsedSummaryHtml : expandedContentHtml}
         `;
 
@@ -1050,9 +1135,6 @@
       });
     }
 
-    // =========================================================================
-    // SELECTORES DINÁMICOS
-    // =========================================================================
     function populateSelects() {
       const matSelects = ['trans-material', 'pur-material'];
       matSelects.forEach(selId => {
@@ -1190,15 +1272,22 @@
     }
 
     // =========================================================================
-    // ACCIONES
+    // CREAR OBRA CON CÓDIGO AUTOMÁTICO
     // =========================================================================
+    function openCreateProjectModal() {
+      document.getElementById('new-proj-code').value = generateNextProjectCode();
+      document.getElementById('new-proj-name').value = '';
+      document.getElementById('new-proj-budget').value = '20000000';
+      openModal('modal-create-project');
+    }
+
     function executeCreateProject() {
       const code = document.getElementById('new-proj-code').value.trim();
       const name = document.getElementById('new-proj-name').value.trim();
       const budget = parseInt(document.getElementById('new-proj-budget').value) || 0;
 
-      if (!code || !name) {
-        alert('Debe completar el código y el nombre de la obra.');
+      if (!name) {
+        alert('Debe ingresar el nombre de la obra.');
         return;
       }
 
@@ -1213,17 +1302,22 @@
         subprojects: []
       });
 
-      // Empezar desplegada para que el usuario pueda agregar subproyectos
+      // Empezar expandida
       collapsedProjects[newId] = false;
 
       closeModal('modal-create-project');
       renderUI();
-      alert(`✅ Obra "${name}" creada exitosamente.`);
+      alert(`✅ Obra creada exitosamente con código automático: ${code}`);
     }
 
+    // =========================================================================
+    // CREAR SUBPROYECTO CON CÓDIGO AUTOMÁTICO
+    // =========================================================================
     function openCreateSubprojectModal(projectId, projectName) {
       document.getElementById('sub-parent-id').value = projectId;
       document.getElementById('sub-parent-name').value = projectName;
+      document.getElementById('new-sub-code').value = generateNextSubprojectCode(projectId);
+      document.getElementById('new-sub-name').value = '';
       openModal('modal-create-subproject');
     }
 
@@ -1232,8 +1326,8 @@
       const code = document.getElementById('new-sub-code').value.trim();
       const name = document.getElementById('new-sub-name').value.trim();
 
-      if (!code || !name) {
-        alert('Ingrese código y nombre del subproyecto.');
+      if (!name) {
+        alert('Ingrese el nombre del subproyecto / frente.');
         return;
       }
 
@@ -1249,9 +1343,12 @@
 
       closeModal('modal-create-subproject');
       renderUI();
-      alert(`✅ Subproyecto "${name}" agregado a ${proj.name}.`);
+      alert(`✅ Subproyecto agregado con código automático: ${code}`);
     }
 
+    // =========================================================================
+    // TRANSFERIR / ASIGNAR MATERIALES
+    // =========================================================================
     function executeTransfer() {
       const folio = document.getElementById('trans-folio').value.trim();
       const matId = document.getElementById('trans-material').value;
@@ -1328,7 +1425,7 @@
 
       closeModal('modal-transfer');
       renderUI();
-      alert(`✅ Transferencia exitosa:\n${qty} ${mat.unit} movidos de "${originName}" a "${destName}".\nCosto asumido: ${formatCLP(movementCost)}`);
+      alert(`✅ Transferencia exitosa:\n${qty} ${mat.unit} transferidos de "${originName}" a "${destName}".\nCosto asumido: ${formatCLP(movementCost)}`);
     }
 
     function executePurchase() {
@@ -1383,7 +1480,6 @@
       const container = document.getElementById('mat-detail-locations');
       container.innerHTML = '';
 
-      // Bodega Matriz
       const rowBodega = document.createElement('div');
       rowBodega.className = 'flex justify-between items-center bg-blue-50/70 p-3 rounded-xl border border-blue-200 text-xs font-semibold';
       rowBodega.innerHTML = `
@@ -1394,7 +1490,6 @@
       `;
       container.appendChild(rowBodega);
 
-      // Obras y subproyectos
       let hasProjects = false;
       state.projects.forEach(p => {
         p.subprojects.forEach(sub => {
