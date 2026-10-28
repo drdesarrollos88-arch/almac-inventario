@@ -13,18 +13,36 @@ export interface UserProfile {
 export type MaterialUnit = 'saco' | 'm2' | 'tira' | 'kg' | 'unidad' | 'm3' | 'rollo';
 
 /**
+ * Desglose de existencias físicas por ubicación
+ */
+export interface MaterialStockDistribution {
+  warehouseStock: number; // Existencias en Bodega Central
+  // Mapeo de ubicación (projectId o subprojectId) a cantidad física
+  locations: {
+    [locationId: string]: {
+      locationType: 'PROJECT' | 'SUBPROJECT';
+      locationName: string;
+      projectId: string; // Para consolidación jerárquica
+      projectName: string;
+      quantity: number;
+    };
+  };
+  totalCompanyStock: number; // Bodega + Proyectos + Subproyectos
+}
+
+/**
  * Documento principal en /materials/{materialId}
- * Público para todos los usuarios autenticados (incluido Bodeguero).
- * No contiene información financiera.
+ * Datos operativos accesibles para todos los usuarios autenticados.
  */
 export interface MaterialOperational {
   id?: string;
   sku: string;
   name: string;
   unit: MaterialUnit;
-  currentStock: number;
-  minStock: number;
-  isLowStock: boolean; // Flag desnormalizado para consultas O(1) de alertas
+  warehouseStock: number;       // Stock físico en Bodega Central
+  totalCompanyStock: number;    // Stock consolidado en toda la empresa
+  minStock: number;             // Umbral de stock mínimo en Bodega Central
+  isLowStock: boolean;          // warehouseStock <= minStock
   category: string;
   updatedAt: Timestamp;
   updatedBy: string;
@@ -32,11 +50,12 @@ export interface MaterialOperational {
 
 /**
  * Subdocumento en /materials/{materialId}/accounting/valuation
- * Restringido estrictamente a Administradores.
+ * Restringido exclusivamente al Administrador.
  */
 export interface MaterialValuation {
   weightedAverageCostCLP: number; // PMP en pesos chilenos
-  totalValuationCLP: number;      // currentStock * PMP
+  totalValuationWarehouseCLP: number; // warehouseStock * PMP
+  totalValuationCompanyCLP: number;   // totalCompanyStock * PMP
   lastPurchasePriceCLP: number;
   lastPurchaseDate: Timestamp;
   updatedAt: Timestamp;
@@ -44,9 +63,17 @@ export interface MaterialValuation {
 
 export type ProjectStatus = 'active' | 'completed';
 
+export interface Subproject {
+  id: string;
+  code: string;
+  name: string;
+  accumulatedCostCLP: number;
+  assignedMaterialsCount: number;
+  createdAt: Timestamp;
+}
+
 /**
  * Documento principal en /projects/{projectId}
- * Público para todos los usuarios autenticados.
  */
 export interface ProjectOperational {
   id?: string;
@@ -54,28 +81,37 @@ export interface ProjectOperational {
   name: string;
   status: ProjectStatus;
   address?: string;
+  subprojects: Subproject[]; // Subproyectos dentro de la obra
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
 
 /**
  * Subdocumento en /projects/{projectId}/accounting/finances
- * Restringido a Admin y Operaciones (Prohibido para Bodeguero).
  */
 export interface ProjectFinances {
   budgetCLP: number;
-  accumulatedCostCLP: number;
-  financialProgressPct: number; // (accumulatedCostCLP / budgetCLP) * 100
+  accumulatedCostCLP: number;     // Costo total = suma de subproyectos + costos directos
+  financialProgressPct: number;   // (accumulatedCostCLP / budgetCLP) * 100
   lastTransactionAt: Timestamp;
   updatedAt: Timestamp;
 }
 
-export type MovementType = 'PURCHASE_ENTRY' | 'DISPATCH_PROJECT' | 'RETURN_PROJECT';
+export type MovementType = 
+  | 'PURCHASE_ENTRY'       // Entrada a Bodega por compra
+  | 'TRANSFER_WAREHOUSE_TO_PROJECT' // Bodega -> Proyecto/Subproyecto
+  | 'TRANSFER_PROJECT_TO_WAREHOUSE' // Proyecto/Subproyecto -> Bodega (Devolución)
+  | 'TRANSFER_BETWEEN_PROJECTS'     // Proyecto/Subproyecto A -> Proyecto/Subproyecto B
+  | 'DIRECT_CONSUMPTION';           // Consumo final en obra
 
-/**
- * Ítem en el array operativo del movimiento.
- * Accesible para Bodega: solo información logística.
- */
+export interface LocationReference {
+  type: 'WAREHOUSE' | 'PROJECT' | 'SUBPROJECT';
+  id: string;           // 'warehouse' o projectId o subprojectId
+  name: string;
+  projectId?: string;   // Si es subproyecto, referencia al proyecto padre
+  projectName?: string;
+}
+
 export interface MovementItemOperational {
   materialId: string;
   sku: string;
@@ -85,15 +121,14 @@ export interface MovementItemOperational {
 }
 
 /**
- * Documento en /movements/{movementId}
- * Kardex operativo e inmutable.
+ * Kardex Transaccional de Movimientos Multidireccionales
  */
 export interface MovementOperational {
   id?: string;
   folio: string;
   type: MovementType;
-  projectId: string | null;
-  projectName: string | null;
+  origin: LocationReference;
+  destination: LocationReference;
   userId: string;
   userEmail: string;
   userRole: UserRole;
@@ -102,20 +137,13 @@ export interface MovementOperational {
   items: MovementItemOperational[];
 }
 
-/**
- * Ítem valorizado en el subdocumento de contabilidad.
- */
 export interface MovementItemValuation {
   materialId: string;
   quantity: number;
-  unitCostCLP: number; // PMP congelado o costo unitario de compra
+  unitCostCLP: number; // PMP vigente congelado en el movimiento
   subtotalCLP: number;
 }
 
-/**
- * Subdocumento en /movements/{movementId}/accounting/valuation
- * Accesible solo para Admin.
- */
 export interface MovementValuation {
   movementId: string;
   type: MovementType;
@@ -123,4 +151,3 @@ export interface MovementValuation {
   items: MovementItemValuation[];
   createdAt: Timestamp;
 }
-

@@ -3,36 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALMAC - Sistema de Control de Inventario y Costos de Obra</title>
+  <title>ALMAC - Sistema de Control de Materiales, Proyectos & Costos</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     body { font-family: 'Inter', sans-serif; }
     .badge-lock { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px dashed #f87171; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen">
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
 
   <!-- NAVBAR SUPERIOR -->
-  <header class="bg-slate-900 text-white sticky top-0 z-50 shadow-md">
+  <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-md">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <div class="bg-amber-500 p-2 rounded-lg text-slate-950 font-black">
-          <i data-lucide="boxes" class="w-6 h-6"></i>
+        <div class="bg-amber-500 p-2 rounded-xl text-slate-950 font-black shadow-md">
+          <i data-lucide="layers" class="w-6 h-6"></i>
         </div>
         <div>
           <h1 class="text-xl font-bold tracking-tight">ALMAC Constructora</h1>
-          <p class="text-xs text-slate-400">Inventario Valorizado & Imputación de Costos</p>
+          <p class="text-xs text-slate-400">Inventario Multi-Ubicación & Costeo Jerárquico</p>
         </div>
       </div>
 
-      <!-- SELECTOR DE ROL SIMULADO -->
-      <div class="flex items-center gap-3 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700">
+      <!-- SIMULADOR DE ROLES -->
+      <div class="flex items-center gap-2 bg-slate-800/90 p-1.5 rounded-xl border border-slate-700">
         <span class="text-xs font-medium text-slate-400 pl-2 flex items-center gap-1.5">
-          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-amber-400"></i> Simular Rol:
+          <i data-lucide="shield" class="w-3.5 h-3.5 text-amber-400"></i> Rol:
         </span>
         <button onclick="setRole('admin')" id="btn-role-admin" class="px-3 py-1 text-xs rounded-lg font-semibold transition bg-amber-500 text-slate-950 shadow-sm">
           Admin
@@ -41,15 +41,14 @@
           Operaciones
         </button>
         <button onclick="setRole('bodeguero')" id="btn-role-bodeguero" class="px-3 py-1 text-xs rounded-lg font-semibold transition text-slate-300 hover:text-white">
-          Bodeguero (Terreno)
+          Bodeguero
         </button>
       </div>
 
-      <!-- BANNER DE ROL VIGENTE -->
       <div class="flex items-center gap-2 text-xs">
-        <span class="text-slate-400">Sesión actual:</span>
-        <span id="role-badge" class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-mono font-medium flex items-center gap-1">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> admin
+        <span class="text-slate-400">Estado:</span>
+        <span id="role-badge" class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-mono font-medium">
+          admin
         </span>
       </div>
     </div>
@@ -58,130 +57,154 @@
   <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
     <!-- AVISO DE AISLAMIENTO PARA BODEGUERO -->
-    <div id="bodeguero-banner" class="hidden bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm">
+    <div id="bodeguero-banner" class="hidden bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl shadow-sm">
       <div class="flex items-start gap-3">
         <i data-lucide="eye-off" class="w-5 h-5 text-amber-600 mt-0.5"></i>
         <div>
-          <h4 class="font-bold text-amber-900 text-sm">Modo Bodeguero Activo (Aislamiento de Costos por Reglas de Firestore)</h4>
+          <h4 class="font-bold text-amber-900 text-sm">Modo Terreno Activo (Aislamiento de Costos)</h4>
           <p class="text-xs text-amber-700 mt-0.5">
-            Las reglas de seguridad bloquean el acceso a las subcolecciones <code class="font-mono bg-amber-100 px-1 rounded">/accounting/valuation</code> y <code class="font-mono bg-amber-100 px-1 rounded">/accounting/finances</code>. Todos los campos de PMP, costos unitarios, presupuestos y valorizaciones se encuentran restringidos.
+            Solo puedes ver cantidades físicas y registrar transferencias. Los precios unitarios, PMP y costos acumulados están bloqueados.
           </p>
         </div>
       </div>
     </div>
 
-    <!-- TARJETAS DE MÉTRICAS CLAVE (DASHBOARD) -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+    <!-- TARJETAS DE CONSOLIDACIÓN TOTAL (BODEGA + PROYECTOS) -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       
-      <!-- MÉTRICA 1: VALOR TOTAL INMOVILIZADO EN BODEGA -->
-      <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm relative overflow-hidden">
-        <div class="flex items-center justify-between text-slate-500 text-sm font-medium">
-          <span>Valor Inmovilizado en Bodega</span>
+      <!-- CARD 1: ALMACENAMIENTO TOTAL EMPRESA -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between text-slate-500 text-xs font-semibold uppercase tracking-wider">
+          <span>Almacenamiento Total</span>
           <div class="bg-blue-50 text-blue-600 p-2 rounded-xl">
-            <i data-lucide="banknote" class="w-5 h-5"></i>
+            <i data-lucide="archive" class="w-4 h-4"></i>
           </div>
         </div>
-        <div class="mt-3">
-          <div id="stat-total-valuation" class="text-2xl font-black text-slate-900 tracking-tight">$0 CLP</div>
-          <p id="stat-total-valuation-sub" class="text-xs text-slate-500 mt-1">Calculado con Server-Side Aggregation (1 lectura)</p>
+        <div class="mt-2">
+          <div id="stat-total-stock-company" class="text-2xl font-black text-slate-900">0 uds</div>
+          <p class="text-xs text-slate-500 mt-1">Bodega Central + Todas las Obras</p>
         </div>
         <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-          <span>Total Ítems en Catálogo:</span>
-          <span id="stat-total-skus" class="font-bold text-slate-700">0 SKUs</span>
+          <span>Bodega Central:</span>
+          <span id="stat-stock-warehouse" class="font-bold text-slate-800">0 uds</span>
         </div>
       </div>
 
-      <!-- MÉTRICA 2: MATERIALES EN ALERTA DE STOCK CRÍTICO -->
-      <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm relative overflow-hidden">
-        <div class="flex items-center justify-between text-slate-500 text-sm font-medium">
-          <span>Alertas de Stock Crítico</span>
-          <div class="bg-rose-50 text-rose-600 p-2 rounded-xl">
-            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
-          </div>
-        </div>
-        <div class="mt-3 flex items-baseline gap-2">
-          <div id="stat-critical-count" class="text-2xl font-black text-rose-600 tracking-tight">0</div>
-          <span class="text-xs text-slate-500">materiales bajo stock mínimo</span>
-        </div>
-        <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-          <span>Consulta optimizada:</span>
-          <span class="font-mono text-emerald-600 font-semibold">where('isLowStock', '==', true)</span>
-        </div>
-      </div>
-
-      <!-- MÉTRICA 3: OBRAS ACTIVAS & PRESUPUESTO GLOBAL -->
-      <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm relative overflow-hidden">
-        <div class="flex items-center justify-between text-slate-500 text-sm font-medium">
-          <span>Obras Activas en Ejecución</span>
+      <!-- CARD 2: TOTAL PROYECTOS ACTIVOS -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between text-slate-500 text-xs font-semibold uppercase tracking-wider">
+          <span>Obras & Subproyectos</span>
           <div class="bg-amber-50 text-amber-600 p-2 rounded-xl">
-            <i data-lucide="hard-hat" class="w-5 h-5"></i>
+            <i data-lucide="building-2" class="w-4 h-4"></i>
           </div>
         </div>
-        <div class="mt-3">
-          <div id="stat-active-projects-count" class="text-2xl font-black text-slate-900 tracking-tight">0 Obras</div>
-          <p id="stat-active-projects-cost" class="text-xs text-slate-500 mt-1">Costo Imputado: $0 CLP</p>
+        <div class="mt-2">
+          <div id="stat-projects-count" class="text-2xl font-black text-slate-900">0 Obras</div>
+          <p id="stat-subprojects-count" class="text-xs text-slate-500 mt-1">0 Subproyectos en ejecución</p>
         </div>
         <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-          <span>Consumo de cuota Spark:</span>
-          <span class="font-semibold text-emerald-600">~0.05% diario</span>
+          <span>Material en Obras:</span>
+          <span id="stat-stock-in-projects" class="font-bold text-amber-600">0 uds</span>
+        </div>
+      </div>
+
+      <!-- CARD 3: COSTO TOTAL IMPUTADO A OBRAS -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between text-slate-500 text-xs font-semibold uppercase tracking-wider">
+          <span>Costo Asumido en Obras</span>
+          <div class="bg-emerald-50 text-emerald-600 p-2 rounded-xl">
+            <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="mt-2">
+          <div id="stat-total-imputed-cost" class="text-2xl font-black text-slate-900">$0 CLP</div>
+          <p id="stat-total-budget" class="text-xs text-slate-500 mt-1">Presupuesto Global: $0 CLP</p>
+        </div>
+        <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Avance Presupuestario:</span>
+          <span id="stat-overall-progress" class="font-bold text-emerald-600">0%</span>
+        </div>
+      </div>
+
+      <!-- CARD 4: VALOR EN BODEGA CENTRAL -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between text-slate-500 text-xs font-semibold uppercase tracking-wider">
+          <span>Valor Inmovilizado Bodega</span>
+          <div class="bg-purple-50 text-purple-600 p-2 rounded-xl">
+            <i data-lucide="vault" class="w-4 h-4"></i>
+          </div>
+        </div>
+        <div class="mt-2">
+          <div id="stat-warehouse-valuation" class="text-2xl font-black text-slate-900">$0 CLP</div>
+          <p class="text-xs text-slate-500 mt-1">Stock físico no asignado</p>
+        </div>
+        <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <span>Alertas de Stock:</span>
+          <span id="stat-critical-count" class="font-bold text-rose-600">0 SKUs críticos</span>
         </div>
       </div>
 
     </div>
 
-    <!-- SECCIÓN: AVANCE FINANCIERO POR OBRA -->
+    <!-- BOTONES DE ACCIÓN RÁPIDA -->
+    <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold uppercase text-slate-400 tracking-wider">Operaciones Rápidas:</span>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- BOTÓN TRANSFERIR MATERIAL -->
+        <button onclick="openModal('modal-transfer')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm transition">
+          <i data-lucide="arrow-left-right" class="w-4 h-4"></i> Mover / Transferir Material
+        </button>
+
+        <!-- BOTÓN NUEVA COMPRA (SOLO ADMIN) -->
+        <button id="btn-open-purchase" onclick="openModal('modal-purchase')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm transition">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i> Comprar a Bodega (PMP)
+        </button>
+
+        <!-- BOTÓN CREAR PROYECTO (SOLO ADMIN / OPERACIONES) -->
+        <button id="btn-open-new-project" onclick="openModal('modal-create-project')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm transition">
+          <i data-lucide="folder-plus" class="w-4 h-4"></i> Crear Proyecto
+        </button>
+      </div>
+    </div>
+
+    <!-- SECCIÓN 1: PROYECTOS Y SUBPROYECTOS (ESTRUCTURA JERÁRQUICA) -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <div class="p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 class="text-base font-bold text-slate-900">Estado Financiero de Obras (Imputación Acumulada vs Presupuesto)</h2>
-          <p class="text-xs text-slate-500">Control de desviación presupuestaria en tiempo real</p>
+          <h2 class="text-base font-bold text-slate-900">Estructura de Obras & Subproyectos (Costos & Stock Asignado)</h2>
+          <p class="text-xs text-slate-500">Cada proyecto consolida todo lo almacenado en sus subproyectos pero no de la bodega central</p>
         </div>
-        <span class="text-xs bg-slate-100 text-slate-600 px-3 py-1 rounded-full font-medium">
-          Subcolección <code class="font-mono">/projects/{id}/accounting/finances</code>
-        </span>
       </div>
       <div class="p-5">
-        <div id="projects-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Renderizado dinámico de proyectos -->
+        <div id="projects-tree-container" class="space-y-4">
+          <!-- Renderizado dinámico de proyectos y subproyectos -->
         </div>
       </div>
     </div>
 
-    <!-- SECCIÓN PRINCIPAL: INVENTARIO FÍSICO Y VALORIZADO -->
+    <!-- SECCIÓN 2: CATÁLOGO DE MATERIALES (ADMINISTRACIÓN CENTRADA EN MATERIALES) -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <div class="p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 class="text-base font-bold text-slate-900">Catálogo de Materiales & Existencias Físicas</h2>
-          <p class="text-xs text-slate-500">Bodega Central Centralizada (~50 materiales)</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <!-- BOTÓN COMPRA (SOLO ADMIN) -->
-          <button id="btn-open-purchase" onclick="openModal('modal-purchase')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition">
-            <i data-lucide="plus-circle" class="w-4 h-4"></i> Entrada por Compra (PMP)
-          </button>
-          <!-- BOTÓN DESPACHO (TODOS) -->
-          <button onclick="openModal('modal-dispatch')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition">
-            <i data-lucide="truck" class="w-4 h-4"></i> Despacho a Obra
-          </button>
-          <!-- BOTÓN DEVOLUCIÓN -->
-          <button onclick="openModal('modal-return')" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition">
-            <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Devolución
-          </button>
+          <h2 class="text-base font-bold text-slate-900">Inventario Basado en Materiales (Distribución de Stock)</h2>
+          <p class="text-xs text-slate-500">Existencias en Bodega Central vs Asignadas a Obras</p>
         </div>
       </div>
 
-      <!-- TABLA DE MATERIALES -->
       <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
           <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
             <tr>
-              <th class="px-5 py-3">SKU / Nombre</th>
-              <th class="px-4 py-3">Unidad</th>
-              <th class="px-4 py-3 text-right">Stock Actual</th>
-              <th class="px-4 py-3 text-right">Stock Mínimo</th>
-              <th class="px-4 py-3 text-right col-financial">PMP Vigente (CLP)</th>
-              <th class="px-4 py-3 text-right col-financial">Valorización Total</th>
-              <th class="px-4 py-3 text-center">Estado</th>
+              <th class="px-5 py-3">Material / SKU</th>
+              <th class="px-3 py-3">Unidad</th>
+              <th class="px-4 py-3 text-right">Bodega Central</th>
+              <th class="px-4 py-3 text-right">En Obras / Subobras</th>
+              <th class="px-4 py-3 text-right bg-slate-100/60 font-bold text-slate-900">Stock Total Empresa</th>
+              <th class="px-4 py-3 text-right col-financial">PMP Vigente</th>
+              <th class="px-4 py-3 text-right col-financial">Valor Total Empresa</th>
+              <th class="px-4 py-3 text-center">Acciones</th>
             </tr>
           </thead>
           <tbody id="materials-table-body" class="divide-y divide-slate-100 text-slate-700">
@@ -191,15 +214,15 @@
       </div>
     </div>
 
-    <!-- SECCIÓN: KARDEX TRANSACCIONAL INMUTABLE -->
+    <!-- SECCIÓN 3: KARDEX MULTIDIRECCIONAL DE MOVIMIENTOS -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       <div class="p-5 border-b border-slate-100 flex items-center justify-between">
         <div>
-          <h2 class="text-base font-bold text-slate-900">Kardex Transaccional de Movimientos</h2>
-          <p class="text-xs text-slate-500">Historial inmutable ordenado cronológicamente</p>
+          <h2 class="text-base font-bold text-slate-900">Kardex Transaccional de Movimientos & Transferencias</h2>
+          <p class="text-xs text-slate-500">Trazabilidad completa entre Bodega, Proyectos y Subproyectos</p>
         </div>
         <span class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-full font-mono font-medium">
-          append-only: true
+          inmutable: true
         </span>
       </div>
       <div class="overflow-x-auto">
@@ -207,12 +230,12 @@
           <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
             <tr>
               <th class="px-5 py-3">Folio</th>
-              <th class="px-4 py-3">Fecha y Hora</th>
-              <th class="px-4 py-3">Tipo Movimiento</th>
-              <th class="px-4 py-3">Destino / Origen</th>
-              <th class="px-4 py-3">Usuario (Rol)</th>
-              <th class="px-4 py-3">Detalle Ítems</th>
-              <th class="px-4 py-3 text-right col-financial">Costo Total</th>
+              <th class="px-4 py-3">Fecha</th>
+              <th class="px-4 py-3">Origen</th>
+              <th class="px-4 py-3">Destino</th>
+              <th class="px-4 py-3">Usuario</th>
+              <th class="px-4 py-3">Material & Cantidad</th>
+              <th class="px-4 py-3 text-right col-financial">Costo Asumido</th>
             </tr>
           </thead>
           <tbody id="movements-table-body" class="divide-y divide-slate-100 text-slate-700">
@@ -224,24 +247,147 @@
 
   </div>
 
-  <!-- MODAL: REGISTRAR ENTRADA POR COMPRA -->
-  <div id="modal-purchase" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <!-- MODAL: TRANSFERIR / MOVER MATERIAL (ENTRE CUALQUIER UBICACIÓN) -->
+  <div id="modal-transfer" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-slate-200">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
         <h3 class="font-bold text-slate-900 flex items-center gap-2">
-          <i data-lucide="plus-circle" class="w-5 h-5 text-emerald-600"></i> Entrada por Compra (Cálculo PMP)
+          <i data-lucide="arrow-left-right" class="w-5 h-5 text-amber-500"></i> Transferir / Mover Material
         </h3>
-        <button onclick="closeModal('modal-purchase')" class="text-slate-400 hover:text-slate-600">✕</button>
-      </div>
-
-      <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-900 leading-relaxed font-mono">
-        $$\text{Nuevo PMP} = \frac{(\text{Stock} \times \text{PMP}) + (\text{Cant} \times \text{Precio})}{\text{Stock} + \text{Cant}}$$
+        <button onclick="closeModal('modal-transfer')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
 
       <div class="space-y-3 text-xs">
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Folio Documento / Factura</label>
-          <input id="pur-folio" type="text" class="w-full border border-slate-300 rounded-lg p-2.5" value="FAC-2026-0412">
+          <label class="block font-semibold text-slate-700 mb-1">Folio Movimiento</label>
+          <input id="trans-folio" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-mono" value="MOV-2026-0201">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Material a Mover</label>
+          <select id="trans-material" onchange="updateTransferAvailability()" class="w-full border border-slate-300 rounded-lg p-2.5"></select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">📍 Origen</label>
+            <select id="trans-origin" onchange="updateTransferAvailability()" class="w-full border border-slate-300 rounded-lg p-2.5 bg-white"></select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">🏁 Destino</label>
+            <select id="trans-dest" class="w-full border border-slate-300 rounded-lg p-2.5 bg-white"></select>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-1">
+            <label class="font-semibold text-slate-700">Cantidad a Mover</label>
+            <span id="trans-avail-hint" class="text-amber-700 font-bold">Disponible en origen: 0</span>
+          </div>
+          <input id="trans-qty" type="number" min="1" value="10" oninput="updateTransferCostPreview()" class="w-full border border-slate-300 rounded-lg p-2.5 text-base font-bold">
+        </div>
+
+        <div id="trans-cost-box" class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs space-y-1">
+          <div class="flex justify-between text-amber-900">
+            <span>PMP del Material:</span>
+            <span id="trans-preview-pmp" class="font-bold">$0 CLP</span>
+          </div>
+          <div class="flex justify-between text-amber-900 border-t border-amber-200/60 pt-1 font-bold">
+            <span>Costo a Transferir / Asumir:</span>
+            <span id="trans-preview-total">$0 CLP</span>
+          </div>
+          <p class="text-[11px] text-amber-700 mt-1 italic">
+            * El costo se deducirá del origen (si era obra) y se imputará al presupuesto del destino.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeModal('modal-transfer')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
+        <button onclick="executeTransfer()" class="px-4 py-2 text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-600 rounded-xl shadow-sm">Confirmar y Mover</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CREAR PROYECTO -->
+  <div id="modal-create-project" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="folder-plus" class="w-5 h-5 text-slate-900"></i> Nuevo Proyecto de Obra
+        </h3>
+        <button onclick="closeModal('modal-create-project')" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Código de Obra</label>
+          <input id="new-proj-code" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-mono" placeholder="OBR-2026-04">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Nombre del Proyecto</label>
+          <input id="new-proj-name" type="text" class="w-full border border-slate-300 rounded-lg p-2.5" placeholder="Edificio Don Diego">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Presupuesto Asignado (CLP)</label>
+          <input id="new-proj-budget" type="number" min="0" class="w-full border border-slate-300 rounded-lg p-2.5" placeholder="15000000">
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeModal('modal-create-project')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
+        <button onclick="executeCreateProject()" class="px-4 py-2 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl shadow-sm">Crear Proyecto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CREAR SUBPROYECTO -->
+  <div id="modal-create-subproject" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="git-branch" class="w-5 h-5 text-amber-500"></i> Nuevo Subproyecto / Frente de Trabajo
+        </h3>
+        <button onclick="closeModal('modal-create-subproject')" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Proyecto Padre</label>
+          <input id="sub-parent-name" type="text" disabled class="w-full border border-slate-200 bg-slate-100 rounded-lg p-2.5 font-bold text-slate-600">
+          <input id="sub-parent-id" type="hidden">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Código Subproyecto</label>
+          <input id="new-sub-code" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-mono" placeholder="TORRE-A">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Nombre (Etapa / Frente / Torre)</label>
+          <input id="new-sub-name" type="text" class="w-full border border-slate-300 rounded-lg p-2.5" placeholder="Torre 1 - Fundaciones">
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeModal('modal-create-subproject')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
+        <button onclick="executeCreateSubproject()" class="px-4 py-2 text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-600 rounded-xl shadow-sm">Agregar Subproyecto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTRAR COMPRA A BODEGA -->
+  <div id="modal-purchase" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-slate-200">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="plus-circle" class="w-5 h-5 text-emerald-600"></i> Entrada de Compra a Bodega Central
+        </h3>
+        <button onclick="closeModal('modal-purchase')" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Folio Factura / Guía Compra</label>
+          <input id="pur-folio" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-mono" value="FAC-2026-0515">
         </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Material</label>
@@ -264,7 +410,7 @@
             <span id="pur-preview-current-pmp" class="font-bold text-slate-800">$0 CLP</span>
           </div>
           <div class="flex justify-between text-slate-500">
-            <span>Nuevo Stock Resultante:</span>
+            <span>Nuevo Stock en Bodega:</span>
             <span id="pur-preview-new-stock" class="font-bold text-slate-800">0</span>
           </div>
           <div class="flex justify-between text-emerald-700 font-bold border-t border-slate-200 pt-1.5">
@@ -276,137 +422,187 @@
 
       <div class="flex justify-end gap-2 pt-2">
         <button onclick="closeModal('modal-purchase')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
-        <button onclick="executePurchase()" class="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-sm">Ejecutar Transacción Atómica</button>
+        <button onclick="executePurchase()" class="px-4 py-2 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-sm">Registrar Entrada</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: REGISTRAR DESPACHO A OBRA -->
-  <div id="modal-dispatch" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <!-- MODAL: DETALLE DE DISTRIBUCIÓN DE UN MATERIAL -->
+  <div id="modal-material-detail" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-slate-200">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 class="font-bold text-slate-900 flex items-center gap-2">
-          <i data-lucide="truck" class="w-5 h-5 text-amber-500"></i> Despacho de Material a Obra
-        </h3>
-        <button onclick="closeModal('modal-dispatch')" class="text-slate-400 hover:text-slate-600">✕</button>
+        <div>
+          <h3 id="mat-detail-name" class="font-bold text-slate-900 text-sm">Material</h3>
+          <p id="mat-detail-sku" class="text-xs font-mono text-slate-400">SKU</p>
+        </div>
+        <button onclick="closeModal('modal-material-detail')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
 
-      <div class="space-y-3 text-xs">
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">Folio Guía Despacho</label>
-          <input id="disp-folio" type="text" class="w-full border border-slate-300 rounded-lg p-2.5" value="DESP-2026-0105">
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">Obra Destino</label>
-          <select id="disp-project" class="w-full border border-slate-300 rounded-lg p-2.5"></select>
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">Material a Despachar</label>
-          <select id="disp-material" onchange="updateDispatchMax()" class="w-full border border-slate-300 rounded-lg p-2.5"></select>
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">
-            Cantidad a Despachar <span id="disp-stock-hint" class="text-slate-400 font-normal"></span>
-          </label>
-          <input id="disp-qty" type="number" min="1" value="20" class="w-full border border-slate-300 rounded-lg p-2.5">
+      <div class="space-y-3">
+        <h4 class="text-xs font-bold uppercase text-slate-500 tracking-wider">¿Dónde se encuentra este material?</h4>
+        <div id="mat-detail-locations" class="space-y-2">
+          <!-- Renderizado dinámico -->
         </div>
       </div>
 
-      <div class="flex justify-end gap-2 pt-2">
-        <button onclick="closeModal('modal-dispatch')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
-        <button onclick="executeDispatch()" class="px-4 py-2 text-xs font-semibold text-slate-950 bg-amber-500 hover:bg-amber-600 rounded-xl shadow-sm">Confirmar Despacho</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: REGISTRAR DEVOLUCIÓN DESDE OBRA -->
-  <div id="modal-return" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-slate-200">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 class="font-bold text-slate-900 flex items-center gap-2">
-          <i data-lucide="rotate-ccw" class="w-5 h-5 text-slate-800"></i> Devolución de Material desde Obra
-        </h3>
-        <button onclick="closeModal('modal-return')" class="text-slate-400 hover:text-slate-600">✕</button>
-      </div>
-
-      <div class="space-y-3 text-xs">
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">Folio Vale de Devolución</label>
-          <input id="ret-folio" type="text" class="w-full border border-slate-300 rounded-lg p-2.5" value="DEV-2026-0033">
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">Obra de Origen</label>
-          <select id="ret-project" class="w-full border border-slate-300 rounded-lg p-2.5"></select>
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">Material Devuelto</label>
-          <select id="ret-material" class="w-full border border-slate-300 rounded-lg p-2.5"></select>
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">Cantidad Reintegrada</label>
-          <input id="ret-qty" type="number" min="1" value="5" class="w-full border border-slate-300 rounded-lg p-2.5">
-        </div>
-      </div>
-
-      <div class="flex justify-end gap-2 pt-2">
-        <button onclick="closeModal('modal-return')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
-        <button onclick="executeReturn()" class="px-4 py-2 text-xs font-semibold text-white bg-slate-800 hover:bg-slate-900 rounded-xl shadow-sm">Reintegrar al Stock</button>
+      <div class="flex justify-end pt-2">
+        <button onclick="closeModal('modal-material-detail')" class="px-4 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl">Cerrar</button>
       </div>
     </div>
   </div>
 
   <script>
     // =========================================================================
-    // ESTADO LOCAL DE LA APLICACIÓN (Simula la Base de Datos Firestore)
+    // ESTADO DE LA BASE DE DATOS LOCAL (SIMULACIÓN DE FIRESTORE)
     // =========================================================================
-    let currentRole = 'admin'; // 'admin' | 'operaciones' | 'bodeguero'
+    let currentRole = 'admin';
 
     let state = {
-      materials: [
-        { id: 'mat-1', sku: 'CEM-ESP-425', name: 'Cemento Polpaico Especial 42.5kg', unit: 'saco', currentStock: 120, minStock: 50, isLowStock: false, pmp: 4450 },
-        { id: 'mat-2', sku: 'FIER-EST-12MM', name: 'Fierro Estriado 12mm x 12m', unit: 'tira', currentStock: 35, minStock: 40, isLowStock: true, pmp: 8900 },
-        { id: 'mat-3', sku: 'TAB-PINO-1X4', name: 'Madera Pino Seco 1x4 x 3.2m', unit: 'tira', currentStock: 250, minStock: 100, isLowStock: false, pmp: 2350 },
-        { id: 'mat-4', sku: 'CLAV-CORR-3PULG', name: 'Clavo Corriente 3 pulgadas', unit: 'kg', currentStock: 15, minStock: 25, isLowStock: true, pmp: 1950 },
-        { id: 'mat-5', sku: 'MEMB-ASF-4MM', name: 'Membrana Asfáltica Gravillada 4mm', unit: 'rollo', currentStock: 42, minStock: 20, isLowStock: false, pmp: 32000 }
-      ],
+      // PROYECTOS Y SUBPROYECTOS
       projects: [
-        { id: 'proj-1', code: 'OBR-01', name: 'Edificio Los Robles', status: 'active', budgetCLP: 18500000, accumulatedCostCLP: 11420000 },
-        { id: 'proj-2', code: 'OBR-02', name: 'Condominio Mirador Norte', status: 'active', budgetCLP: 24000000, accumulatedCostCLP: 21850000 },
-        { id: 'proj-3', code: 'OBR-03', name: 'Remodelación Centro Médico', status: 'active', budgetCLP: 7500000, accumulatedCostCLP: 3100000 }
+        {
+          id: 'proj-1',
+          code: 'OBR-01',
+          name: 'Edificio Los Robles',
+          status: 'active',
+          budgetCLP: 22000000,
+          accumulatedCostCLP: 9450000,
+          subprojects: [
+            { id: 'sub-1a', code: 'TORRE-A', name: 'Torre A - Obra Gruesa', accumulatedCostCLP: 6200000 },
+            { id: 'sub-1b', code: 'SUBTERR', name: 'Subterráneo y Estacionamientos', accumulatedCostCLP: 3250000 }
+          ]
+        },
+        {
+          id: 'proj-2',
+          code: 'OBR-02',
+          name: 'Condominio Mirador Norte',
+          status: 'active',
+          budgetCLP: 18000000,
+          accumulatedCostCLP: 8200000,
+          subprojects: [
+            { id: 'sub-2a', code: 'ETAPA-1', name: 'Etapa 1 - Casas 1 a 12', accumulatedCostCLP: 5100000 },
+            { id: 'sub-2b', code: 'URBANIZ', name: 'Urbanización y Redes', accumulatedCostCLP: 3100000 }
+          ]
+        }
       ],
+
+      // MATERIALES Y DISTRIBUCIÓN DE EXISTENCIAS
+      materials: [
+        {
+          id: 'mat-1',
+          sku: 'CEM-ESP-425',
+          name: 'Cemento Polpaico Especial 42.5kg',
+          unit: 'saco',
+          warehouseStock: 90, // En Bodega Central
+          minStock: 40,
+          pmp: 4450,
+          // Stock asignado en obras / subobras
+          stockByLocation: {
+            'sub-1a': 40, // En Torre A
+            'sub-1b': 20, // En Subterráneo
+            'sub-2a': 30  // En Etapa 1
+          }
+        },
+        {
+          id: 'mat-2',
+          sku: 'FIER-EST-12MM',
+          name: 'Fierro Estriado 12mm x 12m',
+          unit: 'tira',
+          warehouseStock: 25,
+          minStock: 30,
+          pmp: 8900,
+          stockByLocation: {
+            'sub-1a': 50,
+            'sub-2b': 20
+          }
+        },
+        {
+          id: 'mat-3',
+          sku: 'TAB-PINO-1X4',
+          name: 'Madera Pino Seco 1x4 x 3.2m',
+          unit: 'tira',
+          warehouseStock: 180,
+          minStock: 60,
+          pmp: 2350,
+          stockByLocation: {
+            'sub-1b': 45,
+            'sub-2a': 60
+          }
+        },
+        {
+          id: 'mat-4',
+          sku: 'CLAV-CORR-3PULG',
+          name: 'Clavo Corriente 3 pulgadas',
+          unit: 'kg',
+          warehouseStock: 12,
+          minStock: 20,
+          pmp: 1950,
+          stockByLocation: {
+            'sub-1a': 15,
+            'sub-2a': 10
+          }
+        }
+      ],
+
+      // KARDEX HISTÓRICO
       movements: [
         {
           id: 'mov-1',
-          folio: 'DESP-2026-0098',
-          date: '2026-10-18 09:30',
-          type: 'DISPATCH_PROJECT',
-          projectName: 'Edificio Los Robles',
+          folio: 'MOV-2026-0199',
+          date: '2026-10-28 10:15',
+          originName: 'Bodega Central',
+          destName: 'Edificio Los Robles / Torre A - Obra Gruesa',
           userName: 'Carlos Bodeguero',
-          userRole: 'bodeguero',
-          itemSummary: '30 saco Cemento Polpaico',
-          totalCostCLP: 133500
+          itemSummary: '40 saco Cemento Polpaico Especial',
+          totalCostCLP: 178000
         },
         {
           id: 'mov-2',
-          folio: 'FAC-2026-0399',
-          date: '2026-10-18 14:15',
-          type: 'PURCHASE_ENTRY',
-          projectName: 'Bodega Central',
+          folio: 'MOV-2026-0200',
+          date: '2026-10-28 11:30',
+          originName: 'Edificio Los Robles / Torre A - Obra Gruesa',
+          destName: 'Condominio Mirador Norte / Etapa 1',
           userName: 'Admin Finanzas',
-          userRole: 'admin',
-          itemSummary: '50 tira Fierro 12mm',
-          totalCostCLP: 445000
+          itemSummary: '10 tira Fierro 12mm x 12m',
+          totalCostCLP: 89000
         }
       ]
     };
 
     // =========================================================================
-    // CONTROL DE ROLES Y VISIBILIDAD DE SEGURIDAD
+    // CÁLCULOS JERÁRQUICOS Y AUXILIARES
+    // =========================================================================
+    function formatCLP(val) {
+      return '$' + Math.round(val).toLocaleString('es-CL') + ' CLP';
+    }
+
+    // Calcula stock de un material asignado a obras
+    function getMaterialProjectStock(material) {
+      return Object.values(material.stockByLocation || {}).reduce((acc, q) => acc + q, 0);
+    }
+
+    // Calcula stock total de un material en toda la empresa (Bodega + Obras)
+    function getMaterialTotalCompanyStock(material) {
+      return material.warehouseStock + getMaterialProjectStock(material);
+    }
+
+    // Obtiene el nombre legible de una ubicación por su ID
+    function getLocationDisplayName(locId) {
+      if (locId === 'warehouse') return 'Bodega Central';
+      for (const p of state.projects) {
+        if (p.id === locId) return p.name;
+        for (const sub of p.subprojects) {
+          if (sub.id === locId) return `${p.name} ➔ ${sub.name}`;
+        }
+      }
+      return locId;
+    }
+
+    // =========================================================================
+    // GESTIÓN DE ROLES
     // =========================================================================
     function setRole(role) {
       currentRole = role;
-      
-      // Actualizar botones
       ['admin', 'operaciones', 'bodeguero'].forEach(r => {
         const btn = document.getElementById(`btn-role-${r}`);
         if (r === role) {
@@ -416,147 +612,200 @@
         }
       });
 
-      // Actualizar badge
       const badge = document.getElementById('role-badge');
       badge.textContent = role;
-      if (role === 'admin') badge.className = 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-mono font-medium';
-      if (role === 'operaciones') badge.className = 'bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2.5 py-0.5 rounded-full font-mono font-medium';
-      if (role === 'bodeguero') badge.className = 'bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-0.5 rounded-full font-mono font-medium';
 
-      // Mostrar/ocultar banner de aislamiento
       document.getElementById('bodeguero-banner').style.display = (role === 'bodeguero') ? 'block' : 'none';
-
-      // Botón de compra solo para Admin
       document.getElementById('btn-open-purchase').style.display = (role === 'admin') ? 'flex' : 'none';
+      document.getElementById('btn-open-new-project').style.display = (role !== 'bodeguero') ? 'flex' : 'none';
 
       renderUI();
     }
 
     // =========================================================================
-    // RENDERIZADO GENERAL
+    // RENDERIZADO GENERAL DE LA APLICACIÓN
     // =========================================================================
     function renderUI() {
-      renderDashboard();
-      renderProjects();
-      renderMaterials();
-      renderMovements();
+      renderDashboardStats();
+      renderProjectsTree();
+      renderMaterialsTable();
+      renderMovementsTable();
       populateSelects();
       lucide.createIcons();
     }
 
-    function formatCLP(amount) {
-      return '$' + Math.round(amount).toLocaleString('es-CL') + ' CLP';
-    }
+    function renderDashboardStats() {
+      // 1. Almacenamiento Total Empresa
+      const totalWarehouseStock = state.materials.reduce((acc, m) => acc + m.warehouseStock, 0);
+      const totalCompanyStock = state.materials.reduce((acc, m) => acc + getMaterialTotalCompanyStock(m), 0);
+      const totalInProjects = totalCompanyStock - totalWarehouseStock;
 
-    function renderDashboard() {
-      // Valor Total Bodega
-      const totalVal = state.materials.reduce((acc, m) => acc + (m.currentStock * m.pmp), 0);
-      const totalValEl = document.getElementById('stat-total-valuation');
-      const totalValSub = document.getElementById('stat-total-valuation-sub');
-      
+      document.getElementById('stat-total-stock-company').textContent = `${totalCompanyStock.toLocaleString()} uds`;
+      document.getElementById('stat-stock-warehouse').textContent = `${totalWarehouseStock.toLocaleString()} uds`;
+      document.getElementById('stat-stock-in-projects').textContent = `${totalInProjects.toLocaleString()} uds`;
+
+      // 2. Obras y Subproyectos
+      const totalSubs = state.projects.reduce((acc, p) => acc + p.subprojects.length, 0);
+      document.getElementById('stat-projects-count').textContent = `${state.projects.length} Obras`;
+      document.getElementById('stat-subprojects-count').textContent = `${totalSubs} Subproyectos / Frentes`;
+
+      // 3. Costo Imputado a Obras
+      const totalCost = state.projects.reduce((acc, p) => acc + p.accumulatedCostCLP, 0);
+      const totalBudget = state.projects.reduce((acc, p) => acc + p.budgetCLP, 0);
+      const overallProgress = totalBudget > 0 ? (totalCost / totalBudget) * 100 : 0;
+
+      const costEl = document.getElementById('stat-total-imputed-cost');
+      const budEl = document.getElementById('stat-total-budget');
+      const progEl = document.getElementById('stat-overall-progress');
+
       if (currentRole === 'bodeguero') {
-        totalValEl.innerHTML = '<span class="badge-lock px-2 py-0.5 rounded text-sm font-semibold inline-flex items-center gap-1"><i data-lucide="lock" class="w-3.5 h-3.5"></i> Restringido</span>';
-        totalValSub.textContent = 'Acceso denegado por firestore.rules';
+        costEl.innerHTML = '<span class="badge-lock px-2 py-0.5 rounded text-sm">🔒 Restringido</span>';
+        budEl.textContent = 'Presupuesto: 🔒 Restringido';
+        progEl.textContent = '🔒';
       } else {
-        totalValEl.textContent = formatCLP(totalVal);
-        totalValSub.textContent = 'Calculado con Server-Side Aggregation (1 lectura)';
+        costEl.textContent = formatCLP(totalCost);
+        budEl.textContent = `Presupuesto Global: ${formatCLP(totalBudget)}`;
+        progEl.textContent = `${overallProgress.toFixed(1)}%`;
       }
 
-      document.getElementById('stat-total-skus').textContent = `${state.materials.length} SKUs`;
-
-      // Materiales en alerta
-      const criticalMaterials = state.materials.filter(m => m.currentStock <= m.minStock);
-      document.getElementById('stat-critical-count').textContent = criticalMaterials.length;
-
-      // Obras activas
-      const activeProj = state.projects.filter(p => p.status === 'active');
-      document.getElementById('stat-active-projects-count').textContent = `${activeProj.length} Obras Activas`;
-      
-      const totalCost = activeProj.reduce((acc, p) => acc + p.accumulatedCostCLP, 0);
-      const costEl = document.getElementById('stat-active-projects-cost');
+      // 4. Valor en Bodega Central
+      const warehouseValuation = state.materials.reduce((acc, m) => acc + (m.warehouseStock * m.pmp), 0);
+      const valEl = document.getElementById('stat-warehouse-valuation');
       if (currentRole === 'bodeguero') {
-        costEl.textContent = 'Costo Imputado: 🔒 Acceso Restringido';
+        valEl.innerHTML = '<span class="badge-lock px-2 py-0.5 rounded text-sm">🔒 Restringido</span>';
       } else {
-        costEl.textContent = `Costo Imputado: ${formatCLP(totalCost)}`;
+        valEl.textContent = formatCLP(warehouseValuation);
       }
+
+      const criticalCount = state.materials.filter(m => m.warehouseStock <= m.minStock).length;
+      document.getElementById('stat-critical-count').textContent = `${criticalCount} SKUs críticos`;
     }
 
-    function renderProjects() {
-      const container = document.getElementById('projects-container');
+    function renderProjectsTree() {
+      const container = document.getElementById('projects-tree-container');
       container.innerHTML = '';
 
-      state.projects.forEach(p => {
-        const pct = (p.accumulatedCostCLP / p.budgetCLP) * 100;
+      state.projects.forEach(project => {
+        // Calcular total de materiales almacenados en este proyecto (suma de sus subproyectos)
+        let totalItemsInProject = 0;
+        state.materials.forEach(m => {
+          project.subprojects.forEach(sub => {
+            totalItemsInProject += (m.stockByLocation[sub.id] || 0);
+          });
+        });
+
+        const pct = project.budgetCLP > 0 ? (project.accumulatedCostCLP / project.budgetCLP) * 100 : 0;
         const isOver = pct >= 90;
 
         const card = document.createElement('div');
-        card.className = 'bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3';
-        
-        let costContent = '';
+        card.className = 'bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4';
+
+        let financesHeader = '';
         if (currentRole === 'bodeguero') {
-          costContent = `
-            <div class="py-2 text-center text-xs badge-lock rounded-lg font-medium flex items-center justify-center gap-1">
-              <i data-lucide="shield-alert" class="w-4 h-4"></i> Datos Financieros Restringidos para Rol Bodeguero
-            </div>
-          `;
+          financesHeader = '<span class="badge-lock px-2 py-0.5 rounded text-[11px] font-mono">Costos 🔒 Restringidos</span>';
         } else {
-          costContent = `
-            <div class="flex justify-between text-xs">
-              <span class="text-slate-500">Costo Acumulado:</span>
-              <span class="font-bold text-slate-800">${formatCLP(p.accumulatedCostCLP)}</span>
-            </div>
-            <div class="flex justify-between text-xs">
-              <span class="text-slate-500">Presupuesto Asignado:</span>
-              <span class="font-medium text-slate-600">${formatCLP(p.budgetCLP)}</span>
-            </div>
-            <!-- BARRA DE PROGRESO -->
-            <div>
-              <div class="flex justify-between text-xs font-semibold mb-1">
-                <span class="${isOver ? 'text-rose-600' : 'text-slate-600'}">Avance Financiero</span>
-                <span class="${isOver ? 'text-rose-600 font-bold' : 'text-slate-800'}">${pct.toFixed(1)}%</span>
-              </div>
-              <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                <div class="h-2 rounded-full ${isOver ? 'bg-rose-500' : 'bg-emerald-500'}" style="width: ${Math.min(pct, 100)}%"></div>
-              </div>
+          financesHeader = `
+            <div class="text-right">
+              <span class="text-xs text-slate-500 font-medium">Costo Asumido:</span>
+              <div class="font-bold text-slate-900">${formatCLP(project.accumulatedCostCLP)}</div>
+              <div class="text-[11px] text-slate-400">Presupuesto: ${formatCLP(project.budgetCLP)} (${pct.toFixed(1)}%)</div>
             </div>
           `;
         }
 
+        // Listado de Subproyectos
+        let subprojectsHtml = '';
+        if (project.subprojects.length === 0) {
+          subprojectsHtml = '<p class="text-xs text-slate-400 italic">No hay subproyectos creados. Haz clic en "+ Subproyecto".</p>';
+        } else {
+          subprojectsHtml = project.subprojects.map(sub => {
+            // Materiales en este subproyecto
+            let subStockCount = 0;
+            state.materials.forEach(m => {
+              subStockCount += (m.stockByLocation[sub.id] || 0);
+            });
+
+            const costSub = currentRole === 'bodeguero'
+              ? '<span class="text-slate-400">🔒</span>'
+              : `<span class="font-bold text-slate-800">${formatCLP(sub.accumulatedCostCLP)}</span>`;
+
+            return `
+              <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200 text-xs">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="corner-down-right" class="w-3.5 h-3.5 text-amber-500"></i>
+                  <div>
+                    <span class="font-bold text-slate-900">${sub.name}</span>
+                    <span class="text-slate-400 font-mono text-[10px] ml-1">(${sub.code})</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded-lg font-medium">
+                    📦 ${subStockCount} uds asignadas
+                  </span>
+                  <div>${costSub}</div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
         card.innerHTML = `
-          <div class="flex items-center justify-between border-b border-slate-200 pb-2">
-            <div>
-              <h4 class="font-bold text-slate-900 text-sm">${p.name}</h4>
-              <span class="text-xs font-mono text-slate-400">${p.code}</span>
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
+            <div class="flex items-center gap-3">
+              <div class="bg-slate-900 text-white p-2.5 rounded-xl font-bold text-xs">
+                ${project.code}
+              </div>
+              <div>
+                <h3 class="font-bold text-slate-900 text-sm">${project.name}</h3>
+                <p class="text-xs text-slate-500">
+                  Total Almacenado en Obra: <strong class="text-amber-600 font-semibold">${totalItemsInProject} unidades</strong>
+                  <span class="text-slate-400 ml-1">(Consolidado de sus ${project.subprojects.length} subproyectos)</span>
+                </p>
+              </div>
             </div>
-            <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Activa</span>
+            <div class="flex items-center gap-3">
+              ${financesHeader}
+              ${currentRole !== 'bodeguero' ? `
+                <button onclick="openCreateSubprojectModal('${project.id}', '${project.name}')" class="bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-xl flex items-center gap-1 shadow-sm transition">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i> Subproyecto
+                </button>
+              ` : ''}
+            </div>
           </div>
-          ${costContent}
+
+          <div class="space-y-2">
+            <h4 class="text-[11px] font-bold uppercase text-slate-400 tracking-wider">Subproyectos / Frentes de Trabajo:</h4>
+            ${subprojectsHtml}
+          </div>
         `;
+
         container.appendChild(card);
       });
     }
 
-    function renderMaterials() {
+    function renderMaterialsTable() {
       const tbody = document.getElementById('materials-table-body');
       tbody.innerHTML = '';
 
       state.materials.forEach(m => {
-        const isLow = m.currentStock <= m.minStock;
-        const totalVal = m.currentStock * m.pmp;
+        const projectStock = getMaterialProjectStock(m);
+        const totalCompanyStock = getMaterialTotalCompanyStock(m);
+        const totalCompanyValuation = totalCompanyStock * m.pmp;
+        const isLow = m.warehouseStock <= m.minStock;
 
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50/80 transition';
 
-        let financialCols = '';
+        let finCols = '';
         if (currentRole === 'bodeguero') {
-          financialCols = `
-            <td class="px-4 py-3 text-right"><span class="badge-lock px-1.5 py-0.5 rounded text-[11px] font-mono">🔒 Restringido</span></td>
-            <td class="px-4 py-3 text-right"><span class="badge-lock px-1.5 py-0.5 rounded text-[11px] font-mono">🔒 Restringido</span></td>
+          finCols = `
+            <td class="px-4 py-3 text-right"><span class="badge-lock px-1.5 py-0.5 rounded text-[11px] font-mono">🔒</span></td>
+            <td class="px-4 py-3 text-right"><span class="badge-lock px-1.5 py-0.5 rounded text-[11px] font-mono">🔒</span></td>
           `;
         } else {
-          financialCols = `
+          finCols = `
             <td class="px-4 py-3 text-right font-mono font-medium">${formatCLP(m.pmp)}</td>
-            <td class="px-4 py-3 text-right font-mono font-bold text-slate-900">${formatCLP(totalVal)}</td>
+            <td class="px-4 py-3 text-right font-mono font-bold text-slate-900">${formatCLP(totalCompanyValuation)}</td>
           `;
         }
 
@@ -565,84 +814,169 @@
             <div class="font-bold text-slate-900">${m.name}</div>
             <div class="text-[11px] font-mono text-slate-400">${m.sku}</div>
           </td>
-          <td class="px-4 py-3 text-slate-600 font-medium">${m.unit}</td>
-          <td class="px-4 py-3 text-right font-bold font-mono text-base ${isLow ? 'text-rose-600' : 'text-slate-800'}">
-            ${m.currentStock}
+          <td class="px-3 py-3 text-slate-500 font-medium">${m.unit}</td>
+          <td class="px-4 py-3 text-right font-mono font-bold ${isLow ? 'text-rose-600' : 'text-slate-800'}">
+            ${m.warehouseStock}
           </td>
-          <td class="px-4 py-3 text-right font-mono text-slate-500">${m.minStock}</td>
-          ${financialCols}
+          <td class="px-4 py-3 text-right font-mono font-bold text-amber-600">
+            ${projectStock}
+          </td>
+          <td class="px-4 py-3 text-right font-mono font-black text-slate-950 bg-slate-100/60 text-sm">
+            ${totalCompanyStock}
+          </td>
+          ${finCols}
           <td class="px-4 py-3 text-center">
-            ${isLow 
-              ? '<span class="bg-rose-100 text-rose-700 font-semibold px-2 py-0.5 rounded-full text-[10px] inline-flex items-center gap-1"><span class="w-1.5 h-1.5 bg-rose-500 rounded-full"></span> Stock Crítico</span>' 
-              : '<span class="bg-emerald-100 text-emerald-700 font-semibold px-2 py-0.5 rounded-full text-[10px]">Normal</span>'}
+            <button onclick="openMaterialDetail('${m.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 mx-auto transition">
+              <i data-lucide="map-pin" class="w-3.5 h-3.5 text-blue-600"></i> Ver Ubicaciones
+            </button>
           </td>
         `;
+
         tbody.appendChild(tr);
       });
     }
 
-    function renderMovements() {
+    function renderMovementsTable() {
       const tbody = document.getElementById('movements-table-body');
       tbody.innerHTML = '';
 
-      state.movements.forEach(m => {
+      state.movements.forEach(mov => {
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50/80 transition';
 
-        let badgeType = '';
-        if (m.type === 'PURCHASE_ENTRY') badgeType = '<span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-semibold text-[10px]">COMPRA</span>';
-        if (m.type === 'DISPATCH_PROJECT') badgeType = '<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-semibold text-[10px]">DESPACHO OBRA</span>';
-        if (m.type === 'RETURN_PROJECT') badgeType = '<span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded font-semibold text-[10px]">DEVOLUCIÓN</span>';
-
-        let costCell = '';
-        if (currentRole === 'bodeguero') {
-          costCell = '<td class="px-4 py-3 text-right"><span class="badge-lock px-1.5 py-0.5 rounded text-[11px] font-mono">🔒 Restringido</span></td>';
-        } else {
-          costCell = `<td class="px-4 py-3 text-right font-mono font-bold text-slate-900">${formatCLP(m.totalCostCLP)}</td>`;
-        }
+        const costCell = currentRole === 'bodeguero'
+          ? '<td class="px-4 py-3 text-right"><span class="badge-lock px-1.5 py-0.5 rounded text-[11px] font-mono">🔒</span></td>'
+          : `<td class="px-4 py-3 text-right font-mono font-bold text-slate-900">${formatCLP(mov.totalCostCLP)}</td>`;
 
         tr.innerHTML = `
-          <td class="px-5 py-3 font-mono font-bold text-slate-800">${m.folio}</td>
-          <td class="px-4 py-3 text-slate-500">${m.date}</td>
-          <td class="px-4 py-3">${badgeType}</td>
-          <td class="px-4 py-3 font-medium text-slate-800">${m.projectName}</td>
-          <td class="px-4 py-3 text-slate-600">${m.userName} <span class="text-slate-400">(${m.userRole})</span></td>
-          <td class="px-4 py-3 font-medium">${m.itemSummary}</td>
+          <td class="px-5 py-3 font-mono font-bold text-slate-900">${mov.folio}</td>
+          <td class="px-4 py-3 text-slate-500 text-[11px]">${mov.date}</td>
+          <td class="px-4 py-3 font-medium text-slate-700 flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span> ${mov.originName}
+          </td>
+          <td class="px-4 py-3 font-medium text-slate-900">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-1"></span> ${mov.destName}
+          </td>
+          <td class="px-4 py-3 text-slate-600">${mov.userName}</td>
+          <td class="px-4 py-3 font-medium">${mov.itemSummary}</td>
           ${costCell}
         `;
+
         tbody.appendChild(tr);
       });
     }
 
+    // =========================================================================
+    // MODALES Y SELECTORES DINÁMICOS
+    // =========================================================================
     function populateSelects() {
-      const matSelects = ['pur-material', 'disp-material', 'ret-material'];
+      // 1. Selector de materiales para transferencias y compras
+      const matSelects = ['trans-material', 'pur-material'];
       matSelects.forEach(selId => {
         const sel = document.getElementById(selId);
         if (!sel) return;
+        const currentVal = sel.value;
         sel.innerHTML = '';
         state.materials.forEach(m => {
           const opt = document.createElement('option');
           opt.value = m.id;
-          opt.textContent = `${m.sku} - ${m.name} (Stock: ${m.currentStock} ${m.unit})`;
+          opt.textContent = `${m.name} (${m.sku})`;
           sel.appendChild(opt);
         });
+        if (currentVal) sel.value = currentVal;
       });
 
-      const projSelects = ['disp-project', 'ret-project'];
-      projSelects.forEach(selId => {
-        const sel = document.getElementById(selId);
-        if (!sel) return;
-        sel.innerHTML = '';
+      // 2. Selectores de Ubicaciones de Origen y Destino (Bodega + Proyectos + Subproyectos)
+      const originSel = document.getElementById('trans-origin');
+      const destSel = document.getElementById('trans-dest');
+
+      if (originSel && destSel) {
+        const currentOrig = originSel.value;
+        const currentDest = destSel.value;
+
+        originSel.innerHTML = '';
+        destSel.innerHTML = '';
+
+        // Opción Bodega
+        const optBodega1 = document.createElement('option');
+        optBodega1.value = 'warehouse';
+        optBodega1.textContent = '📦 Bodega Central';
+        originSel.appendChild(optBodega1);
+
+        const optBodega2 = document.createElement('option');
+        optBodega2.value = 'warehouse';
+        optBodega2.textContent = '📦 Bodega Central';
+        destSel.appendChild(optBodega2);
+
+        // Opciones por Proyectos y Subproyectos
         state.projects.forEach(p => {
-          const opt = document.createElement('option');
-          opt.value = p.id;
-          opt.textContent = `${p.code} - ${p.name}`;
-          sel.appendChild(opt);
-        });
-      });
+          const optGroupOrig = document.createElement('optgroup');
+          optGroupOrig.label = `🏗️ ${p.name}`;
+          const optGroupDest = document.createElement('optgroup');
+          optGroupDest.label = `🏗️ ${p.name}`;
 
+          p.subprojects.forEach(sub => {
+            const o1 = document.createElement('option');
+            o1.value = sub.id;
+            o1.textContent = `↳ ${sub.name} (${sub.code})`;
+            optGroupOrig.appendChild(o1);
+
+            const o2 = document.createElement('option');
+            o2.value = sub.id;
+            o2.textContent = `↳ ${sub.name} (${sub.code})`;
+            optGroupDest.appendChild(o2);
+          });
+
+          originSel.appendChild(optGroupOrig);
+          destSel.appendChild(optGroupDest);
+        });
+
+        if (currentOrig) originSel.value = currentOrig;
+        if (currentDest) destSel.value = currentDest;
+        else if (destSel.options.length > 1) destSel.selectedIndex = 1;
+      }
+
+      updateTransferAvailability();
       updatePurchasePreview();
-      updateDispatchMax();
+    }
+
+    function updateTransferAvailability() {
+      const matId = document.getElementById('trans-material').value;
+      const originId = document.getElementById('trans-origin').value;
+      const mat = state.materials.find(m => m.id === matId);
+
+      if (!mat) return;
+
+      let available = 0;
+      if (originId === 'warehouse') {
+        available = mat.warehouseStock;
+      } else {
+        available = mat.stockByLocation[originId] || 0;
+      }
+
+      document.getElementById('trans-avail-hint').textContent = `Disponible en origen: ${available} ${mat.unit}`;
+      document.getElementById('trans-qty').max = available;
+
+      updateTransferCostPreview();
+    }
+
+    function updateTransferCostPreview() {
+      const matId = document.getElementById('trans-material').value;
+      const qty = parseInt(document.getElementById('trans-qty').value) || 0;
+      const mat = state.materials.find(m => m.id === matId);
+
+      if (!mat) return;
+
+      const pmp = mat.pmp || 0;
+      const total = qty * pmp;
+
+      if (currentRole === 'bodeguero') {
+        document.getElementById('trans-cost-box').style.display = 'none';
+      } else {
+        document.getElementById('trans-cost-box').style.display = 'block';
+        document.getElementById('trans-preview-pmp').textContent = formatCLP(pmp);
+        document.getElementById('trans-preview-total').textContent = formatCLP(total);
+      }
     }
 
     function updatePurchasePreview() {
@@ -654,165 +988,277 @@
       const cost = parseInt(document.getElementById('pur-cost').value) || 0;
 
       document.getElementById('pur-preview-current-pmp').textContent = formatCLP(mat.pmp);
-      const newStock = mat.currentStock + qty;
+      const newStock = mat.warehouseStock + qty;
       document.getElementById('pur-preview-new-stock').textContent = `${newStock} ${mat.unit}`;
 
-      const newPmp = (mat.currentStock <= 0)
+      const newPmp = mat.warehouseStock <= 0
         ? cost
-        : Math.round(((mat.currentStock * mat.pmp) + (qty * cost)) / newStock);
+        : Math.round(((mat.warehouseStock * mat.pmp) + (qty * cost)) / newStock);
 
       document.getElementById('pur-preview-new-pmp').textContent = formatCLP(newPmp);
     }
 
-    function updateDispatchMax() {
-      const matId = document.getElementById('disp-material').value;
-      const mat = state.materials.find(m => m.id === matId);
-      if (!mat) return;
-
-      const hint = document.getElementById('disp-stock-hint');
-      hint.textContent = `(Disponible: ${mat.currentStock} ${mat.unit})`;
-      document.getElementById('disp-qty').max = mat.currentStock;
-    }
-
-    // =========================================================================
-    // MODALES
-    // =========================================================================
     function openModal(id) {
       document.getElementById(id).classList.remove('hidden');
       lucide.createIcons();
     }
+
     function closeModal(id) {
       document.getElementById(id).classList.add('hidden');
     }
 
     // =========================================================================
-    // TRANSACCIONES ATÓMICAS EN VIVO (Simulando runTransaction)
+    // ACCIONES: CREAR PROYECTO & SUBPROYECTO
+    // =========================================================================
+    function executeCreateProject() {
+      const code = document.getElementById('new-proj-code').value.trim();
+      const name = document.getElementById('new-proj-name').value.trim();
+      const budget = parseInt(document.getElementById('new-proj-budget').value) || 0;
+
+      if (!code || !name) {
+        alert('Debe completar el código y el nombre del proyecto.');
+        return;
+      }
+
+      state.projects.push({
+        id: 'proj-' + Date.now(),
+        code: code,
+        name: name,
+        status: 'active',
+        budgetCLP: budget,
+        accumulatedCostCLP: 0,
+        subprojects: []
+      });
+
+      closeModal('modal-create-project');
+      renderUI();
+      alert(`✅ Proyecto "${name}" creado exitosamente.`);
+    }
+
+    function openCreateSubprojectModal(projectId, projectName) {
+      document.getElementById('sub-parent-id').value = projectId;
+      document.getElementById('sub-parent-name').value = projectName;
+      openModal('modal-create-subproject');
+    }
+
+    function executeCreateSubproject() {
+      const projId = document.getElementById('sub-parent-id').value;
+      const code = document.getElementById('new-sub-code').value.trim();
+      const name = document.getElementById('new-sub-name').value.trim();
+
+      if (!code || !name) {
+        alert('Ingrese código y nombre del subproyecto.');
+        return;
+      }
+
+      const proj = state.projects.find(p => p.id === projId);
+      if (!proj) return;
+
+      proj.subprojects.push({
+        id: 'sub-' + Date.now(),
+        code: code,
+        name: name,
+        accumulatedCostCLP: 0
+      });
+
+      closeModal('modal-create-subproject');
+      renderUI();
+      alert(`✅ Subproyecto "${name}" agregado a ${proj.name}.`);
+    }
+
+    // =========================================================================
+    // ACCIÓN: TRANSFERIR / MOVER MATERIAL (CON ASUNCIÓN DE COSTOS)
+    // =========================================================================
+    function executeTransfer() {
+      const folio = document.getElementById('trans-folio').value.trim();
+      const matId = document.getElementById('trans-material').value;
+      const originId = document.getElementById('trans-origin').value;
+      const destId = document.getElementById('trans-dest').value;
+      const qty = parseInt(document.getElementById('trans-qty').value);
+
+      if (originId === destId) {
+        alert('El origen y el destino no pueden ser el mismo.');
+        return;
+      }
+
+      if (!qty || qty <= 0) {
+        alert('Ingrese una cantidad válida mayor a 0.');
+        return;
+      }
+
+      const mat = state.materials.find(m => m.id === matId);
+      if (!mat) return;
+
+      // 1. Validar existencias en el origen
+      let availableInOrigin = originId === 'warehouse' ? mat.warehouseStock : (mat.stockByLocation[originId] || 0);
+
+      if (qty > availableInOrigin) {
+        alert(`❌ Stock insuficiente en origen. Disponible: ${availableInOrigin}, Solicitado: ${qty}`);
+        return;
+      }
+
+      const movementCost = Math.round(qty * mat.pmp);
+
+      // 2. Descontar del origen
+      if (originId === 'warehouse') {
+        mat.warehouseStock -= qty;
+      } else {
+        mat.stockByLocation[originId] -= qty;
+        // Deducir costo de la obra y subobra de origen
+        for (const p of state.projects) {
+          const sub = p.subprojects.find(s => s.id === originId);
+          if (sub) {
+            sub.accumulatedCostCLP = Math.max(0, sub.accumulatedCostCLP - movementCost);
+            p.accumulatedCostCLP = Math.max(0, p.accumulatedCostCLP - movementCost);
+            break;
+          }
+        }
+      }
+
+      // 3. Incrementar en el destino
+      if (destId === 'warehouse') {
+        mat.warehouseStock += qty;
+      } else {
+        if (!mat.stockByLocation[destId]) mat.stockByLocation[destId] = 0;
+        mat.stockByLocation[destId] += qty;
+
+        // Imputar y asumir costo en la obra y subobra de destino
+        for (const p of state.projects) {
+          const sub = p.subprojects.find(s => s.id === destId);
+          if (sub) {
+            sub.accumulatedCostCLP += movementCost;
+            p.accumulatedCostCLP += movementCost;
+            break;
+          }
+        }
+      }
+
+      // 4. Registrar en Kardex
+      const originName = getLocationDisplayName(originId);
+      const destName = getLocationDisplayName(destId);
+
+      state.movements.unshift({
+        id: 'mov-' + Date.now(),
+        folio: folio,
+        date: new Date().toISOString().replace('T', ' ').substring(0, 16),
+        originName: originName,
+        destName: destName,
+        userName: currentRole === 'bodeguero' ? 'Operario Bodega' : 'Admin Central',
+        itemSummary: `${qty} ${mat.unit} ${mat.name}`,
+        totalCostCLP: movementCost
+      });
+
+      closeModal('modal-transfer');
+      renderUI();
+      alert(`✅ Material movido con éxito:\n${qty} ${mat.unit} transferidos desde "${originName}" hasta "${destName}".\nCosto asumido: ${formatCLP(movementCost)}`);
+    }
+
+    // =========================================================================
+    // ACCIÓN: COMPRA A BODEGA CENTRAL
     // =========================================================================
     function executePurchase() {
-      const folio = document.getElementById('pur-folio').value;
+      const folio = document.getElementById('pur-folio').value.trim();
       const matId = document.getElementById('pur-material').value;
       const qty = parseInt(document.getElementById('pur-qty').value);
       const cost = parseInt(document.getElementById('pur-cost').value);
 
       if (!qty || qty <= 0 || !cost || cost < 0) {
-        alert('Ingrese valores válidos');
+        alert('Valores de compra inválidos.');
         return;
       }
 
       const mat = state.materials.find(m => m.id === matId);
-      
-      // Aplicar fórmula PMP
-      const stockAnterior = mat.currentStock;
-      const pmpAnterior = mat.pmp;
-      const nuevoStock = stockAnterior + qty;
-      const nuevoPMP = (stockAnterior <= 0)
-        ? Math.round(cost)
-        : Math.round(((stockAnterior * pmpAnterior) + (qty * cost)) / nuevoStock);
+      if (!mat) return;
 
-      // Actualizar material
-      mat.currentStock = nuevoStock;
+      const stockAnt = mat.warehouseStock;
+      const pmpAnt = mat.pmp;
+      const nuevoStock = stockAnt + qty;
+      const nuevoPMP = stockAnt <= 0
+        ? cost
+        : Math.round(((stockAnt * pmpAnt) + (qty * cost)) / nuevoStock);
+
+      mat.warehouseStock = nuevoStock;
       mat.pmp = nuevoPMP;
-      mat.isLowStock = nuevoStock <= mat.minStock;
 
       const subtotal = Math.round(qty * cost);
 
-      // Registrar movimiento
       state.movements.unshift({
         id: 'mov-' + Date.now(),
         folio: folio,
         date: new Date().toISOString().replace('T', ' ').substring(0, 16),
-        type: 'PURCHASE_ENTRY',
-        projectName: 'Bodega Central',
-        userName: currentRole === 'admin' ? 'Admin Finanzas' : 'Usuario Operativo',
-        userRole: currentRole,
+        originName: 'Proveedor Externo',
+        destName: 'Bodega Central',
+        userName: 'Admin Adquisiciones',
         itemSummary: `${qty} ${mat.unit} ${mat.name}`,
         totalCostCLP: subtotal
       });
 
       closeModal('modal-purchase');
       renderUI();
-      alert(`✅ Compra registrada exitosamente.\nNuevo PMP de ${mat.sku}: ${formatCLP(nuevoPMP)}`);
+      alert(`✅ Compra registrada en Bodega Central.\nNuevo PMP de ${mat.sku}: ${formatCLP(nuevoPMP)}`);
     }
 
-    function executeDispatch() {
-      const folio = document.getElementById('disp-folio').value;
-      const projId = document.getElementById('disp-project').value;
-      const matId = document.getElementById('disp-material').value;
-      const qty = parseInt(document.getElementById('disp-qty').value);
-
+    // =========================================================================
+    // VER DETALLE DE UBICACIONES DE UN MATERIAL
+    // =========================================================================
+    function openMaterialDetail(matId) {
       const mat = state.materials.find(m => m.id === matId);
-      const proj = state.projects.find(p => p.id === projId);
+      if (!mat) return;
 
-      // Validación de stock negativo
-      if (qty > mat.currentStock) {
-        alert(`❌ Error atómico: Stock insuficiente. Disponible: ${mat.currentStock}, Solicitado: ${qty}`);
-        return;
+      document.getElementById('mat-detail-name').textContent = mat.name;
+      document.getElementById('mat-detail-sku').textContent = `SKU: ${mat.sku} | Unidad: ${mat.unit}`;
+
+      const container = document.getElementById('mat-detail-locations');
+      container.innerHTML = '';
+
+      // 1. Bodega Central
+      const rowBodega = document.createElement('div');
+      rowBodega.className = 'flex justify-between items-center bg-slate-100 p-3 rounded-xl border border-slate-200 text-xs font-semibold';
+      rowBodega.innerHTML = `
+        <span class="flex items-center gap-1.5 text-slate-800">
+          <i data-lucide="home" class="w-4 h-4 text-slate-600"></i> Bodega Central (Sin Asignar)
+        </span>
+        <span class="font-mono font-bold text-slate-900">${mat.warehouseStock} ${mat.unit}</span>
+      `;
+      container.appendChild(rowBodega);
+
+      // 2. Ubicaciones en obras
+      let hasProjects = false;
+      state.projects.forEach(p => {
+        p.subprojects.forEach(sub => {
+          const q = mat.stockByLocation[sub.id] || 0;
+          if (q > 0) {
+            hasProjects = true;
+            const row = document.createElement('div');
+            row.className = 'flex justify-between items-center bg-white p-3 rounded-xl border border-slate-200 text-xs';
+            row.innerHTML = `
+              <div>
+                <div class="font-bold text-slate-900">${p.name}</div>
+                <div class="text-[11px] text-amber-700 flex items-center gap-1">
+                  <i data-lucide="corner-down-right" class="w-3 h-3"></i> ${sub.name}
+                </div>
+              </div>
+              <span class="font-mono font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-lg">
+                ${q} ${mat.unit}
+              </span>
+            `;
+            container.appendChild(row);
+          }
+        });
+      });
+
+      if (!hasProjects) {
+        const noProj = document.createElement('p');
+        noProj.className = 'text-xs text-slate-400 italic text-center py-2';
+        noProj.textContent = 'Este material no tiene unidades asignadas en ninguna obra actualmente.';
+        container.appendChild(noProj);
       }
 
-      // Descontar stock
-      mat.currentStock -= qty;
-      mat.isLowStock = mat.currentStock <= mat.minStock;
-
-      // Imputar costo a obra con PMP congelado
-      const dispatchCost = Math.round(qty * mat.pmp);
-      proj.accumulatedCostCLP += dispatchCost;
-
-      // Registrar Kardex
-      state.movements.unshift({
-        id: 'mov-' + Date.now(),
-        folio: folio,
-        date: new Date().toISOString().replace('T', ' ').substring(0, 16),
-        type: 'DISPATCH_PROJECT',
-        projectName: proj.name,
-        userName: currentRole === 'bodeguero' ? 'Juan Bodega' : 'Admin Central',
-        userRole: currentRole,
-        itemSummary: `${qty} ${mat.unit} ${mat.name}`,
-        totalCostCLP: dispatchCost
-      });
-
-      closeModal('modal-dispatch');
-      renderUI();
-      alert(`✅ Despacho a obra ejecutado.\nStock restante de ${mat.sku}: ${mat.currentStock} ${mat.unit}`);
+      openModal('modal-material-detail');
     }
 
-    function executeReturn() {
-      const folio = document.getElementById('ret-folio').value;
-      const projId = document.getElementById('ret-project').value;
-      const matId = document.getElementById('ret-material').value;
-      const qty = parseInt(document.getElementById('ret-qty').value);
-
-      const mat = state.materials.find(m => m.id === matId);
-      const proj = state.projects.find(p => p.id === projId);
-
-      // Reintegrar stock
-      mat.currentStock += qty;
-      mat.isLowStock = mat.currentStock <= mat.minStock;
-
-      // Descontar costo a obra
-      const returnCost = Math.round(qty * mat.pmp);
-      proj.accumulatedCostCLP = Math.max(0, proj.accumulatedCostCLP - returnCost);
-
-      // Registrar Kardex
-      state.movements.unshift({
-        id: 'mov-' + Date.now(),
-        folio: folio,
-        date: new Date().toISOString().replace('T', ' ').substring(0, 16),
-        type: 'RETURN_PROJECT',
-        projectName: proj.name,
-        userName: currentRole === 'bodeguero' ? 'Juan Bodega' : 'Admin Central',
-        userRole: currentRole,
-        itemSummary: `${qty} ${mat.unit} ${mat.name}`,
-        totalCostCLP: returnCost
-      });
-
-      closeModal('modal-return');
-      renderUI();
-      alert(`✅ Devolución reintegrada al inventario central.`);
-    }
-
-    // Inicializar interfaz
+    // Iniciar app
     renderUI();
   </script>
 </body>
 </html>
-
