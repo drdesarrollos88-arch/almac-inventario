@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ALMAC - Sistema Integral de Inventario, Proveedores & Materiales</title>
+  <title>Almac - Control de Materiales, Obras & Proveedores</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
@@ -12,63 +12,113 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     body { font-family: 'Inter', sans-serif; }
     .badge-lock { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px dashed #f87171; }
-    .transition-all-custom { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+    .transition-all-custom { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
     .drag-over { border: 2px dashed #f59e0b !important; background-color: rgba(245, 158, 11, 0.08) !important; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen pb-16">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex">
 
-  <!-- NAVBAR PRINCIPAL Y NAVEGACIÓN DE MÓDULOS -->
-  <header class="bg-slate-900 text-white sticky top-0 z-40 shadow-md">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
-      
-      <!-- LOGO -->
-      <div class="flex items-center gap-3">
-        <div class="bg-amber-500 p-2 rounded-xl text-slate-950 font-black shadow-md">
-          <i data-lucide="layers" class="w-6 h-6"></i>
+  <!-- ===================================================================== -->
+  <!-- BARRA LATERAL (SIDEBAR COLAPSABLE Y DESPLEGABLE) -->
+  <!-- ===================================================================== -->
+  <aside id="main-sidebar" class="w-64 bg-slate-900 text-white flex-shrink-0 flex flex-col justify-between p-4 sticky top-0 h-screen transition-all duration-300 z-50 border-r border-slate-800 shadow-xl">
+    
+    <div class="space-y-6">
+      <!-- HEADER SIDEBAR & LOGO -->
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-3 sidebar-text overflow-hidden">
+          <div class="bg-amber-500 p-2.5 rounded-xl text-slate-950 font-black shadow-md flex-shrink-0">
+            <i data-lucide="layers" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="text-lg font-black tracking-tight text-white">Almac</h1>
+            <p class="text-[10px] text-slate-400 font-medium">Gestión de Obras & Stock</p>
+          </div>
         </div>
-        <div>
-          <h1 class="text-xl font-bold tracking-tight">ALMAC Constructora</h1>
-          <p class="text-xs text-slate-400">Control de Obras, Proveedores & Inventario</p>
-        </div>
+        
+        <!-- BOTÓN COLAPSAR / EXPANDIR SIDEBAR -->
+        <button onclick="toggleSidebar()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition shadow-sm" title="Colapsar / Desplegar Barra">
+          <i id="sidebar-toggle-icon" data-lucide="panel-left-close" class="w-4 h-4"></i>
+        </button>
       </div>
 
-      <!-- SELECTOR DE MÓDULOS PRINCIPALES -->
-      <nav class="flex items-center bg-slate-800 p-1 rounded-xl border border-slate-700/80">
-        <button onclick="switchModule('inventario')" id="nav-btn-inventario" class="px-4 py-1.5 text-xs font-bold rounded-lg transition flex items-center gap-2 bg-amber-500 text-slate-950 shadow-sm">
-          <i data-lucide="boxes" class="w-4 h-4"></i> Inventario
+      <!-- MÓDULOS DE NAVEGACIÓN -->
+      <div class="space-y-1">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 sidebar-text">Módulos Principales</span>
+        
+        <button onclick="switchModule('inventario')" id="nav-btn-inventario" class="w-full px-3 py-2.5 text-xs font-bold rounded-xl transition flex items-center gap-3 bg-amber-500 text-slate-950 shadow-sm">
+          <i data-lucide="boxes" class="w-4 h-4 flex-shrink-0"></i>
+          <span class="sidebar-text">Inventario</span>
         </button>
-        <button onclick="switchModule('proveedores')" id="nav-btn-proveedores" class="px-4 py-1.5 text-xs font-bold rounded-lg transition flex items-center gap-2 text-slate-300 hover:text-white">
-          <i data-lucide="truck" class="w-4 h-4"></i> Proveedores
-        </button>
-        <button onclick="switchModule('materiales')" id="nav-btn-materiales" class="px-4 py-1.5 text-xs font-bold rounded-lg transition flex items-center gap-2 text-slate-300 hover:text-white">
-          <i data-lucide="component" class="w-4 h-4"></i> Materiales
-        </button>
-      </nav>
 
-      <!-- SIMULADOR DE ROLES -->
-      <div class="flex items-center gap-2 bg-slate-800/90 p-1.5 rounded-xl border border-slate-700">
-        <span class="text-xs font-medium text-slate-400 pl-2 flex items-center gap-1.5">
-          <i data-lucide="shield" class="w-3.5 h-3.5 text-amber-400"></i> Rol:
+        <button onclick="switchModule('proveedores')" id="nav-btn-proveedores" class="w-full px-3 py-2.5 text-xs font-bold rounded-xl transition flex items-center gap-3 text-slate-300 hover:bg-slate-800 hover:text-white">
+          <i data-lucide="truck" class="w-4 h-4 flex-shrink-0"></i>
+          <span class="sidebar-text">Proveedores</span>
+        </button>
+
+        <button onclick="switchModule('materiales')" id="nav-btn-materiales" class="w-full px-3 py-2.5 text-xs font-bold rounded-xl transition flex items-center gap-3 text-slate-300 hover:bg-slate-800 hover:text-white">
+          <i data-lucide="component" class="w-4 h-4 flex-shrink-0"></i>
+          <span class="sidebar-text">Materiales</span>
+        </button>
+      </div>
+
+      <!-- SIMULADOR DE ROLES DENTRO DEL SIDEBAR -->
+      <div class="pt-4 border-t border-slate-800/80 space-y-2 sidebar-text">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 flex items-center gap-1.5">
+          <i data-lucide="shield" class="w-3.5 h-3.5 text-amber-400"></i> Rol Activo
         </span>
-        <button onclick="setRole('admin')" id="btn-role-admin" class="px-2.5 py-1 text-xs rounded-lg font-semibold transition bg-amber-500 text-slate-950 shadow-sm">
-          Admin
+        <div class="grid grid-cols-1 gap-1.5 bg-slate-800/60 p-1.5 rounded-xl border border-slate-700/60 text-xs">
+          <button onclick="setRole('admin')" id="btn-role-admin" class="px-2.5 py-1.5 text-xs rounded-lg font-semibold transition text-left bg-amber-500 text-slate-950 shadow-xs flex items-center justify-between">
+            <span>Admin Total</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-950"></span>
+          </button>
+          <button onclick="setRole('operaciones')" id="btn-role-operaciones" class="px-2.5 py-1.5 text-xs rounded-lg font-semibold transition text-left text-slate-300 hover:text-white flex items-center justify-between">
+            <span>Operaciones</span>
+          </button>
+          <button onclick="setRole('bodeguero')" id="btn-role-bodeguero" class="px-2.5 py-1.5 text-xs rounded-lg font-semibold transition text-left text-slate-300 hover:text-white flex items-center justify-between">
+            <span>Bodeguero (Terreno)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER SIDEBAR -->
+    <div class="pt-4 border-t border-slate-800 text-[11px] text-slate-400 sidebar-text flex items-center justify-between">
+      <div>
+        <span class="block text-slate-300 font-bold">Almac v1.2</span>
+        <span class="text-[10px] text-slate-500">Cloudflare Pages & Firebase</span>
+      </div>
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="Sistema Conectado"></span>
+    </div>
+  </aside>
+
+  <!-- ===================================================================== -->
+  <!-- CONTENIDO PRINCIPAL -->
+  <!-- ===================================================================== -->
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6 overflow-x-hidden">
+
+    <!-- CABECERA SUPERIOR RESPONSIVE CON BOTÓN DE MENÚ -->
+    <div class="flex items-center justify-between gap-4 pb-2 border-b border-slate-200">
+      <div class="flex items-center gap-3">
+        <button onclick="toggleSidebar()" class="p-2 rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition shadow-2xs">
+          <i data-lucide="menu" class="w-5 h-5"></i>
         </button>
-        <button onclick="setRole('operaciones')" id="btn-role-operaciones" class="px-2.5 py-1 text-xs rounded-lg font-semibold transition text-slate-300 hover:text-white">
-          Operaciones
-        </button>
-        <button onclick="setRole('bodeguero')" id="btn-role-bodeguero" class="px-2.5 py-1 text-xs rounded-lg font-semibold transition text-slate-300 hover:text-white">
-          Bodeguero
-        </button>
+        <div>
+          <h2 id="current-module-title" class="text-xl font-black text-slate-900 tracking-tight">Módulo de Inventario</h2>
+          <p class="text-xs text-slate-500">Bodega Matriz, Obras y Subproyectos Jerárquicos</p>
+        </div>
       </div>
 
+      <div class="flex items-center gap-3 text-xs">
+        <span class="text-slate-400 hidden sm:inline">Sesión:</span>
+        <span id="role-badge" class="bg-emerald-500/20 text-emerald-700 border border-emerald-500/30 px-3 py-1 rounded-full font-mono font-bold flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span> admin
+        </span>
+      </div>
     </div>
-  </header>
-
-  <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
     <!-- ===================================================================== -->
-    <!-- MÓDULO 1: INVENTARIO (BODEGA MATRIZ, OBRAS, SUBPROYECTOS Y TABLA DRAG & DROP) -->
+    <!-- MÓDULO 1: INVENTARIO -->
     <!-- ===================================================================== -->
     <div id="module-inventario" class="space-y-6">
 
@@ -161,7 +211,7 @@
       <!-- BARRA DE ACCIONES RÁPIDAS -->
       <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
         <div class="flex items-center gap-2">
-          <span class="text-xs font-bold uppercase text-slate-400 tracking-wider">Acciones de Inventario:</span>
+          <span class="text-xs font-bold uppercase text-slate-400 tracking-wider">Acciones Rápidas:</span>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button onclick="openTransferModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm transition">
@@ -176,7 +226,7 @@
         </div>
       </div>
 
-      <!-- ESTRUCTURA JERÁRQUICA: BODEGA MATRIZ + OBRAS (CON TABLAS Y DRAG & DROP) -->
+      <!-- ESTRUCTURA JERÁRQUICA: BODEGA MATRIZ + OBRAS (TABLAS Y DRAG & DROP) -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="p-5 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -185,7 +235,7 @@
               Estructura de Obras & Bodega Central Matriz
             </h2>
             <p class="text-xs text-slate-500">
-              Despliega cualquier obra para ver sus materiales en tabla, seleccionar varios y arrastrarlos entre subproyectos de la misma obra con diálogo de confirmación.
+              Despliega cualquier obra para ver sus materiales en tabla, seleccionar varios y arrastrarlos entre subproyectos con diálogo de confirmación.
             </p>
           </div>
           <div class="flex items-center gap-2 text-xs">
@@ -242,7 +292,7 @@
             </div>
           </div>
 
-          <!-- 2. LISTADO DE OBRAS (ACORDEÓN CON TABLAS DE MATERIALES Y DRAG & DROP) -->
+          <!-- 2. LISTADO DE OBRAS (ACORDEÓN CON TABLAS Y DRAG & DROP) -->
           <div id="projects-accordion-container" class="space-y-4 pt-2"></div>
 
         </div>
@@ -280,25 +330,21 @@
     </div>
 
     <!-- ===================================================================== -->
-    <!-- MÓDULO 2: PROVEEDORES (GESTIÓN, ALERTAS & COTIZACIONES INTELIGENTES) -->
+    <!-- MÓDULO 2: PROVEEDORES -->
     <!-- ===================================================================== -->
     <div id="module-proveedores" class="hidden space-y-6">
-      
-      <!-- BANNER DE ALERTAS INTELIGENTES DE COTIZACIÓN -->
       <div id="supplier-alerts-container" class="space-y-3"></div>
 
-      <!-- CABECERA Y BOTÓN NUEVO PROVEEDOR -->
       <div class="flex flex-wrap items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
         <div>
           <h2 class="text-lg font-bold text-slate-900">Directorio de Proveedores Comerciales</h2>
-          <p class="text-xs text-slate-500">Registro con RUT, giro, contactos comerciales y generación inteligente de solicitudes de cotización</p>
+          <p class="text-xs text-slate-500">Registro con RUT, giro, contactos comerciales y cotizaciones inteligentes</p>
         </div>
         <button onclick="openModal('modal-create-supplier')" class="bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm transition">
           <i data-lucide="user-plus" class="w-4 h-4 text-amber-400"></i> + Registrar Nuevo Proveedor
         </button>
       </div>
 
-      <!-- TABLA DE PROVEEDORES -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
@@ -317,15 +363,12 @@
           </table>
         </div>
       </div>
-
     </div>
 
     <!-- ===================================================================== -->
-    <!-- MÓDULO 3: MATERIALES (CATÁLOGO MAESTRO & NUEVO MATERIAL) -->
+    <!-- MÓDULO 3: MATERIALES -->
     <!-- ===================================================================== -->
     <div id="module-materiales" class="hidden space-y-6">
-
-      <!-- CABECERA Y BOTÓN NUEVO MATERIAL -->
       <div class="flex flex-wrap items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
         <div>
           <h2 class="text-lg font-bold text-slate-900">Catálogo Maestro de Materiales</h2>
@@ -336,7 +379,6 @@
         </button>
       </div>
 
-      <!-- TABLA MAESTRA DE MATERIALES -->
       <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
@@ -358,16 +400,15 @@
           </table>
         </div>
       </div>
-
     </div>
 
-  </div>
+  </main>
 
   <!-- ===================================================================== -->
   <!-- MODALES DE OPERACIÓN -->
   <!-- ===================================================================== -->
 
-  <!-- MODAL: CONFIRMACIÓN DE DRAG & DROP / MOVER ENTRE SUBPROYECTOS -->
+  <!-- MODAL: CONFIRMACIÓN DRAG & DROP -->
   <div id="modal-confirm-move" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-amber-300">
       <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
@@ -485,7 +526,7 @@
         <div>
           <div class="flex justify-between items-center mb-1">
             <label class="font-semibold text-slate-700">SKU del Material</label>
-            <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">✨ Auto-Generado</span>
+            <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">✨ Auto</span>
           </div>
           <input id="new-mat-sku" type="text" readonly class="w-full border border-slate-200 bg-slate-100 rounded-lg p-2.5 font-mono font-bold text-slate-800">
         </div>
@@ -537,7 +578,7 @@
     </div>
   </div>
 
-  <!-- MODAL: GENERADOR DE COTIZACIÓN INTELIGENTE A PROVEEDOR -->
+  <!-- MODAL: GENERADOR DE COTIZACIÓN -->
   <div id="modal-rfq" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-blue-300">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -547,7 +588,7 @@
           </div>
           <div>
             <h3 class="font-bold text-slate-900 text-sm">Solicitud Inteligente de Cotización</h3>
-            <p class="text-xs text-slate-500">Alerta de reposición por stock mínimo</p>
+            <p class="text-xs text-slate-500">Alerta de reposición por stock crítico</p>
           </div>
         </div>
         <button onclick="closeModal('modal-rfq')" class="text-slate-400 hover:text-slate-600">✕</button>
@@ -570,12 +611,12 @@
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Asunto del Correo</label>
-          <input id="rfq-subject" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-medium" value="Solicitud Urgente de Cotización - Materiales ALMAC Constructora">
+          <label class="block font-semibold text-slate-700 mb-1">Asunto</label>
+          <input id="rfq-subject" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-medium" value="Solicitud Urgente de Cotización - Materiales Almac">
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Cuerpo de la Solicitud (Editable)</label>
+          <label class="block font-semibold text-slate-700 mb-1">Cuerpo del Correo</label>
           <textarea id="rfq-body" rows="6" class="w-full border border-slate-300 rounded-lg p-2.5 font-mono text-[11px] leading-relaxed"></textarea>
         </div>
       </div>
@@ -583,13 +624,13 @@
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
         <button onclick="closeModal('modal-rfq')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cerrar</button>
         <button onclick="sendRFQ()" class="px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center gap-1.5 shadow-sm">
-          <i data-lucide="send" class="w-3.5 h-3.5"></i> Abrir en Cliente de Correo / Enviar
+          <i data-lucide="send" class="w-3.5 h-3.5"></i> Abrir en Correo / Enviar
         </button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: TRANSFERIR / ASIGNAR MATERIALES -->
+  <!-- MODAL: TRANSFERIR / ASIGNAR MATERIAL -->
   <div id="modal-transfer" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 border border-slate-200">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -648,7 +689,7 @@
     </div>
   </div>
 
-  <!-- MODAL: CREAR OBRA / PROYECTO -->
+  <!-- MODAL: CREAR OBRA -->
   <div id="modal-create-project" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 border border-slate-200">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -668,7 +709,7 @@
         </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Nombre de la Obra *</label>
-          <input id="new-proj-name" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-medium" placeholder="Ej: Remodelación Clínica Oriente">
+          <input id="new-proj-name" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-medium" placeholder="Ej: Mejoramiento Comité Los Aromos">
         </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Presupuesto Asignado (CLP)</label>
@@ -707,14 +748,14 @@
           <input id="new-sub-code" type="text" readonly class="w-full border border-slate-200 bg-slate-100 rounded-lg p-2.5 font-mono font-bold text-amber-800">
         </div>
         <div>
-          <label class="block font-semibold text-slate-700 mb-1">Nombre (Frente / Torre / Etapa) *</label>
-          <input id="new-sub-name" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-medium" placeholder="Ej: Torre 1 - Fundaciones">
+          <label class="block font-semibold text-slate-700 mb-1">Nombre (Beneficiario / Lote / Frente) *</label>
+          <input id="new-sub-name" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-medium" placeholder="Ej: Vivienda Lote 14 - Familia Pérez">
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
         <button onclick="closeModal('modal-create-subproject')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl">Cancelar</button>
-        <button onclick="executeCreateSubproject()" class="px-4 py-2 text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-600 rounded-xl shadow-sm">Agregar a la Obra</button>
+        <button onclick="executeCreateSubproject()" class="px-4 py-2 text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-600 rounded-xl shadow-sm">Agregar Subproyecto</button>
       </div>
     </div>
   </div>
@@ -732,7 +773,7 @@
       <div class="space-y-3 text-xs">
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Folio Factura Proveedor</label>
-          <input id="pur-folio" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-mono font-bold" value="FAC-2026-0810">
+          <input id="pur-folio" type="text" class="w-full border border-slate-300 rounded-lg p-2.5 font-mono font-bold" value="FAC-2026-0910">
         </div>
         <div>
           <label class="block font-semibold text-slate-700 mb-1">Material</label>
@@ -776,19 +817,18 @@
     // =========================================================================
     // ESTADO GENERAL DE LA APLICACIÓN
     // =========================================================================
-    let currentModule = 'inventario'; // 'inventario' | 'proveedores' | 'materiales'
+    let currentModule = 'inventario';
     let currentRole = 'admin';
+    let isSidebarCollapsed = false;
 
     let collapsedProjects = {
       'proj-1': false,
       'proj-2': true
     };
 
-    // Objeto temporal para movimientos confirmados de drag & drop
     let pendingDragMove = null;
 
     let state = {
-      // 1. PROVEEDORES
       suppliers: [
         {
           id: 'sup-1',
@@ -834,7 +874,6 @@
         }
       ],
 
-      // 2. MATERIALES
       materials: [
         {
           id: 'mat-1',
@@ -846,9 +885,8 @@
           minStock: 40,
           pmp: 4450,
           defaultSupplierId: 'sup-1',
-          // Ubicaciones: 'warehouse', o el id del proyecto para stock general de obra, o id de subproyecto
           stockByLocation: {
-            'proj-1_general': 15, // Stock General de la Obra Los Robles
+            'proj-1_general': 15,
             'sub-1a': 40,
             'sub-1b': 20,
             'sub-2a': 30
@@ -861,7 +899,7 @@
           unit: 'tira',
           category: 'Fierro y Enfierraduras',
           warehouseStock: 25,
-          minStock: 30, // Crítico!
+          minStock: 30,
           pmp: 8900,
           defaultSupplierId: 'sup-2',
           stockByLocation: {
@@ -892,7 +930,7 @@
           unit: 'kg',
           category: 'Fijaciones',
           warehouseStock: 12,
-          minStock: 20, // Crítico!
+          minStock: 20,
           pmp: 1950,
           defaultSupplierId: 'sup-2',
           stockByLocation: {
@@ -902,48 +940,69 @@
         }
       ],
 
-      // 3. OBRAS Y SUBPROYECTOS
       projects: [
         {
           id: 'proj-1',
           code: 'OBR-2026-01',
-          name: 'Edificio Los Robles',
+          name: 'Mejoramiento Comité Los Aromos',
           status: 'active',
           budgetCLP: 22000000,
           accumulatedCostCLP: 9450000,
           subprojects: [
-            { id: 'sub-1a', code: 'OBR-2026-01-SUB01', name: 'Torre A - Obra Gruesa', accumulatedCostCLP: 6200000 },
-            { id: 'sub-1b', code: 'OBR-2026-01-SUB02', name: 'Subterráneo y Estacionamientos', accumulatedCostCLP: 3250000 }
+            { id: 'sub-1a', code: 'OBR-2026-01-SUB01', name: 'Lote 01 a 10 - Techumbres', accumulatedCostCLP: 6200000 },
+            { id: 'sub-1b', code: 'OBR-2026-01-SUB02', name: 'Lote 11 a 20 - Aislación Térmica EIFS', accumulatedCostCLP: 3250000 }
           ]
         },
         {
           id: 'proj-2',
           code: 'OBR-2026-02',
-          name: 'Condominio Mirador Norte',
+          name: 'Condominio Social Villa Esperanza',
           status: 'active',
           budgetCLP: 18000000,
           accumulatedCostCLP: 8200000,
           subprojects: [
-            { id: 'sub-2a', code: 'OBR-2026-02-SUB01', name: 'Etapa 1 - Casas 1 a 12', accumulatedCostCLP: 5100000 },
-            { id: 'sub-2b', code: 'OBR-2026-02-SUB02', name: 'Urbanización y Redes', accumulatedCostCLP: 3100000 }
+            { id: 'sub-2a', code: 'OBR-2026-02-SUB01', name: 'Block A - Recambio Ventanas Termopanel', accumulatedCostCLP: 5100000 },
+            { id: 'sub-2b', code: 'OBR-2026-02-SUB02', name: 'Block B - Colectores Solares', accumulatedCostCLP: 3100000 }
           ]
         }
       ],
 
-      // 4. KARDEX
       movements: [
         {
           id: 'mov-1',
           folio: 'MOV-2026-0001',
           date: '2026-10-28 10:15',
           originName: 'Bodega Central Matriz',
-          destName: 'Edificio Los Robles ➔ Torre A',
+          destName: 'Comité Los Aromos ➔ Techumbres',
           userName: 'Carlos Bodeguero',
           itemSummary: '40 saco Cemento Polpaico',
           totalCostCLP: 178000
         }
       ]
     };
+
+    // =========================================================================
+    // CONTROL DEL SIDEBAR COLAPSABLE
+    // =========================================================================
+    function toggleSidebar() {
+      isSidebarCollapsed = !isSidebarCollapsed;
+      const sidebar = document.getElementById('main-sidebar');
+      const toggleIcon = document.getElementById('sidebar-toggle-icon');
+      const texts = document.querySelectorAll('.sidebar-text');
+
+      if (isSidebarCollapsed) {
+        sidebar.classList.remove('w-64');
+        sidebar.classList.add('w-20');
+        toggleIcon.setAttribute('data-lucide', 'panel-left-open');
+        texts.forEach(t => t.classList.add('hidden'));
+      } else {
+        sidebar.classList.remove('w-20');
+        sidebar.classList.add('w-64');
+        toggleIcon.setAttribute('data-lucide', 'panel-left-close');
+        texts.forEach(t => t.classList.remove('hidden'));
+      }
+      lucide.createIcons();
+    }
 
     // =========================================================================
     // NAVEGACIÓN ENTRE MÓDULOS
@@ -957,19 +1016,21 @@
 
         if (m === moduleName) {
           sec.classList.remove('hidden');
-          btn.className = 'px-4 py-1.5 text-xs font-bold rounded-lg transition flex items-center gap-2 bg-amber-500 text-slate-950 shadow-sm';
+          btn.className = 'w-full px-3 py-2.5 text-xs font-bold rounded-xl transition flex items-center gap-3 bg-amber-500 text-slate-950 shadow-sm';
         } else {
           sec.classList.add('hidden');
-          btn.className = 'px-4 py-1.5 text-xs font-bold rounded-lg transition flex items-center gap-2 text-slate-300 hover:text-white';
+          btn.className = 'w-full px-3 py-2.5 text-xs font-bold rounded-xl transition flex items-center gap-3 text-slate-300 hover:bg-slate-800 hover:text-white';
         }
       });
+
+      const titleEl = document.getElementById('current-module-title');
+      if (moduleName === 'inventario') titleEl.textContent = 'Módulo de Inventario';
+      if (moduleName === 'proveedores') titleEl.textContent = 'Módulo de Proveedores Comerciales';
+      if (moduleName === 'materiales') titleEl.textContent = 'Catálogo Maestro de Materiales';
 
       renderUI();
     }
 
-    // =========================================================================
-    // CÁLCULOS Y GENERADORES AUTOMÁTICOS
-    // =========================================================================
     function formatCLP(val) {
       return '$' + Math.round(val || 0).toLocaleString('es-CL') + ' CLP';
     }
@@ -1026,9 +1087,9 @@
       ['admin', 'operaciones', 'bodeguero'].forEach(r => {
         const btn = document.getElementById(`btn-role-${r}`);
         if (r === role) {
-          btn.className = 'px-2.5 py-1 text-xs rounded-lg font-semibold transition bg-amber-500 text-slate-950 shadow-sm';
+          btn.className = 'px-2.5 py-1.5 text-xs rounded-lg font-semibold transition text-left bg-amber-500 text-slate-950 shadow-xs flex items-center justify-between';
         } else {
-          btn.className = 'px-2.5 py-1 text-xs rounded-lg font-semibold transition text-slate-300 hover:text-white';
+          btn.className = 'px-2.5 py-1.5 text-xs rounded-lg font-semibold transition text-left text-slate-300 hover:text-white flex items-center justify-between';
         }
       });
 
@@ -1049,9 +1110,6 @@
       lucide.createIcons();
     }
 
-    // =========================================================================
-    // RENDERIZADO GLOBAL
-    // =========================================================================
     function renderUI() {
       if (currentModule === 'inventario') {
         renderDashboardStats();
@@ -1068,7 +1126,7 @@
     }
 
     // =========================================================================
-    // MÓDULO 1: INVENTARIO
+    // RENDERIZADO INVENTARIO
     // =========================================================================
     function renderDashboardStats() {
       const totalWarehouse = state.materials.reduce((acc, m) => acc + m.warehouseStock, 0);
@@ -1139,7 +1197,6 @@
       });
     }
 
-    // Renderizado de las Obras con Tablas y Drag & Drop entre Subproyectos
     function renderProjectsAccordion() {
       const container = document.getElementById('projects-accordion-container');
       container.innerHTML = '';
@@ -1147,10 +1204,8 @@
       state.projects.forEach(project => {
         const isCollapsed = collapsedProjects[project.id] ?? false;
         
-        // Materiales pertenecientes a esta obra
         const projectMaterials = [];
         state.materials.forEach(m => {
-          // Stock general de la obra
           const generalQty = m.stockByLocation[`${project.id}_general`] || 0;
           if (generalQty > 0) {
             projectMaterials.push({
@@ -1159,14 +1214,13 @@
               name: m.name,
               unit: m.unit,
               locationId: `${project.id}_general`,
-              locationName: '📦 Stock General de Obra (Sin Asignar a Frente)',
+              locationName: '📦 Stock General de Obra',
               quantity: generalQty,
               pmp: m.pmp,
               subtotalCost: generalQty * m.pmp
             });
           }
 
-          // Stock en cada subproyecto
           project.subprojects.forEach(sub => {
             const subQty = m.stockByLocation[sub.id] || 0;
             if (subQty > 0) {
@@ -1202,16 +1256,12 @@
             </div>
           `;
 
-        // ==============================================================
-        // VISTA OCULTA: RESUMEN RÁPIDO DE MATERIALES
-        // ==============================================================
         let collapsedHtml = '';
         if (isCollapsed) {
           let chips = '';
           if (projectMaterials.length === 0) {
             chips = '<span class="text-slate-400 italic text-xs">Sin materiales asignados a esta obra.</span>';
           } else {
-            // Agrupar por material
             const grouped = {};
             projectMaterials.forEach(pm => {
               grouped[pm.materialId] = grouped[pm.materialId] || { name: pm.name, unit: pm.unit, qty: 0 };
@@ -1240,12 +1290,8 @@
           `;
         }
 
-        // ==============================================================
-        // VISTA EXPANDIDA: TABLA COMPLETA CON SELECCIÓN Y DRAG & DROP
-        // ==============================================================
         let expandedHtml = '';
         if (!isCollapsed) {
-          // Generar filas de la tabla de materiales
           let tableRowsHtml = '';
           if (projectMaterials.length === 0) {
             tableRowsHtml = `
@@ -1256,11 +1302,9 @@
               </tr>
             `;
           } else {
-            tableRowsHtml = projectMaterials.map((item, index) => {
-              const rowId = `row-${project.id}-${item.materialId}-${item.locationId}`;
+            tableRowsHtml = projectMaterials.map((item) => {
               return `
-                <tr id="${rowId}" 
-                    draggable="true" 
+                <tr draggable="true" 
                     ondragstart="handleDragStart(event, '${project.id}', '${item.materialId}', '${item.locationId}', ${item.quantity}, '${item.name}', '${item.unit}')"
                     class="hover:bg-amber-50/40 transition cursor-grab active:cursor-grabbing border-b border-slate-100">
                   <td class="px-3 py-2 text-center">
@@ -1293,7 +1337,6 @@
             }).join('');
           }
 
-          // Zonas de destino de los Subproyectos (Drop Targets)
           let dropTargetsHtml = `
             <div ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, '${project.id}', '${project.id}_general', '📦 Stock General de la Obra')" 
                  class="border-2 border-dashed border-blue-300 bg-blue-50/40 p-3 rounded-xl flex items-center justify-between text-xs transition">
@@ -1302,7 +1345,7 @@
                 <span class="font-bold text-blue-950">📦 Stock General de Obra</span>
                 <span class="text-slate-500">(Sin asignar a un frente específico)</span>
               </div>
-              <span class="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-semibold">Soltar aquí para dejar libre en obra</span>
+              <span class="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-semibold">Soltar aquí para dejar libre</span>
             </div>
           `;
 
@@ -1315,11 +1358,9 @@
                   <span class="font-bold text-slate-900">${sub.name}</span>
                   <span class="text-slate-400 font-mono text-[10px]">(${sub.code})</span>
                 </div>
-                <div class="flex items-center gap-3">
-                  <span class="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded font-semibold">
-                    🎯 Soltar aquí para reasignar a este frente
-                  </span>
-                </div>
+                <span class="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded font-semibold">
+                  🎯 Soltar aquí para reasignar
+                </span>
               </div>
             `;
           });
@@ -1327,7 +1368,6 @@
           expandedHtml = `
             <div class="p-4 border-t border-slate-200 space-y-4 bg-white/70">
               
-              <!-- BARRA DE SELECCIÓN MÚLTIPLE DE MATERIALES -->
               <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-100 p-2.5 rounded-xl text-xs">
                 <div class="flex items-center gap-2">
                   <span class="font-bold text-slate-700">Acción en lote:</span>
@@ -1347,7 +1387,6 @@
                 </div>
               </div>
 
-              <!-- TABLA DE MATERIALES -->
               <div class="overflow-x-auto border border-slate-200 rounded-xl">
                 <table class="w-full text-left text-xs">
                   <thead class="bg-slate-100/80 text-slate-600 font-semibold uppercase tracking-wider border-b border-slate-200">
@@ -1364,10 +1403,9 @@
                 </table>
               </div>
 
-              <!-- ZONAS DE REASIGNACIÓN (DROP TARGETS) -->
               <div class="space-y-2 pt-1">
                 <div class="flex items-center justify-between text-xs font-bold uppercase text-slate-400 tracking-wider">
-                  <span>Arrastra una o varias filas de la tabla hacia cualquier frente de esta obra:</span>
+                  <span>Arrastra filas hacia cualquier frente de esta obra:</span>
                   ${currentRole !== 'bodeguero' ? `
                     <button onclick="openCreateSubprojectModal('${project.id}', '${project.name}')" class="text-amber-700 hover:underline flex items-center gap-1">
                       <i data-lucide="plus" class="w-3.5 h-3.5"></i> Nuevo Subproyecto (Auto-Código)
@@ -1382,7 +1420,6 @@
         }
 
         card.innerHTML = `
-          <!-- BARRA DE LA OBRA -->
           <div class="p-4 flex flex-wrap items-center justify-between gap-3">
             <div onclick="toggleProjectCollapse('${project.id}')" class="flex items-center gap-3 cursor-pointer flex-1">
               <button class="text-slate-500 hover:text-slate-900 p-1.5 rounded-lg bg-white border border-slate-200 shadow-2xs">
@@ -1404,7 +1441,6 @@
 
             <div class="flex flex-wrap items-center gap-3">
               ${financesHeader}
-              <!-- BOTÓN ASIGNAR A OBRA (OPCIÓN SIN SUBPROYECTO O CON SUBPROYECTO) -->
               <button onclick="openAssignModal('${project.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1 shadow-xs transition">
                 <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> + Asignar a Obra
               </button>
@@ -1451,10 +1487,9 @@
     }
 
     // =========================================================================
-    // MÓDULO 2: PROVEEDORES & ALERTAS INTELIGENTES
+    // RENDERIZADO PROVEEDORES
     // =========================================================================
     function renderSuppliersModule() {
-      // 1. Alertas inteligentes de cotización (Materiales bajo stock mínimo)
       const alertsContainer = document.getElementById('supplier-alerts-container');
       alertsContainer.innerHTML = '';
 
@@ -1490,7 +1525,6 @@
         });
       }
 
-      // 2. Tabla de Proveedores
       const tbody = document.getElementById('suppliers-table-body');
       tbody.innerHTML = '';
 
@@ -1523,7 +1557,7 @@
     }
 
     // =========================================================================
-    // MÓDULO 3: CATÁLOGO MAESTRO DE MATERIALES
+    // RENDERIZADO MATERIALES
     // =========================================================================
     function renderMaterialsCatalogModule() {
       const tbody = document.getElementById('catalog-materials-table-body');
@@ -1556,14 +1590,13 @@
     }
 
     // =========================================================================
-    // DRAG & DROP Y SELECCIÓN MÚLTIPLE ENTRE SUBPROYECTOS DE LA MISMA OBRA
+    // DRAG & DROP LOGIC
     // =========================================================================
     function selectAllCheckboxes(projectId, check) {
       document.querySelectorAll(`.proj-checkbox-${projectId}`).forEach(cb => { cb.checked = check; });
     }
 
     function handleDragStart(e, projectId, materialId, locationId, qty, name, unit) {
-      // Guardar el ítem arrastrado
       const dragData = {
         projectId,
         items: [{ materialId, locationId, qty, name, unit }]
@@ -1588,13 +1621,11 @@
       if (!raw) return;
       const data = JSON.parse(raw);
 
-      // VALIDACIÓN ESTRICTA: Solo entre subproyectos del MISMO proyecto
       if (data.projectId !== targetProjectId) {
         alert('❌ Restricción: No se permite arrastrar materiales entre obras distintas mediante arrastre directo. Usa el botón "Mover / Transferir Material".');
         return;
       }
 
-      // Preparar diálogo de confirmación
       promptMoveConfirmation(targetProjectId, data.items, targetLocationId, targetLocationName);
     }
 
@@ -1621,12 +1652,7 @@
       const project = state.projects.find(p => p.id === projectId);
       if (!project) return;
 
-      pendingDragMove = {
-        projectId,
-        items,
-        targetLocationId,
-        targetLocationName
-      };
+      pendingDragMove = { projectId, items, targetLocationId, targetLocationName };
 
       document.getElementById('confirm-proj-name').textContent = project.name;
       document.getElementById('confirm-origin-name').textContent = getLocationDisplayName(items[0].locationId);
@@ -1656,12 +1682,10 @@
         const mat = state.materials.find(m => m.id === it.materialId);
         if (!mat) return;
 
-        // Descontar de origen
         if (mat.stockByLocation[it.locationId]) {
           mat.stockByLocation[it.locationId] = Math.max(0, mat.stockByLocation[it.locationId] - it.qty);
         }
 
-        // Sumar a destino
         mat.stockByLocation[targetLocationId] = (mat.stockByLocation[targetLocationId] || 0) + it.qty;
         movedSummary.push(`${it.qty} ${it.unit} ${mat.name}`);
       });
@@ -1841,7 +1865,7 @@
       const suggestedQty = material ? Math.max(50, material.minStock * 2) : 100;
       const matLine = material ? `1. ${material.name} (SKU: ${material.sku}) - Cantidad estimada: ${suggestedQty} ${material.unit}` : '1. [Indicar material y cantidad requerida]';
 
-      const emailBody = `Estimado(a) ${supplier.contactSalesperson},\n\nJunto con saludar, desde ALMAC Constructora requerimos cotización formal para los siguientes ítems de reposición para abastecimiento de nuestras obras:\n\n${matLine}\n\nFavor indicar precio unitario neto, tiempos de entrega en Santiago y condiciones de pago vigentes.\n\nQuedamos atentos a su respuesta.\n\nAtentamente,\nDepartamento de Adquisiciones\nALMAC Constructora`;
+      const emailBody = `Estimado(a) ${supplier.contactSalesperson},\n\nJunto con saludar, desde Almac requerimos cotización formal para los siguientes ítems de reposición para abastecimiento de nuestras obras:\n\n${matLine}\n\nFavor indicar precio unitario neto, tiempos de entrega en Santiago y condiciones de pago vigentes.\n\nQuedamos atentos a su pronta respuesta.\n\nAtentamente,\nDepartamento de Adquisiciones\nAlmac`;
 
       document.getElementById('rfq-body').value = emailBody;
       openModal('modal-rfq');
@@ -1858,7 +1882,6 @@
     }
 
     function openAssignModal(projectId) {
-      // Permite asignar a la obra directamente (Stock General) o a cualquiera de sus subproyectos
       openTransferModal('warehouse', `${projectId}_general`);
     }
 
@@ -1899,7 +1922,6 @@
         originSel.innerHTML = '';
         destSel.innerHTML = '';
 
-        // Bodega Matriz
         const optB1 = document.createElement('option');
         optB1.value = 'warehouse';
         optB1.textContent = '👑 Bodega Central Matriz';
@@ -1910,14 +1932,12 @@
         optB2.textContent = '👑 Bodega Central Matriz';
         destSel.appendChild(optB2);
 
-        // Obras y sus frentes
         state.projects.forEach(p => {
           const grp1 = document.createElement('optgroup');
           grp1.label = `🏗️ ${p.name}`;
           const grp2 = document.createElement('optgroup');
           grp2.label = `🏗️ ${p.name}`;
 
-          // Opción para Stock General de la Obra (sin subproyecto definido)
           const gen1 = document.createElement('option');
           gen1.value = `${p.id}_general`;
           gen1.textContent = `📦 Stock General Obra (Sin Frente Específico)`;
@@ -2021,12 +2041,10 @@
 
       const movementCost = Math.round(qty * mat.pmp);
 
-      // Descontar origen
       if (originId === 'warehouse') {
         mat.warehouseStock -= qty;
       } else {
         mat.stockByLocation[originId] -= qty;
-        // Si sale de obra
         for (const p of state.projects) {
           if (originId === `${p.id}_general` || p.subprojects.some(s => s.id === originId)) {
             p.accumulatedCostCLP = Math.max(0, p.accumulatedCostCLP - movementCost);
@@ -2037,12 +2055,10 @@
         }
       }
 
-      // Sumar destino
       if (destId === 'warehouse') {
         mat.warehouseStock += qty;
       } else {
         mat.stockByLocation[destId] = (mat.stockByLocation[destId] || 0) + qty;
-        // Si entra a obra
         for (const p of state.projects) {
           if (destId === `${p.id}_general` || p.subprojects.some(s => s.id === destId)) {
             p.accumulatedCostCLP += movementCost;
@@ -2109,7 +2125,6 @@
       alert(`✅ Abastecimiento exitoso en Bodega Central Matriz.\nNuevo PMP: ${formatCLP(nuevoPMP)}`);
     }
 
-    // Inicializar app
     renderUI();
   </script>
 </body>
