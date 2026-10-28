@@ -847,41 +847,44 @@
     </div>
   </div>
 
-  <!-- MODAL: CONFIRMAR DRAG & DROP ACCIDENTAL -->
+  <!-- MODAL: CONFIRMAR DRAG & DROP ACCIDENTAL Y MULTI-SELECCIÓN -->
   <div id="modal-confirm-move" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-3">
-    <div class="bg-white rounded-xl max-w-sm w-full p-4 shadow-xl space-y-3 border border-amber-300">
+    <div class="bg-white rounded-xl max-w-md w-full p-4 shadow-xl space-y-3 border border-amber-300">
       <div class="flex items-center gap-2 border-b border-slate-100 pb-2">
         <div class="bg-amber-100 text-amber-800 p-1.5 rounded-lg">
           <i data-lucide="alert-triangle" class="w-4 h-4"></i>
         </div>
         <div>
-          <h3 class="font-bold text-slate-900 text-xs">Confirmar Reasignación de Material</h3>
-          <p class="text-[10px] text-slate-500">Previene movimientos accidentales en faena</p>
+          <h3 class="font-bold text-slate-900 text-xs">Confirmar Reasignación de Materiales</h3>
+          <p class="text-[10px] text-slate-500">Revisa los materiales y cantidades a transferir</p>
         </div>
       </div>
 
       <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 space-y-1.5 text-xs">
         <div class="flex justify-between">
-          <span class="text-slate-500">Obra:</span>
+          <span class="text-slate-500 font-semibold">Obra:</span>
           <span id="confirm-proj-name" class="font-bold text-slate-900 truncate"></span>
         </div>
         <div class="flex justify-between border-t border-slate-200/60 pt-1">
-          <span class="text-slate-500">Origen:</span>
-          <span id="confirm-origin-name" class="font-medium text-rose-700 truncate"></span>
+          <span class="text-slate-500 font-semibold">Origen(es):</span>
+          <span id="confirm-origin-name" class="font-medium text-rose-700 truncate text-right"></span>
         </div>
         <div class="flex justify-between border-t border-slate-200/60 pt-1">
-          <span class="text-slate-500">Destino:</span>
+          <span class="text-slate-500 font-semibold">Destino:</span>
           <span id="confirm-dest-name" class="font-bold text-emerald-700 truncate"></span>
         </div>
         <div class="border-t border-slate-200/60 pt-1.5">
-          <span class="text-slate-500 block mb-0.5 text-[10px] uppercase font-bold">Materiales:</span>
-          <div id="confirm-items-list" class="space-y-0.5 font-mono text-[11px] text-slate-800 bg-white p-1.5 rounded border border-slate-200 max-h-24 overflow-y-auto"></div>
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-slate-600 block text-[10px] uppercase font-bold">Materiales Seleccionados:</span>
+            <span class="text-[10px] text-slate-400">Puedes ajustar la cantidad a mover</span>
+          </div>
+          <div id="confirm-items-list" class="space-y-1 text-xs text-slate-800 bg-white p-2 rounded-lg border border-slate-200 max-h-48 overflow-y-auto"></div>
         </div>
       </div>
 
       <div class="flex justify-end gap-2 pt-1">
         <button onclick="closeModal('modal-confirm-move')" class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
-        <button onclick="executeConfirmedMove()" class="px-3 py-1.5 text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-600 rounded-lg shadow-2xs">Sí, Confirmar</button>
+        <button onclick="executeConfirmedMove()" class="px-3 py-1.5 text-xs font-bold text-slate-950 bg-amber-500 hover:bg-amber-600 rounded-lg shadow-2xs">Sí, Confirmar Traspaso</button>
       </div>
     </div>
   </div>
@@ -1981,7 +1984,8 @@
                     ondragstart="handleDragStart(event, '${project.id}', '${item.materialId}', '${item.locationId}', ${item.quantity}, '${item.name}', '${item.unit}')"
                     class="hover:bg-amber-50/30 transition cursor-grab active:cursor-grabbing border-b border-slate-100 text-xs">
                   <td class="px-2.5 py-1.5 text-center">
-                    <input type="checkbox" class="proj-checkbox-${project.id} rounded border-slate-300 text-amber-600 focus:ring-amber-500 w-3.5 h-3.5 cursor-pointer"
+                    <input type="checkbox" class="proj-checkbox-${project.id} rounded border-slate-300 text-amber-600 focus:ring-amber-500 w-3.5 h-3.5 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+                           ${item.quantity <= 0 ? 'disabled title="Sin existencias asignadas para mover"' : ''}
                            value="${item.materialId}|${item.locationId}|${item.quantity}|${item.name}|${item.unit}">
                   </td>
                   <td class="px-2.5 py-1.5 font-medium text-slate-900 flex items-center gap-1.5">
@@ -2080,7 +2084,9 @@
                 <table class="w-full text-left text-xs">
                   <thead class="bg-slate-100/90 text-slate-600 font-semibold uppercase text-[10px] tracking-wider border-b border-slate-200">
                     <tr>
-                      <th class="px-2.5 py-1.5 w-7 text-center">Sel</th>
+                      <th class="px-2.5 py-1.5 w-7 text-center">
+                        <input type="checkbox" onchange="selectAllCheckboxes('${project.id}', this.checked)" title="Seleccionar todos los materiales con stock" class="rounded border-slate-300 text-amber-600 focus:ring-amber-500 w-3.5 h-3.5 cursor-pointer">
+                      </th>
                       <th class="px-2.5 py-1.5">Material / SKU (Arrastrable)</th>
                       <th class="px-2.5 py-1.5 text-right">EETT Teórico</th>
                       <th class="px-2.5 py-1.5 text-right">Real Asignado</th>
@@ -2944,12 +2950,47 @@
       alert(`✅ Traspaso completado exitosamente.\nSe imputaron ${formatCLP(movementCost)} al destino.`);
     }
 
-    // Drag & Drop
+    // Drag & Drop con soporte multi-selección
     function handleDragStart(e, projectId, materialId, locationId, qty, name, unit) {
+      // Obtener todos los checkboxes seleccionados en este proyecto
+      const cbs = Array.from(document.querySelectorAll(`.proj-checkbox-${projectId}:checked`));
+      
+      let itemsToMove = [];
+
+      if (cbs.length > 0) {
+        // El usuario tiene varios ítems seleccionados con checkbox
+        cbs.forEach(cb => {
+          const [mId, locId, qStr, mName, mUnit] = cb.value.split('|');
+          const parsedQty = parseFloat(qStr) || 0;
+          if (parsedQty > 0) {
+            itemsToMove.push({ materialId: mId, locationId: locId, qty: parsedQty, name: mName, unit: mUnit });
+          }
+        });
+
+        // Asegurarse de que el elemento arrastrado también esté si no estaba seleccionado
+        const draggedExists = itemsToMove.some(it => it.materialId === materialId && it.locationId === locationId);
+        if (!draggedExists && qty > 0) {
+          itemsToMove.push({ materialId, locationId, qty, name, unit });
+        }
+      } else {
+        // Ningún checkbox seleccionado: se mueve la fila arrastrada
+        if (qty > 0) {
+          itemsToMove.push({ materialId, locationId, qty, name, unit });
+        }
+      }
+
+      if (itemsToMove.length === 0) {
+        e.preventDefault();
+        alert('El material seleccionado no tiene existencias reales asignadas para mover (Cantidad: 0).');
+        return;
+      }
+
       const payload = {
         projectId,
-        items: [{ materialId, locationId, qty, name, unit }]
+        items: itemsToMove
       };
+
+      e.dataTransfer.effectAllowed = 'move';
       e.dataTransfer.setData('text/plain', JSON.stringify(payload));
     }
 
@@ -2968,7 +3009,13 @@
 
       const raw = e.dataTransfer.getData('text/plain');
       if (!raw) return;
-      const data = JSON.parse(raw);
+      
+      let data;
+      try {
+        data = JSON.parse(raw);
+      } catch (err) {
+        return;
+      }
 
       if (data.projectId !== targetProjectId) {
         alert('⚠️ Por trazabilidad y seguridad, no está permitido arrastrar materiales entre obras distintas directamente. Utiliza el botón "Mover / Transferir Material".');
@@ -2979,14 +3026,14 @@
     }
 
     function selectAllCheckboxes(projectId, select) {
-      const cbs = document.querySelectorAll(`.proj-checkbox-${projectId}`);
+      const cbs = document.querySelectorAll(`.proj-checkbox-${projectId}:not(:disabled)`);
       cbs.forEach(cb => cb.checked = select);
     }
 
     function executeBulkMove(projectId) {
       const cbs = document.querySelectorAll(`.proj-checkbox-${projectId}:checked`);
       if (cbs.length === 0) {
-        alert('Selecciona al menos una fila para mover.');
+        alert('Selecciona al menos una fila con existencias para mover.');
         return;
       }
 
@@ -2997,8 +3044,16 @@
       const items = [];
       cbs.forEach(cb => {
         const [materialId, locationId, qtyStr, name, unit] = cb.value.split('|');
-        items.push({ materialId, locationId, qty: parseFloat(qtyStr), name, unit });
+        const q = parseFloat(qtyStr) || 0;
+        if (q > 0) {
+          items.push({ materialId, locationId, qty: q, name, unit });
+        }
       });
+
+      if (items.length === 0) {
+        alert('Las filas seleccionadas no tienen cantidad disponible para transferir (Cantidad: 0).');
+        return;
+      }
 
       promptMoveConfirmation(projectId, items, targetLocationId, targetLocationName);
     }
@@ -3007,14 +3062,34 @@
       const project = state.projects.find(p => p.id === projectId);
       if (!project) return;
 
-      pendingDragMove = { projectId, items, targetLocationId, targetLocationName };
+      // Filtrar ítems que no tengan cantidad o cuyo destino sea el mismo que el origen
+      const validItems = items.filter(it => it.qty > 0 && it.locationId !== targetLocationId);
+      if (validItems.length === 0) {
+        alert('Los materiales seleccionados ya se encuentran en el destino o no tienen stock disponible para mover.');
+        return;
+      }
+
+      pendingDragMove = { projectId, items: validItems, targetLocationId, targetLocationName };
 
       document.getElementById('confirm-proj-name').textContent = project.name;
-      document.getElementById('confirm-origin-name').textContent = getLocationDisplayName(items[0].locationId);
+      const origins = Array.from(new Set(validItems.map(it => getLocationDisplayName(it.locationId))));
+      document.getElementById('confirm-origin-name').textContent = origins.join(' / ');
       document.getElementById('confirm-dest-name').textContent = targetLocationName;
 
       const listEl = document.getElementById('confirm-items-list');
-      listEl.innerHTML = items.map(it => `<div>• ${it.qty} ${it.unit} ${it.name}</div>`).join('');
+      listEl.innerHTML = validItems.map((it, idx) => `
+        <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5 pt-1">
+          <div class="truncate flex-1">
+            <span class="font-bold text-slate-800">${it.name}</span>
+            <div class="text-[10px] text-slate-400">Origen: ${getLocationDisplayName(it.locationId)}</div>
+          </div>
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            <input type="number" min="1" max="${it.qty}" value="${it.qty}" id="confirm-qty-${idx}" 
+                   class="w-16 border border-slate-300 rounded px-1.5 py-0.5 text-right font-bold text-xs" title="Cantidad a transferir">
+            <span class="text-[10px] text-slate-500 font-mono">${it.unit}</span>
+          </div>
+        </div>
+      `).join('');
 
       openModal('modal-confirm-move');
     }
@@ -3023,29 +3098,61 @@
       if (!pendingDragMove) return;
 
       const { projectId, items, targetLocationId } = pendingDragMove;
+      const project = state.projects.find(p => p.id === projectId);
+      if (!project) return;
+
       let totalCostMoved = 0;
       const movedSummary = [];
+      const originsSet = new Set();
 
-      items.forEach(it => {
+      items.forEach((it, idx) => {
+        const customQtyInput = document.getElementById(`confirm-qty-${idx}`);
+        const qtyToMove = customQtyInput ? (parseFloat(customQtyInput.value) || it.qty) : it.qty;
+
+        if (qtyToMove <= 0) return;
         if (it.locationId === targetLocationId) return;
 
         const mat = state.materials.find(m => m.id === it.materialId);
         if (!mat) return;
 
-        if (mat.stockByLocation[it.locationId]) {
-          mat.stockByLocation[it.locationId] = Math.max(0, mat.stockByLocation[it.locationId] - it.qty);
-        }
+        const currentOriginStock = mat.stockByLocation[it.locationId] || 0;
+        const actualMove = Math.min(qtyToMove, currentOriginStock);
+        if (actualMove <= 0) return;
 
-        mat.stockByLocation[targetLocationId] = (mat.stockByLocation[targetLocationId] || 0) + it.qty;
-        movedSummary.push(`${it.qty} ${it.unit} ${mat.name}`);
-        totalCostMoved += (it.qty * mat.pmp);
+        // Descontar de origen
+        mat.stockByLocation[it.locationId] = Math.max(0, currentOriginStock - actualMove);
+
+        // Sumar al destino
+        mat.stockByLocation[targetLocationId] = (mat.stockByLocation[targetLocationId] || 0) + actualMove;
+
+        const itemCost = Math.round(actualMove * mat.pmp);
+        totalCostMoved += itemCost;
+        movedSummary.push(`${actualMove} ${it.unit} ${mat.name}`);
+        originsSet.add(getLocationDisplayName(it.locationId));
+
+        // Actualizar costo imputado de viviendas origen y destino
+        const originSub = project.subprojects.find(s => s.id === it.locationId);
+        if (originSub) {
+          originSub.accumulatedCostCLP = Math.max(0, (originSub.accumulatedCostCLP || 0) - itemCost);
+        }
+        const destSub = project.subprojects.find(s => s.id === targetLocationId);
+        if (destSub) {
+          destSub.accumulatedCostCLP = (destSub.accumulatedCostCLP || 0) + itemCost;
+        }
       });
+
+      if (movedSummary.length === 0) {
+        closeModal('modal-confirm-move');
+        pendingDragMove = null;
+        alert('No se realizó ningún movimiento (los materiales ya estaban en el destino o no había stock disponible).');
+        return;
+      }
 
       state.movements.unshift({
         id: `mov-${Date.now()}`,
         folio: generateNextMovementFolio(),
         date: new Date().toLocaleString('es-CL'),
-        originName: getLocationDisplayName(items[0].locationId),
+        originName: Array.from(originsSet).join(' / '),
         destName: getLocationDisplayName(targetLocationId),
         userName: state.designatedApprover,
         itemSummary: movedSummary.join(', '),
@@ -3055,7 +3162,7 @@
       closeModal('modal-confirm-move');
       pendingDragMove = null;
       renderUI();
-      alert(`✅ Reasignación completada y registrada en Kardex.`);
+      alert(`✅ Se reasignaron con éxito ${movedSummary.length} materiales hacia ${getLocationDisplayName(targetLocationId)}.`);
     }
 
     // Modal Crear Proveedor
